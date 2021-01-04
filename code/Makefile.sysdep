@@ -20,8 +20,12 @@ CXXFLAGS+=-g
 
 HOST_TARGET_ARCH=-m32
 HOST_TARGET_MACH=-m32
-HOST_CC=i686-linux-gnu-gcc
-HOST_CXX=i686-linux-gnu-g++
+HOST_CC:=$(firstword \
+	$(shell which i686-linux-gnu-gcc) \
+	gcc)
+HOST_CXX=$(firstword \
+	$(shell which i686-linux-gnu-g++) \
+	g++)
 
 # MIPS_CC (and other similar variables) is the compiler used to
 # produce mipsel code
