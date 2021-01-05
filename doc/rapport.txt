@@ -1,0 +1,65 @@
+2.2
+
+- Statistics: Gère les statistiques du système: Matériel
+- Interrupt: Gestionnaire d'interruption: Matériel 
+- Scheduler: L'ordonnanceur processus: Mode noyau
+- Timer: Horloge du système: Matériel
+- Thread: Mode Noyau
+
+La pile est à NULL car il s'agit du thread principal (pas de pile donc). 
+Les registres représentés par un tableau dans thread.h sont initialisés à 0.
+Le rôle de la structure de données Thread est de sauvegarder l'état d'un 
+processus et de permettre une exécution concurrente des différents threads
+
+2.3 
+
+La variable mainMemory
+
+PCReg dans machine.h = compteur de programme courrant
+
+
+3.1
+
+(facultatif)
+Chaque fois que la méthode Interrupt->Enable() est appellée, le fichier machine/stats.h contient une macro faisant avancer le nombre de ticks
+de 10 (macro systemTicks)
+Or la fonction Initialize() fait appelle à cette méthode avant que le reste du programme ne se déroule.
+
+3.2
+
+Dans NachOS, les structures de données sont initialisées (principalement à NULL) dans le constructeur de la classe Thread.
+La méthode fork() va ensuite alloué la mémoire (la pile plus exactement) nécessaire à notre thread et placer notre thread sur la file de priorité
+des threads prêts à être exécutés
+
+En ajoutant un thread dans ThreadTest() le programme compile et fonctionne toujours.
+
+En commentant la ligne currentThread->Yield() on s'apperçoit que l'exécution des threads devient sérielle. On en déduit que la préemption des threads sous 
+nachOS est manuelle (comprendre par là qu'il faut explicitement la spécifier dans le code).
+
+En ajoutant l'option -rs <n> on observe un entrelacement des threads différent en fonction de n. 
+On observe également une augmentation significative du nombre de tick système. On en déduit que le changement de contexte induit par le changement de threads 
+a un coût système d'autant plus élevé que le changement de contexte est fréquent.
+
+3.3 
+
+Lors d'un appel à Yield(), l'ancien niveau d'interruption du thread courrant est sauvegardé.
+La méthode met ensuite le thread courrant sur la liste des threads prêts à être exécuter, puis
+cherche le prochain thread prêt si elle en trouve effectivement un. En fin de fonction, le niveau d'interruption
+est rétabli quelque soit l'issue.
+
+- ReadyToRun: Marque un thread comme étant prêt (setStatus(READY)) et l'ajoute ) la liste des threads prêts
+- FindNextToRun: Retourne le prochain thread a être exécuté et le retire de la liste des threads prêts. Sinon retourne NULL
+- Run(): Sauvegarde l'état de l'ancien thread et charge celui du nouveau en appellant SWITCH 
+
+La fonction réellement responsable du changement de contexte est SWITCH.
+Elle occasionne un changement de contexte simulé au niveau non pas de nachOS mais de la machine hôte.
+
+3.4
+
+En appuyant sur "n" on se retrouve à exécuter le programme pas par pas dans sa globalité (et non pas isolément, par threads).
+
+Il est possible de placer un breakpoint sur scheduler->run dans la méthode Yield pour récupérer la main après chaque changement de contexte.
+
+3.5 
+
+En limitant le nombre de changement de contexte toutes les deux exécutions de Yield, on s'apperçoit que le nombre de tick système diminue
