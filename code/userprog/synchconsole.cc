@@ -13,7 +13,18 @@ SynchConsole::SynchConsole(char *readFile, char *writeFile)
 {
 	readAvail = new Semaphore("read avail", 0);
 	writeDone = new Semaphore("write done", 0);
-	console = ...
+
+	int in,out;
+
+	if (readFile == NULL)
+		in = 0;					// keyboard = stdin
+    else
+    	in = OpenForReadWrite(readFile, TRUE);	// should be read-only
+    if (writeFile == NULL)
+		out = 1;				// display = stdout
+    else
+    	out = OpenForWrite(writeFile);
+	console = new Console (in, out, readAvail, writeDone, 0);
 }
 SynchConsole::~SynchConsole()
 {
@@ -24,13 +35,18 @@ SynchConsole::~SynchConsole()
 void SynchConsole::SynchPutChar(const char ch)
 {
 	// ...
-}char SynchConsole::SynchGetChar()
+}
+
+//Author : Jah003
+char SynchConsole::SynchGetChar()
 {
 	// ...
-}void SynchConsole::SynchPutString(const char s[])
+}
+void SynchConsole::SynchPutString(const char s[])
 {
 	// ...
-}void SynchConsole::SynchGetString(char *s, int n)
+}
+void SynchConsole::SynchGetString(char *s, int n)
 {	
 	// ...
 }
