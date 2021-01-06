@@ -13,6 +13,7 @@
 #include "console.h"
 #include "addrspace.h"
 #include "synch.h"
+#include "synchconsole.h"
 
 //----------------------------------------------------------------------
 // StartProcess
@@ -51,6 +52,8 @@ StartProcess (char *filename)
 static Console *console;
 static Semaphore *readAvail;
 static Semaphore *writeDone;
+
+static SynchConsole *synchconsole;
 
 //----------------------------------------------------------------------
 // ConsoleInterruptHandlers
@@ -97,4 +100,19 @@ ConsoleTest (char *in, char *out)
 	  if (ch == 'q')
 	      return;		// if q, quit
       }
+}
+
+void
+SynchConsoleTest (char *in, char *out)
+{
+    char ch;
+
+    synchconsole = new SynchConsole(in,out);
+    for(;;)
+    {
+        ch = synchconsole->SynchGetChar();
+        if(ch==EOF){return;}
+        synchconsole->SynchPutChar(ch);
+        if(ch=='q') return;
+    }
 }
