@@ -160,7 +160,7 @@ Initialize (int argc, char **argv)
 
 #ifdef USER_PROGRAM
     machine = new Machine (debugUserProg);	// this must come first
-    synchconsole = new Synchconsole(NULL,NULL);	//? file_in and file_out ?
+    synchconsole = new SynchConsole(NULL,NULL);	//? file_in and file_out ?
 #endif
 
 #ifdef FILESYS
