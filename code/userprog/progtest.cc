@@ -95,22 +95,45 @@ ConsoleTest (char *in, char *out)
       }
 }
 
-//----------------------------------------------------------------------
-// SynchConsoleTest
-//      Test the console by echoing characters typed at the input onto
-//      the output.  Stop when the user types a 'q'.
-//----------------------------------------------------------------------
+
 #ifdef CHANGED
 
+//----------------------------------------------------------------------
+// TestChar
+//      Test if SynchGetChar correctly read char from a given file and if 
+//      SynchPutChar correctly write char into a given file.
+//----------------------------------------------------------------------
+void TestChar (SynchConsole *sc) {
+    char ch;
+    while ((ch = sc->SynchGetChar()) != EOF)
+        sc->SynchPutChar(ch);
+    ASSERT(ch == EOF);
+    fprintf(stderr, "Solaris: EOF detected in SynchConsole!\n");
+}
+
+//----------------------------------------------------------------------
+// TestChar
+//      Test if SynchGetString correctly read string from a given file and if 
+//      SynchPutChar correctly write string into a given file.
+//----------------------------------------------------------------------
+void TestString(SynchConsole *sc, int size) {
+    char* s = (char*)malloc(sizeof(char) * size);
+    sc->SynchGetString(s, size);
+    sc->SynchPutString(s);
+}
+
+//----------------------------------------------------------------------
+// SynchConsoleTest
+//      Test the synchconsole by echoing characters typed at the input onto
+//      the output.
+//----------------------------------------------------------------------
 void SynchConsoleTest (char *in, char *out)
 {
-    char ch;
-
     SynchConsole *synchconsole = new SynchConsole(in, out);
-   
-    while ((ch = synchconsole->SynchGetChar()) != EOF)
-        synchconsole->SynchPutChar(ch);
-    fprintf(stderr, "Solaris: EOF detected in SynchConsole!\n");
+  
+    TestString(synchconsole, 3);
+    
+    TestChar(synchconsole);
 }
 
 #endif //CHANGED
