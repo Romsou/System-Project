@@ -120,6 +120,7 @@ void TestString(SynchConsole *sc, int size) {
     char* s = (char*)malloc(sizeof(char) * size);
     sc->SynchGetString(s, size);
     sc->SynchPutString(s);
+    free(s);
 }
 
 //----------------------------------------------------------------------
