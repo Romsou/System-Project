@@ -32,11 +32,15 @@ void SynchConsole::SynchPutChar(const char ch)
 char SynchConsole::SynchGetChar()
 {
 	// ...
+	return 0;
 }
 
 void SynchConsole::SynchPutString(const char s[])
 {
-	// ...
+	int i;
+	for(i = 0; s[i]!='\0'; i++) {
+		SynchPutChar(s[i]);
+	}
 }
 
 void SynchConsole::SynchGetString(char *s, int n)
