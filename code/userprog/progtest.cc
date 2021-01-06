@@ -53,8 +53,6 @@ static Console *console;
 static Semaphore *readAvail;
 static Semaphore *writeDone;
 
-static SynchConsole *synchconsole;
-
 //----------------------------------------------------------------------
 // ConsoleInterruptHandlers
 //      Wake up the thread that requested the I/O.
@@ -95,19 +93,4 @@ ConsoleTest (char *in, char *out)
 	  if (ch == 'q')
 	      return;		// if q, quit
       }
-}
-
-void
-SynchConsoleTest (char *in, char *out)
-{
-    char ch;
-
-    synchconsole = new SynchConsole(in,out);
-    for(;;)
-    {
-        ch = synchconsole->SynchGetChar();
-        if(ch==EOF){return;}
-        synchconsole->SynchPutChar(ch);
-        if(ch=='q') return;
-    }
 }
