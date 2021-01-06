@@ -9,13 +9,25 @@ static Semaphore *writeDone;
 static void ReadAvail(int arg) { readAvail->V(); }
 static void WriteDone(int arg) { writeDone->V(); }
 
+//-------------------------------------------------------
+//Class SynchConsole émule class Console
+//Cache la presence de sémaphore
+//Constructeur :
+// Attributs : deux sémaphores readAvail et writeDone
+// similaires à ceux utilisés dans progtest.cc
+// et un console de la classe Console
+// Argument : readFile et writeFile 2 fichier en lecture 
+// et ecriture, si NULL on prend stdin et stdout
+// servent à construire console comme ReadAvail et WriteDone
+// les deux fonctions definies en static
+//-------------------------------------------------------
 SynchConsole::SynchConsole(char *readFile, char *writeFile)
 {
 	readAvail = new Semaphore("read avail", 0);
 	writeDone = new Semaphore("write done", 0);
-	console = new Console(readFile, writeFile, ReadAvail, WriteDone, 0);
-}
 
+	console = new Console (readFile, writeFile, ReadAvail, WriteDone, 0);
+}
 SynchConsole::~SynchConsole()
 {
 	delete console;
@@ -29,12 +41,20 @@ void SynchConsole::SynchPutChar(const char ch)
 	writeDone->P();
 }
 
+//----------------------------------------------------------------
+//Methode : SynchGetChar
+//Quand un caractère peut être lu sur l'entrée
+//il est lu puis retourné
+//Author : Jah003
+//----------------------------------------------------------------
 char SynchConsole::SynchGetChar()
 {
-	// ...
-	return 0;
-}
+	char ch;
 
+	readAvail->P();
+	ch = console->GetChar();
+	return ch;
+}
 void SynchConsole::SynchPutString(const char s[])
 {
 	int i;
@@ -42,7 +62,6 @@ void SynchConsole::SynchPutString(const char s[])
 		SynchPutChar(s[i]);
 	}
 }
-
 void SynchConsole::SynchGetString(char *s, int n)
 {
 	int i = 0;
