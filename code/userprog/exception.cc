@@ -93,11 +93,28 @@ handlePutChar()
 }
 
 void
+handlePutString()
+{
+  DEBUG('a',"Interruption for putstring, raised by syscall\n");
+  synchconsole->SynchPutString((char *)machine->ReadRegister(4));
+}
+
+void
 handleGetChar()
 {
   DEBUG('a',"Interruption for getchar, raised by syscall\n");
   char c = synchconsole->SynchGetChar();
   machine->WriteRegister(2,(int)c);
+}
+
+void
+handleEnd()
+{
+  DEBUG('a',"Interruption for end of process\n");
+  int ad = machine->ReadRegister(37);
+  printf("Clean exit with that address %d\n", ad);
+  machine->WriteRegister(2,ad);
+  interrupt->Halt();
 }
 
 //----------------------------------------------------------------------
@@ -152,9 +169,13 @@ void ExceptionHandler(ExceptionType which)
       handlePutChar();
       break;
     case SC_PutString:
+      handlePutString();
       break;
     case SC_GetChar:
       handleGetChar();
+      break;
+    case SC_End:
+      handleEnd();
       break;
     default:
       handleError(which, type);
