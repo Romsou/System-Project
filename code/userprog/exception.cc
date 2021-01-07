@@ -160,6 +160,8 @@ void ExceptionHandler(ExceptionType which)
       break;
     case SC_GetChar:
       break;
+    case SC_GetString:
+      break;
     default:
       handleError(which, type);
       break;
