@@ -130,11 +130,11 @@ void TestString(SynchConsole *sc, int size) {
 //----------------------------------------------------------------------
 void SynchConsoleTest (char *in, char *out)
 {
-    synchconsole = new SynchConsole(in, out);
+    SynchConsole* sc = synchconsole;
   
-    TestString(synchconsole, 3);
+    //TestString(sc, 3);
     
-    TestChar(synchconsole);
+    TestChar(sc);
 }
 
 #endif //CHANGED
