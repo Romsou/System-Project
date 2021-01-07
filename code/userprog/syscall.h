@@ -136,7 +136,7 @@ void Yield ();
 
 void PutChar(char c);
 
-void PutString(const char s[]);
+void PutString(char* s);
 
 char GetChar();
 

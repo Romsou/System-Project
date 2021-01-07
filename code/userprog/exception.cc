@@ -57,13 +57,13 @@ void copyStringFromMachine(int from, char *to, unsigned size)
   if (size == 0)
     return;
 
-  char *sourceString = (char *)from;
-
+  int valRead;
   unsigned int i;
-  for (i = 0; i < size && sourceString[i] != '\0'; i++)
-    to[i] = sourceString[i];
+  
+  for (i = 0; i < size && machine->ReadMem(from+i, 1, &valRead); i++)
+    to[i] = valRead;
 
-  ASSERT(i == size || sourceString[i] == '\0');
+  ASSERT(i == size);
   to[i] = '\0';
 }
 
@@ -88,6 +88,7 @@ void handleError(ExceptionType which, int type)
 void 
 handlePutChar()
 {
+  //reactiver instruction courante au retour interruption
   DEBUG('a',"Interruption for putchar, raised by syscall\n");
   synchconsole->SynchPutChar((char)machine->ReadRegister(4));
 }
@@ -118,6 +119,18 @@ handleEnd()
 }
 
 //----------------------------------------------------------------------
+// handlePutString : Handler for system call SC_PutString. Put a given
+// String into synchConsole.
+//----------------------------------------------------------------------
+void handlePutString()
+{
+  DEBUG('a', "PutString, initiated by user program.\n");
+  char s[MAX_STRING_SIZE];
+  copyStringFromMachine(machine->ReadRegister(4), s, MAX_STRING_SIZE);
+  synchconsole->SynchPutString(s);
+}
+
+//----------------------------------------------------------------------
 // ExceptionHandler
 //      Entry point into the Nachos kernel.  Called when a user program
 //      is executing, and either does a syscall, or generates an addressing
@@ -139,7 +152,6 @@ handleEnd()
 //      "which" is the kind of exception.  The list of possible exceptions
 //      are in machine.h.
 //----------------------------------------------------------------------
-
 
 void ExceptionHandler(ExceptionType which)
 {
