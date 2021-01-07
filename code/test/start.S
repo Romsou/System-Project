@@ -25,7 +25,7 @@
 __start:
 	jal	main
 	move	$4,$0		
-	jal	Exit	 /* if we return from main, exit(0) */
+	jal	End	 /* if we return from main, exit(0) */
 	.end __start
 
 /* -------------------------------------------------------------
@@ -144,7 +144,7 @@ PutString:
 	syscall
 	j	$31
 	.end PutString
-	
+
 	.globl GetChar
 	.ent	GetChar
 GetChar:
@@ -168,6 +168,13 @@ GetInt:
 	syscall
 	j	$31
 	.end GetInt
+	.globl End
+	.ent	End
+End:
+	addiu $2,$0,SC_End
+	syscall
+	j	$31
+	.end End
 	
 
 /* dummy function to keep gcc happy */
