@@ -59,7 +59,7 @@ void copyStringFromMachine(int from, char *to, unsigned size)
 
   char *sourceString = (char *)from;
 
-  int i;
+  unsigned int i;
   for (i = 0; i < size && sourceString[i] != '\0'; i++)
     to[i] = sourceString[i];
 
@@ -93,8 +93,8 @@ void handlePutString()
 {
   DEBUG('a', "PutString, initiated by user program.\n");
   char s[MAX_STRING_SIZE];
-  //copyStringFromMachine(ReadRegister(4), s, MAX_STRING_SIZE);
-  synchConsole->SynchPutString(s);
+  copyStringFromMachine(machine->ReadRegister(4), s, MAX_STRING_SIZE);
+  synchconsole->SynchPutString(s);
 }
 
 //----------------------------------------------------------------------
