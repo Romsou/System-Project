@@ -59,7 +59,7 @@ void copyStringFromMachine(int from, char *to, unsigned size)
 
   char *sourceString = (char *)from;
 
-  int i;
+  unsigned int i;
   for (i = 0; i < size && sourceString[i] != '\0'; i++)
     to[i] = sourceString[i];
 
@@ -117,7 +117,6 @@ handlePutChar()
 //      "which" is the kind of exception.  The list of possible exceptions
 //      are in machine.h.
 //----------------------------------------------------------------------
-
 
 
 void ExceptionHandler(ExceptionType which)
