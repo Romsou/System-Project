@@ -40,6 +40,51 @@ UpdatePC()
   machine->WriteRegister(NextPCReg, pc);
 }
 
+
+/**
+ * Copy a string from our MIPS machine to the Linux host system
+ * 
+ * @param from: The MIPS pointer as an integer from which we retrieve the string
+ *              to be copied
+ * @param to: A pointer to a string to which we want to copy
+ * @param size: The maximum number of characters we want to copy
+ */
+void copyStringFromMachine(int from, char *to, unsigned size)
+{
+  ASSERT(from >= 0);
+  ASSERT(to != NULL);
+
+  if (size == 0)
+    return;
+
+  char *sourceString = (char *)from;
+
+  int i;
+  for (i = 0; i < size && sourceString[i] != '\0'; i++)
+    to[i] = sourceString[i];
+
+  ASSERT(i == size || sourceString[i] == '\0');
+  to[i] = '\0';
+}
+
+/**
+ * Handle the Halt() system call
+ */
+void handleHalt()
+{
+  DEBUG('a', "Shutdown, initiated by user program.\n");
+  interrupt->Halt();
+}
+
+/**
+ * Handles the cases in which a system calls fails
+ */
+void handleError(ExceptionType which, int type)
+{
+  printf("Unexpected user mode exception %d %d\n", which, type);
+  ASSERT(FALSE);
+}
+
 //----------------------------------------------------------------------
 // ExceptionHandler
 //      Entry point into the Nachos kernel.  Called when a user program
@@ -89,6 +134,19 @@ void ExceptionHandler(ExceptionType which)
 {
   int type = machine->ReadRegister(2);
 
+#ifndef CHANGED // Noter le if*n*def
+  if ((which == SyscallException) && (type == SC_Halt))
+  {
+    DEBUG('a', "Shutdown, initiated by user program.\n");
+    interrupt->Halt();
+  }
+  else
+  {
+    printf("Unexpected user mode exception %d %d\n", which, type);
+    ASSERT(FALSE);
+  }
+#else // CHANGED
+
   if (which == SyscallException)
   {
     switch (type)
@@ -99,8 +157,10 @@ void ExceptionHandler(ExceptionType which)
     case SC_PutChar:
       handlePutChar();
       break;
-    //case SC_PutString:
-    //  break;
+    case SC_PutString:
+      break;
+    case SC_GetChar:
+      break;
     default:
       handleError(which, type);
       break;
@@ -109,6 +169,7 @@ void ExceptionHandler(ExceptionType which)
   else
     handleError(which, type);
 
+#endif
   // LB: Do not forget to increment the pc before returning!
   UpdatePC();
   // End of addition
