@@ -25,6 +25,7 @@
 #include "system.h"
 #include "syscall.h"
 
+#define MAX_LEN_INT 11
 //----------------------------------------------------------------------
 // UpdatePC : Increments the Program Counter register in order to resume
 // the user program immediately after the "syscall" instruction.
@@ -89,8 +90,26 @@ void
 handlePutChar()
 {
   //reactiver instruction courante au retour interruption
-  DEBUG('a',"Interruption, raised by syscall\n");
+  DEBUG('a',"Interruption for putchar, raised by syscall\n");
   synchconsole->SynchPutChar((char)machine->ReadRegister(4));
+}
+
+void
+handleGetChar()
+{
+  DEBUG('a',"Interruption for getchar, raised by syscall\n");
+  char c = synchconsole->SynchGetChar();
+  machine->WriteRegister(2,(int)c);
+}
+
+void
+handleEnd()
+{
+  DEBUG('a',"Interruption for end of process\n");
+  int ad = machine->ReadRegister(37);
+  printf("Clean exit with that address %d\n", ad);
+  machine->WriteRegister(2,ad);
+  interrupt->Halt();
 }
 
 //----------------------------------------------------------------------
@@ -99,10 +118,46 @@ handlePutChar()
 //----------------------------------------------------------------------
 void handlePutString()
 {
-  DEBUG('a', "PutString, initiated by user program.\n");
+  DEBUG('a', "PutString.\n");
   char s[MAX_STRING_SIZE];
   copyStringFromMachine(machine->ReadRegister(4), s, MAX_STRING_SIZE);
   synchconsole->SynchPutString(s);
+}
+
+//----------------------------------------------------------------------
+// handlePutInt : Handler for system call SC_PutIn. Put a given
+// Int into synchConsole.
+//----------------------------------------------------------------------
+void handlePutInt()
+{
+  DEBUG('a', "PutIn.\n");
+  char s[MAX_LEN_INT];
+  snprintf(s, MAX_LEN_INT, "%d", machine->ReadRegister(4));
+  synchconsole->SynchPutString(s);
+}
+
+//----------------------------------------------------------------------
+// handleGetInt : Handler for system call SC_GetInt. Get an Int from
+// synchConsole.
+//----------------------------------------------------------------------
+void handleGetInt()
+{
+  DEBUG('a', "GetInt.\n");
+
+  char s[MAX_LEN_INT];
+
+  int i = 0;
+	char ch = synchconsole->SynchGetChar();
+	while(i<MAX_LEN_INT-1 && ch >= '0' && ch <= '9' && ch != EOF && ch != '\n'){
+		s[i] = ch;
+		ch = synchconsole->SynchGetChar();
+		i++;
+	}
+  s[i] = '\0';
+
+  int d = 0;
+  sscanf(s, "%d", &d);
+  machine->WriteRegister(2, d);
 }
 
 //----------------------------------------------------------------------
@@ -159,6 +214,16 @@ void ExceptionHandler(ExceptionType which)
       handlePutString();
       break;
     case SC_GetChar:
+      handleGetChar();
+      break;
+    case SC_End:
+      handleEnd();
+      break;
+    case SC_PutInt:
+      handlePutInt();
+      break;
+    case SC_GetInt:
+      handleGetInt();
       break;
     default:
       handleError(which, type);
