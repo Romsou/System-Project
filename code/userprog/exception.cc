@@ -57,13 +57,13 @@ void copyStringFromMachine(int from, char *to, unsigned size)
   if (size == 0)
     return;
 
-  char *sourceString = (char *)from;
-
+  int valRead;
   unsigned int i;
-  for (i = 0; i < size && sourceString[i] != '\0'; i++)
-    to[i] = sourceString[i];
+  
+  for (i = 0; i < size && machine->ReadMem(from+i, 1, &valRead); i++)
+    to[i] = valRead;
 
-  ASSERT(i == size || sourceString[i] == '\0');
+  ASSERT(i == size);
   to[i] = '\0';
 }
 
@@ -83,6 +83,26 @@ void handleError(ExceptionType which, int type)
 {
   printf("Unexpected user mode exception %d %d\n", which, type);
   ASSERT(FALSE);
+}
+
+void 
+handlePutChar()
+{
+  //reactiver instruction courante au retour interruption
+  DEBUG('a',"Interruption, raised by syscall\n");
+  synchconsole->SynchPutChar((char)machine->ReadRegister(4));
+}
+
+//----------------------------------------------------------------------
+// handlePutString : Handler for system call SC_PutString. Put a given
+// String into synchConsole.
+//----------------------------------------------------------------------
+void handlePutString()
+{
+  DEBUG('a', "PutString, initiated by user program.\n");
+  char s[MAX_STRING_SIZE];
+  copyStringFromMachine(machine->ReadRegister(4), s, MAX_STRING_SIZE);
+  synchconsole->SynchPutString(s);
 }
 
 //----------------------------------------------------------------------
@@ -107,16 +127,6 @@ void handleError(ExceptionType which, int type)
 //      "which" is the kind of exception.  The list of possible exceptions
 //      are in machine.h.
 //----------------------------------------------------------------------
-
-void 
-handlePutChar()
-{
-  //incrementer compteur d'instructions
-  UpdatePC();
-  //reactiver instruction courante au retour interruption
-  DEBUG('a',"Interruption, raised by syscall\n");
-  synchconsole->SynchPutChar((char)machine->ReadRegister(4));
-}
 
 void ExceptionHandler(ExceptionType which)
 {
@@ -146,6 +156,7 @@ void ExceptionHandler(ExceptionType which)
       handlePutChar();
       break;
     case SC_PutString:
+      handlePutString();
       break;
     case SC_GetChar:
       break;
