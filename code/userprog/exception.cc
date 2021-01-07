@@ -225,6 +225,8 @@ void ExceptionHandler(ExceptionType which)
     case SC_GetInt:
       handleGetInt();
       break;
+    case SC_GetString:
+      break;
     default:
       handleError(which, type);
       break;
