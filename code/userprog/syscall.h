@@ -133,6 +133,8 @@ void Yield ();
 
 void PutChar(char c);
 
+void PutString(char* s);
+
 void GetChar();
 
 #endif // IN_USER_MODE
