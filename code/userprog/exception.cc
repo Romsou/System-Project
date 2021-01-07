@@ -157,8 +157,7 @@ void ExceptionHandler(ExceptionType which)
       handleGetChar();
       break;
     default:
-      handleHalt();
-      //handleError(which, type);
+      handleError(which, type);
       break;
     }
   }
