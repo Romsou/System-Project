@@ -95,13 +95,6 @@ handlePutChar()
 }
 
 void
-handlePutString()
-{
-  DEBUG('a',"Interruption for putstring, raised by syscall\n");
-  synchconsole->SynchPutString((char *)machine->ReadRegister(4));
-}
-
-void
 handleGetChar()
 {
   DEBUG('a',"Interruption for getchar, raised by syscall\n");
