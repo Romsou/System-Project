@@ -52,6 +52,17 @@ void handleError(ExceptionType which, int type)
   ASSERT(FALSE);
 }
 
+//----------------------------------------------------------------------
+// handlePutString : Handler for system call SC_PutString. Put a given
+// String into synchConsole.
+//----------------------------------------------------------------------
+void handlePutString()
+{
+  DEBUG('a', "PutString, initiated by user program.\n");
+  char s[MAX_STRING_SIZE];
+  //copyStringFromMachine(ReadRegister(4), s, MAX_STRING_SIZE);
+  synchConsole->SynchPutString(s);
+}
 
 //----------------------------------------------------------------------
 // ExceptionHandler
@@ -103,6 +114,7 @@ void ExceptionHandler(ExceptionType which)
     case SC_PutChar:
       break;
     case SC_PutString:
+      handlePutString();
       break;
     default:
       handleError(which, type);
