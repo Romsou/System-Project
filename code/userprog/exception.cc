@@ -63,34 +63,6 @@ UpdatePC()
 //      are in machine.h.
 //----------------------------------------------------------------------
 
-void ExceptionHandler(ExceptionType which)
-{
-  int type = machine->ReadRegister(2);
-
-  if (which == SyscallException)
-  {
-    switch (type)
-    {
-    case SC_Halt:
-      handleHalt();
-      break;
-    case SC_PutChar:
-      break;
-    case SC_PutString:
-      break;
-    default:
-      handleError(which, type);
-      break;
-    }
-  }
-  else
-    handleError(which, type);
-
-  // LB: Do not forget to increment the pc before returning!
-  UpdatePC();
-  // End of addition
-}
-
 void handleHalt()
 {
   DEBUG('a', "Shutdown, initiated by user program.\n");
@@ -110,6 +82,34 @@ handlePutChar()
   UpdatePC();
   //reactiver instruction courante au retour interruption
   DEBUG('a',"Interruption, raised by syscall\n");
-  interrupt->YieldOnReturn();
-  
+  synchconsole->SynchPutChar((char)machine->ReadRegister(4));
+  interrupt->YieldOnReturn(); 
+}
+
+void ExceptionHandler(ExceptionType which)
+{
+  int type = machine->ReadRegister(2);
+
+  if (which == SyscallException)
+  {
+    switch (type)
+    {
+    case SC_Halt:
+      handleHalt();
+      break;
+    case SC_PutChar:
+      break;
+    //case SC_PutString:
+    //  break;
+    default:
+      handleError(which, type);
+      break;
+    }
+  }
+  else
+    handleError(which, type);
+
+  // LB: Do not forget to increment the pc before returning!
+  UpdatePC();
+  // End of addition
 }
