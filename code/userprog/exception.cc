@@ -104,6 +104,8 @@ void ExceptionHandler(ExceptionType which)
       break;
     case SC_PutString:
       break;
+    case SC_GetChar:
+    break;
     default:
       handleError(which, type);
       break;
