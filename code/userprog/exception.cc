@@ -120,18 +120,6 @@ void handlePutString()
 //      are in machine.h.
 //----------------------------------------------------------------------
 
-void handleHalt()
-{
-  DEBUG('a', "Shutdown, initiated by user program.\n");
-  interrupt->Halt();
-}
-
-void handleError(ExceptionType which, int type)
-{
-  printf("Unexpected user mode exception %d %d\n", which, type);
-  ASSERT(FALSE);
-}
-
 void 
 handlePutChar()
 {
