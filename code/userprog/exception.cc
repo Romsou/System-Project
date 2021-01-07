@@ -85,6 +85,16 @@ void handleError(ExceptionType which, int type)
   ASSERT(FALSE);
 }
 
+void 
+handlePutChar()
+{
+  //incrementer compteur d'instructions
+  UpdatePC();
+  //reactiver instruction courante au retour interruption
+  DEBUG('a',"Interruption, raised by syscall\n");
+  synchconsole->SynchPutChar((char)machine->ReadRegister(4));
+}
+
 //----------------------------------------------------------------------
 // ExceptionHandler
 //      Entry point into the Nachos kernel.  Called when a user program
@@ -108,27 +118,7 @@ void handleError(ExceptionType which, int type)
 //      are in machine.h.
 //----------------------------------------------------------------------
 
-void handleHalt()
-{
-  DEBUG('a', "Shutdown, initiated by user program.\n");
-  interrupt->Halt();
-}
 
-void handleError(ExceptionType which, int type)
-{
-  printf("Unexpected user mode exception %d %d\n", which, type);
-  ASSERT(FALSE);
-}
-
-void 
-handlePutChar()
-{
-  //incrementer compteur d'instructions
-  UpdatePC();
-  //reactiver instruction courante au retour interruption
-  DEBUG('a',"Interruption, raised by syscall\n");
-  synchconsole->SynchPutChar((char)machine->ReadRegister(4));
-}
 
 void ExceptionHandler(ExceptionType which)
 {
