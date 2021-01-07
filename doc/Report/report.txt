@@ -1,3 +1,5 @@
+--- Jour 2
+
 2.2
 
 - Statistics: Gère les statistiques du système: Matériel
@@ -63,3 +65,57 @@ Il est possible de placer un breakpoint sur scheduler->run dans la méthode Yiel
 3.5 
 
 En limitant le nombre de changement de contexte toutes les deux exécutions de Yield, on s'apperçoit que le nombre de tick système diminue
+
+-- Jour 3
+
+Partie I:
+Le Makefile à modifier est Makefile.define-user et pas Makefile.define-origin qu'on ne doit pas toucher.
+
+Partie II:
+
+II.1 : Progtests.cc, ConsoleTest, Fonction pour tester le fonctionnement d'une lecture/écriture avec la console sous NachOS.
+La console NachOS : Deux parties : L'entrée, le clavier et la sortie, l'écran. Un mécanisme d'interruption est utilisé pour gérer les I/O.
+Pour la lecture, une interruption est déclenchée quand un caractère est écrit (quand il y a quelque chose à lire) grace au handler ReadAvail, puis on réalise la lecture avec Console::GetChar().
+Pour l'écriture, on poste un requête d'écriture grâce à Console::PutChar(char c) puis on attend d'être averti de la terminaison de la requête grâce au handler writeDone.
+
+C’est une erreur que de chercher à lire un caractère avant d’être averti qu’un caractère est disponible car dans ce cas, on tente demande à lire quelque chose qui n'existe pas encore et qui n'existera peut-etre jamais.
+
+Chercher à écrire avant d’être averti que l’écriture précédente est terminée car on risquerait d'écraser l'écriture en cours ou alors que l'interruption pourrait être envoyée dans le vide et jamais traité puisqu'une autre interruption est déjà en cours.
+
+Partie III:
+
+Les fonctions: SynchPutChar : écrit un caractère sur la sortie standard (ou un fichier donné).
+	       SynchGetChar : lit un caractère depuis l'entrée standard (ou un fichier donné).
+	       SynchPutString : Prend en paramètre une chaine et appelle SynchPutChar sur chaque caractère de cette chaine pour les écrire.
+	       SynchGetString : Prend en paramètre une chaine et un entier reprensentant le nombre de caracère à lire puis lit ces caractère en appelant SynchGetChar et les écrit a l'adresse pointée par la chaine passée en paramètre.
+	       
+Les tests : SynchConsoleTest appelle TestString qui lit 3 caratère puis TestChar qui lit jusqu'à la fin (EOF). Les caractères lus sont écrits dans un fichier passé en paramètre.
+
+Partie IV:
+- Dans Syscall.h, nous avons créé un appel système dédié à PutChar.
+- Dans Start.S le code asm de PutChar.
+- Dans exception.cc, nous avons ajouter une fonction handler pour appeler SyncPutChar.
+- Dans system.cc, on ajoute la synchConsole comme variable globale et on l'initialise (et la libère).
+PutChar (= appel système) -> appelle un handler -> appelle SynchPutChar
+
+-- Jour 4
+
+Fonctions réalisées aujourd'hui:
+- copyFromMachine()
+- PutChar()
+- GetChar()
+- GetString()
+- PutString()
+- PutIn()
+
+Correction de bug dans synchconsole:
+
+Synchconsole et console présentait un bug sur l'affichage et la récupération du premier caractère dû à une double instanciation de la classe.
+Le problème a été corrigé en retirant l'instanciation incriminée dans synchConsoleTest() et Initialize(). Le problème persiste lorsque l'on utilise consoleTest()
+dû à la manière dont SynchConsole et Console y sont instanciés.
+
+Un second bug est survenu en essayant de tester synchConsole sur deux fichiers. La solution a été de sauvegarder les noms des fichiers d'entrées et de sorties passés
+en paramètre après -sc dans la boucle d'itération des arguments d'initialize(). Instancier directement synchConsole dans cette boucle occasionnait des crash
+dû à la classe Statistics. De cette manière il est possible d'instancier synchConsole après Statistics.
+
+
