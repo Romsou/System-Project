@@ -83,7 +83,6 @@ handlePutChar()
   //reactiver instruction courante au retour interruption
   DEBUG('a',"Interruption, raised by syscall\n");
   synchconsole->SynchPutChar((char)machine->ReadRegister(4));
-  interrupt->YieldOnReturn(); 
 }
 
 void ExceptionHandler(ExceptionType which)
@@ -98,6 +97,7 @@ void ExceptionHandler(ExceptionType which)
       handleHalt();
       break;
     case SC_PutChar:
+      handlePutChar();
       break;
     //case SC_PutString:
     //  break;
