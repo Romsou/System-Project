@@ -1,0 +1,11 @@
+#Step3
+###Remarque de Vincent
+a remark that can be useful for everybody (step 3, implementing UserThreadCreate)
+
+The nachos code is very old (more than 20 years) and it is not as good written as we could have expected.
+In particular, it has been written when 64bits computers do not exists.
+And you can find lots of place with cast between (void*) and (int).
+It is plainly wrong nowadays: it breaks badly on 64bits architectures.
+But nachos is full of this, hence its compilation in x86-32 even now.
+
+So, you are allowed to cast int to void* and reversly in the nachos kernel code.

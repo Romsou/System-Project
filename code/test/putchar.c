@@ -16,10 +16,32 @@ void print(char c, int n)
     PutChar('\n');
 }
 
+void printString(char *s)
+{
+	PutString(s);
+	PutChar('\n');
+}
+
+
+void read_and_write()
+{
+	char c = GetChar();
+	PutChar('\n');
+	PutChar(c);
+	PutChar('\n');
+}
+
 int main ()
 {
-    print('a', 4);
-    Halt ();
+    //print('a', 4); //test for PutChar
+    //read_and_write();
+    print('b',3);
+    char *s = "voila !\0";
+    print(s[2],3);
+
+    print('c',5);
+    //printString(s);
+    //Halt ();
 
     /* not reached */
     return 0;
