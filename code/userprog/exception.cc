@@ -40,6 +40,19 @@ UpdatePC()
   machine->WriteRegister(NextPCReg, pc);
 }
 
+void handleHalt()
+{
+  DEBUG('a', "Shutdown, initiated by user program.\n");
+  interrupt->Halt();
+}
+
+void handleError(ExceptionType which, int type)
+{
+  printf("Unexpected user mode exception %d %d\n", which, type);
+  ASSERT(FALSE);
+}
+
+
 //----------------------------------------------------------------------
 // ExceptionHandler
 //      Entry point into the Nachos kernel.  Called when a user program
@@ -105,14 +118,3 @@ void ExceptionHandler(ExceptionType which)
   // End of addition
 }
 
-void handleHalt()
-{
-  DEBUG('a', "Shutdown, initiated by user program.\n");
-  interrupt->Halt();
-}
-
-void handleError(ExceptionType which, int type)
-{
-  printf("Unexpected user mode exception %d %d\n", which, type);
-  ASSERT(FALSE);
-}
