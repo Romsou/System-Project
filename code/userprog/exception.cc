@@ -57,13 +57,13 @@ void copyStringFromMachine(int from, char *to, unsigned size)
   if (size == 0)
     return;
 
-  char *sourceString = (char *)from;
-
+  int valRead;
   unsigned int i;
-  for (i = 0; i < size && sourceString[i] != '\0'; i++)
-    to[i] = sourceString[i];
+  
+  for (i = 0; i < size && machine->ReadMem(from+i, 1, &valRead); i++)
+    to[i] = valRead;
 
-  ASSERT(i == size || sourceString[i] == '\0');
+  ASSERT(i == size);
   to[i] = '\0';
 }
 
@@ -123,8 +123,6 @@ void handlePutString()
 void 
 handlePutChar()
 {
-  //incrementer compteur d'instructions
-  UpdatePC();
   //reactiver instruction courante au retour interruption
   DEBUG('a',"Interruption, raised by syscall\n");
   synchconsole->SynchPutChar((char)machine->ReadRegister(4));
