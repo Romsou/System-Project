@@ -102,3 +102,14 @@ void handleError(ExceptionType which, int type)
   printf("Unexpected user mode exception %d %d\n", which, type);
   ASSERT(FALSE);
 }
+
+void 
+handlePutChar()
+{
+  //incrementer compteur d'instructions
+  UpdatePC();
+  //reactiver instruction courante au retour interruption
+  DEBUG('a',"Interruption, raised by syscall\n");
+  interrupt->YieldOnReturn();
+  
+}
