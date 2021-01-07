@@ -83,7 +83,7 @@ void ExceptionHandler(ExceptionType which)
 #ifndef CHANGED // Noter le if*n*def
   if ((which == SyscallException) && (type == SC_Halt))
   {
-    DEBUG(’a’, "Shutdown, initiated by user program.\n");
+    DEBUG('a', "Shutdown, initiated by user program.\n");
     interrupt->Halt();
   }
   else
@@ -104,6 +104,8 @@ void ExceptionHandler(ExceptionType which)
       break;
     case SC_PutString:
       break;
+    case SC_GetChar:
+    break;
     default:
       handleError(which, type);
       break;
