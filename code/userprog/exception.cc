@@ -85,6 +85,14 @@ void handleError(ExceptionType which, int type)
   ASSERT(FALSE);
 }
 
+void 
+handlePutChar()
+{
+  //reactiver instruction courante au retour interruption
+  DEBUG('a',"Interruption, raised by syscall\n");
+  synchconsole->SynchPutChar((char)machine->ReadRegister(4));
+}
+
 //----------------------------------------------------------------------
 // handlePutString : Handler for system call SC_PutString. Put a given
 // String into synchConsole.
@@ -119,14 +127,6 @@ void handlePutString()
 //      "which" is the kind of exception.  The list of possible exceptions
 //      are in machine.h.
 //----------------------------------------------------------------------
-
-void 
-handlePutChar()
-{
-  //reactiver instruction courante au retour interruption
-  DEBUG('a',"Interruption, raised by syscall\n");
-  synchconsole->SynchPutChar((char)machine->ReadRegister(4));
-}
 
 void ExceptionHandler(ExceptionType which)
 {
