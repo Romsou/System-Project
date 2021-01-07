@@ -88,11 +88,16 @@ void handleError(ExceptionType which, int type)
 void 
 handlePutChar()
 {
-  //incrementer compteur d'instructions
-  UpdatePC();
-  //reactiver instruction courante au retour interruption
-  DEBUG('a',"Interruption, raised by syscall\n");
+  DEBUG('a',"Interruption for putchar, raised by syscall\n");
   synchconsole->SynchPutChar((char)machine->ReadRegister(4));
+}
+
+void
+handleGetChar()
+{
+  DEBUG('a',"Interruption for getchar, raised by syscall\n");
+  char c = synchconsole->SynchGetChar();
+  machine->WriteRegister(2,(int)c);
 }
 
 //----------------------------------------------------------------------
@@ -149,9 +154,11 @@ void ExceptionHandler(ExceptionType which)
     case SC_PutString:
       break;
     case SC_GetChar:
+      handleGetChar();
       break;
     default:
-      handleError(which, type);
+      handleHalt();
+      //handleError(which, type);
       break;
     }
   }

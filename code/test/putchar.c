@@ -16,9 +16,19 @@ void print(char c, int n)
     PutChar('\n');
 }
 
+
+void read_and_write()
+{
+	char c = GetChar();
+	PutChar('\n');
+	PutChar(c);
+	PutChar('\n');
+}
+
 int main ()
 {
-    print('a', 4);
+    //print('a', 4); //test for PutChar
+    read_and_write();
     Halt ();
 
     /* not reached */

@@ -133,7 +133,9 @@ void Yield ();
 
 void PutChar(char c);
 
-void GetChar();
+void PutString(const char s[]);
+
+char GetChar();
 
 #endif // IN_USER_MODE
 
