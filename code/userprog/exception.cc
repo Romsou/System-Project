@@ -214,7 +214,7 @@ handleUserThreadCreate()
   DEBUG('t',"Call for creating user thread\n");
   //preparer environment 
   Thread *newThread = new Thread("new_user_thread");
-  newThread->Fork(StartUserThread,f);
+  //newThread->Fork(StartUserThread,f);
 
   //thread can't be created
   if(newThread==NULL)
@@ -280,8 +280,8 @@ void ExceptionHandler(ExceptionType which)
       handleGetChar();
       break;
     case SC_UserThreadExit:
-    //TODO
-    break;
+      do_UserThreadExit();
+      break;
     case SC_End:
       handleEnd();
       break;
