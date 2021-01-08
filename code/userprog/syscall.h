@@ -38,6 +38,8 @@
 #define SC_End		17
 #define SC_UserThreadCreate 18
 
+#define SC_UserThreadExit 19
+
 
 #ifdef IN_USER_MODE
 
@@ -170,6 +172,8 @@ void PutInt(int d);
  * GetInt read an int from (standard) input.
  */
 int GetInt();
+
+void UserThreadExit(int f);
 
 /**
  * End ends a main program, and allows to recover linked 
