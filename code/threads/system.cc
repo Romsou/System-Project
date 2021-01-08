@@ -83,8 +83,6 @@ void Initialize(int argc, char **argv)
     int argCount;
     const char *debugArgs = "";
     bool randomYield = FALSE;
-    char* inputFile = NULL;
-    char* outputFile = NULL;
 #ifdef USER_PROGRAM
     bool debugUserProg = FALSE; // single step user program
 #endif
@@ -118,6 +116,8 @@ void Initialize(int argc, char **argv)
             argCount = 2;
         }
 #ifdef USER_PROGRAM
+				char* inputFile = NULL;
+				char* outputFile = NULL;
         if (!strcmp(*argv, "-s"))
             debugUserProg = TRUE;
         if (!strcmp(*argv, "-sc"))
