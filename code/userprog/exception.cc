@@ -125,7 +125,7 @@ void handlePutString()
  * of char from synchconsole.
  */
 void handleGetString() {
-  //TODO
+  DEBUG('a', "GetString.\n");
 }
 
 /**
@@ -243,7 +243,7 @@ void ExceptionHandler(ExceptionType which)
       handleGetInt();
       break;
     case SC_GetString:
-      handleGetInt();
+      handleGetString();
       break;
     default:
       handleError(which, type);
