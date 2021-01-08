@@ -1,4 +1,5 @@
-#include "system.h"
+
+#include "syscall.h"
 
 void print(int i){
 	PutInt(i);
