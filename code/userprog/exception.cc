@@ -24,6 +24,7 @@
 #include "copyright.h"
 #include "system.h"
 #include "syscall.h"
+#include "thread.h"
 #include "userthread.h"
 
 #define MAX_LEN_INT 11
