@@ -39,18 +39,21 @@ SynchConsole::~SynchConsole()
 	delete readAvail;
 }
 
+/**
+ * SynchPutChar allows to write, if possible, a character onto output.
+ * @param ch character to put.
+ */
 void SynchConsole::SynchPutChar(const char ch)
 {
 	console->PutChar(ch);
 	writeDone->P();
 }
 
-//----------------------------------------------------------------
-//Methode : SynchGetChar
-//Quand un caractère peut être lu sur l'entrée
-//il est lu puis retourné
-//Author : Jah003
-//----------------------------------------------------------------
+/**
+ * SynchGetChar allows to read, if possible, a character from input
+ * and return it.
+ * @return the readed character.
+ */
 char SynchConsole::SynchGetChar()
 {
 	char ch;
@@ -59,6 +62,12 @@ char SynchConsole::SynchGetChar()
 	ch = console->GetChar();
 	return ch;
 }
+
+/**
+ * SynchPutString allows to write, if possible, a string of character 
+ * onto output.
+ * @param s string of character to put.
+ */
 void SynchConsole::SynchPutString(const char s[])
 {
 	int i;
@@ -66,6 +75,13 @@ void SynchConsole::SynchPutString(const char s[])
 		SynchPutChar(s[i]);
 	}
 }
+
+/**
+ * SynchGetString allows to read, if possible, a string of character from input
+ * and return it.
+ * @param s a char* to store readed string of char.
+ * @param n number of character to read.
+ */
 void SynchConsole::SynchGetString(char *s, int n)
 {
 	lock->P();

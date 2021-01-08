@@ -59,7 +59,7 @@
 extern void ThreadTest (void), Copy (const char *unixFile, const char *nachosFile);
 extern void Print (char *file), PerformanceTest (void);
 extern void StartProcess (char *file), ConsoleTest (char *in, char *out);
-extern void SynchConsoleTest (char *in, char *out);
+extern void SynchConsoleTest ();
 extern void MailTest (int networkID);
 
 //----------------------------------------------------------------------
@@ -118,11 +118,11 @@ main (int argc, char **argv)
 		else if (!strcmp (*argv, "-sc"))
 	    {			// test the synchconsole
 		if (argc == 1)
-		    SynchConsoleTest (NULL, NULL);
+		    SynchConsoleTest ();
 		else
 		  {
 		      ASSERT (argc > 2);
-		      SynchConsoleTest (*(argv + 1), *(argv + 2));
+		      SynchConsoleTest ();
 		      argCount = 3;
 		  }
 		interrupt->Halt ();	// once we start the synchconsole, then 
