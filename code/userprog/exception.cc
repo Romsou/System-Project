@@ -193,19 +193,6 @@ void handleGetInt()
   machine->WriteRegister(2, d);
 }
 
-/**
- * handleEnd handles SC_End system calls. End properly a main
- * program.
- */
-void handleEnd()
-{
-  DEBUG('a',"Interruption for end of process\n");
-  int ad = machine->ReadRegister(37);
-  printf("Clean exit with that address %d\n", ad);
-  machine->WriteRegister(2,ad);
-  interrupt->Halt();
-}
-
 void
 handleUserThreadCreate()
 {
