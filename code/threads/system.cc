@@ -118,8 +118,6 @@ void Initialize(int argc, char **argv)
             argCount = 2;
         }
 #ifdef USER_PROGRAM
-				char* inputFile = NULL;
-				char* outputFile = NULL;
         if (!strcmp(*argv, "-s"))
             debugUserProg = TRUE;
         if (!strcmp(*argv, "-sc"))

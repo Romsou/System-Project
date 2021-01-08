@@ -132,6 +132,21 @@ void handleGetChar()
   machine->WriteRegister(2,(int)c);
 }
 
+/**
+ * Handles the call system End
+ * puts end to the user function main
+ * print some information about the process
+ */
+void
+handleEnd()
+{
+  DEBUG('a',"Interruption for end of process\n");
+  int ad = machine->ReadRegister(37);
+  printf("Clean exit with that address %d\n", ad);
+  machine->WriteRegister(2,ad);
+  interrupt->Halt();
+}
+
 //----------------------------------------------------------------------
 // handlePutString : Handler for system call SC_PutString. Put a given
 // String into synchConsole.
@@ -199,7 +214,7 @@ handleUserThreadCreate()
   DEBUG('t',"Call for creating user thread\n");
   //preparer environment 
   Thread *newThread = new Thread("new_user_thread");
-  //newThread->Fork(StartUserThread,f);
+  newThread->Fork(StartUserThread,f);
 
   //thread can't be created
   if(newThread==NULL)
