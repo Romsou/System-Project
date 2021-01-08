@@ -1,7 +1,40 @@
 
 // userthread.cc 
-//      
-int do_UserThreadCreate(int f,int arg);
+// 
+
+#include "thread.h"
+#include "system.h"
+#include "machine.h"
+
+struct forkArgs
+{
+  int func;
+  int args;
+};
+
+/**
+ * StartUserThread
+ */
+static void StartUserThread(int f) {
+  //TODO : ...
+
+  machine->Run();
+}
+
+/**
+ * do_UserThreadCreate
+ */
+int do_UserThreadCreate(int f,int arg) {
+
+  struct forkArgs fArgs;
+  fArgs.args = arg;
+  fArgs.func = f;
+
+  Thread *newThread = new Thread("new_user_thread");
+  newThread->Fork(StartUserThread,(int)&fArgs);
+
+  return 0; //Return something about the thread... tid?
+}
 
 
 /**
@@ -9,6 +42,6 @@ int do_UserThreadCreate(int f,int arg);
  */
 void do_UserThreadExit(){
 
-  delete currentThread->space;
+  delete currentThread->space; //TODO : A vérifier 
   currentThread->Finish();
 }

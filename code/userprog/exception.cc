@@ -208,19 +208,21 @@ void handleGetInt()
   machine->WriteRegister(2, d);
 }
 
-void
-handleUserThreadCreate()
+/**
+ * handleUserThreadCreate
+ */ 
+void handleUserThreadCreate()
 {
-  DEBUG('t',"Call for creating user thread\n");
-  //preparer environment 
-  Thread *newThread = new Thread("new_user_thread");
-  //newThread->Fork(StartUserThread,f);
+  DEBUG('t',"handleUserThreadCreate.\n");
+  int res = do_UserThreadCreate(machine->ReadRegister(4), machine->ReadRegister(5));
+  machine->WriteRegister(2,res);
+}
 
-  //thread can't be created
-  if(newThread==NULL)
-    machine->WriteRegister(2,-1);
-  //appeler DoUserThreadCreate();
-
+/**
+ * handleUserThreadExit
+ */ 
+void handleUserThreadExit() {
+  do_UserThreadExit();
 }
 
 //----------------------------------------------------------------------
@@ -280,7 +282,7 @@ void ExceptionHandler(ExceptionType which)
       handleGetChar();
       break;
     case SC_UserThreadExit:
-      do_UserThreadExit();
+      handleUserThreadExit();
       break;
     case SC_End:
       handleEnd();
