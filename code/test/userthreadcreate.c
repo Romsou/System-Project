@@ -1,7 +1,8 @@
 
 #include "syscall.h"
 
-void print(int i){
+void print(void *j){
+	int i = *(int *)j;
 	PutInt(i);
 	if(i%2)
 		PutString("Je suis un nombre impair\n");
@@ -11,6 +12,7 @@ void print(int i){
 
 int main(){
 	PutString("Debut du main...\n");
-	UserThreadCreate(print,12);
-	UserThreadCreate(print,13);
+	int a = 12, b=13;
+	UserThreadCreate(print,&a);
+	UserThreadCreate(print,&b);
 }
