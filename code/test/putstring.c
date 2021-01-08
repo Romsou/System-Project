@@ -10,12 +10,11 @@
 void print(char *s)
 {
   PutString(s);
-  PutChar('\n');
 }
 
 int main ()
 {
-    print("abcdefgh");
+    print("abcdefgh\n");
     Halt ();
 
     /* not reached */

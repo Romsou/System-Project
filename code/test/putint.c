@@ -1,7 +1,7 @@
-/* putchar.c
- *	Simple program to test whether writing with putchar works.
+/* putinit.c
+ *	Simple program to test whether writing with putint works.
  *	
- *	Just do a "syscall" that write char on standard output.
+ *	Just do a "syscall" that write int on standard output.
  *
  */
 
