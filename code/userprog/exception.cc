@@ -86,14 +86,21 @@ void handleError(ExceptionType which, int type)
   ASSERT(FALSE);
 }
 
+/**
+  * Handles the call system PutChar
+  * no param, read the argument in register r4
+  */
 void 
 handlePutChar()
 {
-  //reactiver instruction courante au retour interruption
   DEBUG('a',"Interruption for putchar, raised by syscall\n");
   synchconsole->SynchPutChar((char)machine->ReadRegister(4));
 }
 
+/**
+ * Handles the call system GetChar
+ * no return, save the return in register r2
+ */
 void
 handleGetChar()
 {
@@ -102,6 +109,11 @@ handleGetChar()
   machine->WriteRegister(2,(int)c);
 }
 
+/**
+ * Handles the call system End
+ * puts end to the user function main
+ * print some information about the process
+ */
 void
 handleEnd()
 {

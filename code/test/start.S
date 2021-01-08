@@ -179,6 +179,7 @@ GetInt:
 	syscall
 	j	$31
 	.end GetInt
+	
 	.globl End
 	.ent	End
 End:
