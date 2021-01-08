@@ -1,28 +1,22 @@
 /* getstring.c
  *	Simple program to test whether writing with getString works.
  *	
- *	Just do a "syscall" that write string on standard output.
+
+ *	Just do a "syscall" that read string on intput.
  *
  */
 
 #include "syscall.h"
 
-
-void test1(char *s, int n)
-{
-  GetString(s,n);
-}
-
 int main ()
 {
-    char string[10];
-    int n = 2;
-    test1(string,n);
-    string[0] = '\0';
-    PutString(string);
+    int size = 10;
+    char s[size];
+    GetString(s, size);
+    PutString(s);
+    PutChar('\n');
 
     Halt ();
-
     /* not reached */
     return 0;
 }
