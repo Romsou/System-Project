@@ -30,12 +30,15 @@
 #define SC_Fork		9
 #define SC_Yield	10
 #define SC_PutChar  11
-#define SC_GetChar  12
-#define SC_PutInt  13
-#define SC_GetInt  14
-#define SC_PutString 15
+#define SC_PutString 12
+#define SC_GetChar  13
+#define SC_PutInt  14
+#define SC_GetInt  15
 #define SC_GetString	16
 #define SC_End		17
+#define SC_UserThreadCreate 18
+
+#define SC_UserThreadExit 19
 
 
 #ifdef IN_USER_MODE
@@ -170,11 +173,18 @@ void PutInt(int d);
  */
 int GetInt();
 
+void UserThreadExit(int f);
+
 /**
  * End ends a main program, and allows to recover linked 
  * data.
  */
 void End();
+
+/**
+ * UserThreadCreate calls DoUserThreadCreate
+ */
+int UserThreadCreate(void f(void *arg),void *arg);
 
 #endif // IN_USER_MODE
 
