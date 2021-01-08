@@ -37,6 +37,7 @@
 #define SC_GetString	16
 #define SC_End		17
 #define SC_UserThreadCreate 18
+#define SC_UserThreadExit 19
 
 
 #ifdef IN_USER_MODE
@@ -181,6 +182,11 @@ void End();
  * UserThreadCreate calls DoUserThreadCreate
  */
 int UserThreadCreate(void f(void *arg),void *arg);
+
+/**
+ * UserThreadExit ends properly currentThread.
+ */
+void UserThreadExit(int f);
 
 #endif // IN_USER_MODE
 

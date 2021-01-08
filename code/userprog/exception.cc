@@ -194,6 +194,7 @@ void handleGetInt()
   machine->WriteRegister(2, d);
 }
 
+
 /**
  * handleEnd handles SC_End system calls. End properly a main
  * program.
@@ -207,15 +208,22 @@ void handleEnd()
   interrupt->Halt();
 }
 
-void
-handleUserThreadCreate()
-{
-  DEBUG('t',"Call for creating user thread\n");
-  int function = machine->ReadRegister(4);
-  int arg = machine->ReadRegister(5);
-  int res = do_UserThreadCreate(function,arg);
-  machine->WriteRegister(2,res);
 
+/**
+ * handleUserThreadCreate
+ */ 
+void handleUserThreadCreate()
+{
+  DEBUG('t',"handleUserThreadCreate.\n");
+  int res = do_UserThreadCreate(machine->ReadRegister(4), machine->ReadRegister(5));
+  machine->WriteRegister(2,res);
+}
+
+/**
+ * handleUserThreadExit
+ */ 
+void handleUserThreadExit() {
+  do_UserThreadExit();
 }
 
 //----------------------------------------------------------------------
@@ -273,6 +281,9 @@ void ExceptionHandler(ExceptionType which)
       break;
     case SC_GetChar:
       handleGetChar();
+      break;
+    case SC_UserThreadExit:
+      handleUserThreadExit();
       break;
     case SC_End:
       handleEnd();

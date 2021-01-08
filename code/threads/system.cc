@@ -83,7 +83,6 @@ void Initialize(int argc, char **argv)
     int argCount;
     const char *debugArgs = "";
     bool randomYield = FALSE;
-    
 #ifdef USER_PROGRAM
     bool debugUserProg = FALSE; // single step user program
     char* inputFile = NULL;
