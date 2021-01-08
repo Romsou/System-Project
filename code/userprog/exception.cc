@@ -292,6 +292,9 @@ void ExceptionHandler(ExceptionType which)
     case SC_GetChar:
       handleGetChar();
       break;
+    case SC_UserThreadExit:
+    //TODO
+    break;
     case SC_End:
       handleEnd();
       break;
