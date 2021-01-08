@@ -70,6 +70,29 @@ void copyStringFromMachine(int from, char *to, unsigned size)
 }
 
 /**
+ * Copy a string from the Linux host system to our MIPS machine
+ * 
+ * @param from: A pointer to a string from which we retrieve the string
+ *              to be copied
+ * @param to: The MIPS pointer as an integer to which we want to copy
+ * @param size: The maximum number of characters we want to copy
+ */
+void copyStringToMachine(char* from, int to, unsigned size)
+{
+  ASSERT(to >= 0);
+  ASSERT(from != NULL);
+
+  if (size == 0)
+    return;
+
+  unsigned int i;
+  
+  for (i = 0; i < size && machine->WriteMem(to+i, 1, from[i]); i++);
+
+  ASSERT(i == size);
+}
+
+/**
  * handleHalt Handles the Halt() system call
  */
 void handleHalt()
@@ -141,7 +164,12 @@ void handlePutString()
  * of char from synchconsole.
  */
 void handleGetString() {
-  //TODO
+  DEBUG('a', "GetString.\n");
+  char s[MAX_STRING_SIZE];
+  int size = machine->ReadRegister(5);
+  
+  synchconsole->SynchGetString(s, size);
+  copyStringToMachine(s, machine->ReadRegister(4), size);
 }
 
 /**
@@ -168,7 +196,7 @@ void handleGetInt()
 
   int i = 0;
 	char ch = synchconsole->SynchGetChar();
-	while(i<MAX_LEN_INT-1 && ch >= '0' && ch <= '9' && ch != EOF && ch != '\n'){
+	while(i<MAX_LEN_INT-1 && ch >= '0' && ch <= '9' && ch != EOF && ch != '\n' && ch != '\t'){
 		s[i] = ch;
 		ch = synchconsole->SynchGetChar();
 		i++;
