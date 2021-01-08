@@ -136,24 +136,44 @@ void Fork (void (*func) ());
  */
 void Yield ();
 
+/**
+ * PutChar put a simple char onto the (standard) output.
+ * @param c, the character to write.
+ */
 void PutChar(char c);
 
-void PutString(char* s);
-
+/**
+ * GetChar read a simple char from (standard) input.
+ */
 char GetChar();
 
-void PutIn();
-
-/* End finit un programme type main
- * Permet notamment de récupérer les données liées 
+/**
+ * PutChar put a string of char onto the (standard) output.
+ * @param s, the string of char to write.
  */
-void End();
+void PutString(char* s);
 
+/**
+ * GetString read a string of char from (standard) input.
+ */
+void GetString();
+
+/**
+ * PutInt put an int onto the (standard) output.
+ * @param d, the int to write.
+ */
 void PutInt(int d);
 
+/**
+ * GetInt read an int from (standard) input.
+ */
 int GetInt();
 
-void GetString();
+/**
+ * End ends a main program, and allows to recover linked 
+ * data.
+ */
+void End();
 
 #endif // IN_USER_MODE
 

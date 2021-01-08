@@ -69,7 +69,7 @@ void copyStringFromMachine(int from, char *to, unsigned size)
 }
 
 /**
- * Handle the Halt() system call
+ * handleHalt Handles the Halt() system call
  */
 void handleHalt()
 {
@@ -78,7 +78,7 @@ void handleHalt()
 }
 
 /**
- * Handles the cases in which a system calls fails
+ * handleError Handles the cases in which a system calls fails
  */
 void handleError(ExceptionType which, int type)
 {
@@ -98,11 +98,10 @@ handlePutChar()
 }
 
 /**
- * Handles the call system GetChar
- * no return, save the return in register r2
+ * handleGetChar handles SC_GetChar system call. Get a char
+ * from synchconsole.
  */
-void
-handleGetChar()
+void handleGetChar()
 {
   DEBUG('a',"Interruption for getchar, raised by syscall\n");
   char c = synchconsole->SynchGetChar();
@@ -136,10 +135,18 @@ void handlePutString()
   synchconsole->SynchPutString(s);
 }
 
-//----------------------------------------------------------------------
-// handlePutInt : Handler for system call SC_PutIn. Put a given
-// Int into synchConsole.
-//----------------------------------------------------------------------
+/**
+ * handleGetString handles SC_GetString system call. Get a string
+ * of char from synchconsole.
+ */
+void handleGetString() {
+  //TODO
+}
+
+/**
+ * handlePutInt handles SC_PutIn system call. Put a given
+ * Int into synchConsole.
+ */ 
 void handlePutInt()
 {
   DEBUG('a', "PutIn.\n");
@@ -148,10 +155,10 @@ void handlePutInt()
   synchconsole->SynchPutString(s);
 }
 
-//----------------------------------------------------------------------
-// handleGetInt : Handler for system call SC_GetInt. Get an Int from
-// synchConsole.
-//----------------------------------------------------------------------
+/**
+ * handleGetInt handles SC_GetInt system call. Get an Int from
+ * synchConsole.
+ */ 
 void handleGetInt()
 {
   DEBUG('a', "GetInt.\n");
@@ -170,6 +177,19 @@ void handleGetInt()
   int d = 0;
   sscanf(s, "%d", &d);
   machine->WriteRegister(2, d);
+}
+
+/**
+ * handleEnd handles SC_End system calls. End properly a main
+ * program.
+ */
+void handleEnd()
+{
+  DEBUG('a',"Interruption for end of process\n");
+  int ad = machine->ReadRegister(37);
+  printf("Clean exit with that address %d\n", ad);
+  machine->WriteRegister(2,ad);
+  interrupt->Halt();
 }
 
 //----------------------------------------------------------------------
@@ -238,6 +258,7 @@ void ExceptionHandler(ExceptionType which)
       handleGetInt();
       break;
     case SC_GetString:
+      handleGetString();
       break;
     default:
       handleError(which, type);
