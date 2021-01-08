@@ -1,6 +1,7 @@
 /* getstring.c
  *	Simple program to test whether writing with getString works.
  *	
+
  *	Just do a "syscall" that read string on intput.
  *
  */
@@ -19,3 +20,4 @@ int main ()
     /* not reached */
     return 0;
 }
+
