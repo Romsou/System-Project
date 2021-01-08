@@ -179,6 +179,15 @@ GetInt:
 	syscall
 	j	$31
 	.end GetInt
+
+	.globl UserThreadExit
+	.ent	UserThreadExit
+UserThreadExit:
+	addiu $2,$0,SC_UserThreadExit
+	syscall
+	j	$31
+	.end UserThreadExit
+
 	.globl End
 	.ent	End
 End:
@@ -186,6 +195,7 @@ End:
 	syscall
 	j	$31
 	.end End
+
 	
 
 /* dummy function to keep gcc happy */
