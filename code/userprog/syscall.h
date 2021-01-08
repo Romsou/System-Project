@@ -36,6 +36,7 @@
 #define SC_GetInt  15
 #define SC_GetString	16
 #define SC_End		17
+#define SC_UserThreadCreate 18
 
 
 #ifdef IN_USER_MODE
@@ -174,6 +175,11 @@ int GetInt();
  * data.
  */
 void End();
+
+/**
+ * UserThreadCreate calls DoUserThreadCreate
+ */
+int UserThreadCreate(void f(void *arg),void *arg);
 
 #endif // IN_USER_MODE
 

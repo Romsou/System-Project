@@ -24,6 +24,7 @@
 #include "copyright.h"
 #include "system.h"
 #include "syscall.h"
+#include "userthread.h"
 
 #define MAX_LEN_INT 11
 //----------------------------------------------------------------------
@@ -192,6 +193,21 @@ void handleEnd()
   interrupt->Halt();
 }
 
+void
+handleUserThreadCreate()
+{
+  DEBUG('t',"Call for creating user thread\n");
+  //preparer environment 
+  Thread *newThread = new Thread("new_user_thread");
+  newThread->Fork(StartUserThread,f);
+
+  //thread can't be created
+  if(newThread==NULL)
+    machine->WriteRegister(2,-1);
+  //appeler DoUserThreadCreate();
+
+}
+
 //----------------------------------------------------------------------
 // ExceptionHandler
 //      Entry point into the Nachos kernel.  Called when a user program
@@ -259,6 +275,9 @@ void ExceptionHandler(ExceptionType which)
       break;
     case SC_GetString:
       handleGetString();
+      break;
+    case SC_UserThreadCreate:
+      handleUserThreadCreate();
       break;
     default:
       handleError(which, type);
