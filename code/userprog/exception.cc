@@ -24,6 +24,7 @@
 #include "copyright.h"
 #include "system.h"
 #include "syscall.h"
+#include "userthread.h"
 
 #define MAX_LEN_INT 11
 //----------------------------------------------------------------------
@@ -110,12 +111,12 @@ void handleError(ExceptionType which, int type)
 }
 
 /**
- * handlePutChar handles SC_PutChar system call. Put a given char
- * into synchconsole.
- */
-void handlePutChar()
+  * Handles the call system PutChar
+  * no param, read the argument in register r4
+  */
+void 
+handlePutChar()
 {
-  //reactiver instruction courante au retour interruption
   DEBUG('a',"Interruption for putchar, raised by syscall\n");
   synchconsole->SynchPutChar((char)machine->ReadRegister(4));
 }
@@ -132,9 +133,24 @@ void handleGetChar()
 }
 
 /**
- * handlePutString handles SC_PutString system call. Put a given
- * String into synchConsole.
+ * Handles the call system End
+ * puts end to the user function main
+ * print some information about the process
  */
+void
+handleEnd()
+{
+  DEBUG('a',"Interruption for end of process\n");
+  int ad = machine->ReadRegister(37);
+  printf("Clean exit with that address %d\n", ad);
+  machine->WriteRegister(2,ad);
+  interrupt->Halt();
+}
+
+//----------------------------------------------------------------------
+// handlePutString : Handler for system call SC_PutString. Put a given
+// String into synchConsole.
+//----------------------------------------------------------------------
 void handlePutString()
 {
   DEBUG('a', "PutString.\n");
@@ -205,6 +221,21 @@ void handleEnd()
   interrupt->Halt();
 }
 
+void
+handleUserThreadCreate()
+{
+  DEBUG('t',"Call for creating user thread\n");
+  //preparer environment 
+  Thread *newThread = new Thread("new_user_thread");
+  newThread->Fork(StartUserThread,f);
+
+  //thread can't be created
+  if(newThread==NULL)
+    machine->WriteRegister(2,-1);
+  //appeler DoUserThreadCreate();
+
+}
+
 //----------------------------------------------------------------------
 // ExceptionHandler
 //      Entry point into the Nachos kernel.  Called when a user program
@@ -272,6 +303,9 @@ void ExceptionHandler(ExceptionType which)
       break;
     case SC_GetString:
       handleGetString();
+      break;
+    case SC_UserThreadCreate:
+      handleUserThreadCreate();
       break;
     default:
       handleError(which, type);

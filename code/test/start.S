@@ -179,6 +179,7 @@ GetInt:
 	syscall
 	j	$31
 	.end GetInt
+	
 	.globl End
 	.ent	End
 End:
@@ -186,6 +187,14 @@ End:
 	syscall
 	j	$31
 	.end End
+
+	.globl UserThreadCreate
+	.ent	UserThreadCreate
+UserThreadCreate:
+	addiu $2,$0,SC_UserThreadCreate
+	syscall
+	j	$31
+	.end UserThreadCreate
 	
 
 /* dummy function to keep gcc happy */
