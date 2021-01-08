@@ -1,7 +1,7 @@
-/* putchar.c
- *	Simple program to test whether writing with putchar works.
+/* getint.c
+ *	Simple program to test whether writing with getint works.
  *	
- *	Just do a "syscall" that write char on standard output.
+ *	Just do a "syscall" that read int on input.
  *
  */
 

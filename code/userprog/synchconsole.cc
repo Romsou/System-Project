@@ -94,6 +94,6 @@ void SynchConsole::SynchGetString(char *s, int n)
 		ch = SynchGetChar();
 		i++;
 	}
-
+	s[i] = '\0';
 	lock->V();
 }

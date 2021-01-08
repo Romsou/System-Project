@@ -156,8 +156,9 @@ void PutString(char* s);
 
 /**
  * GetString read a string of char from (standard) input.
+ * @param s, the string to which we want to copy
  */
-void GetString();
+void GetString(char* s, int size);
 
 /**
  * PutInt put an int onto the (standard) output.
