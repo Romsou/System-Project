@@ -50,6 +50,6 @@ int do_UserThreadCreate(int f,int arg) {
  */
 void do_UserThreadExit(){
 
-  delete currentThread->space; //TODO : A vérifier 
+  delete currentThread->space; //TODO : A vÃ©rifier 
   currentThread->Finish();
 }
