@@ -42,7 +42,6 @@ UpdatePC()
   machine->WriteRegister(NextPCReg, pc);
 }
 
-
 /**
  * Copy a string from our MIPS machine to the Linux host system
  * 
@@ -61,8 +60,8 @@ void copyStringFromMachine(int from, char *to, unsigned size)
 
   int valRead;
   unsigned int i;
-  
-  for (i = 0; i < size && machine->ReadMem(from+i, 1, &valRead); i++)
+
+  for (i = 0; i < size && machine->ReadMem(from + i, 1, &valRead); i++)
     to[i] = valRead;
 
   ASSERT(i == size);
@@ -77,7 +76,7 @@ void copyStringFromMachine(int from, char *to, unsigned size)
  * @param to: The MIPS pointer as an integer to which we want to copy
  * @param size: The maximum number of characters we want to copy
  */
-void copyStringToMachine(char* from, int to, unsigned size)
+void copyStringToMachine(char *from, int to, unsigned size)
 {
   ASSERT(to >= 0);
   ASSERT(from != NULL);
@@ -86,8 +85,9 @@ void copyStringToMachine(char* from, int to, unsigned size)
     return;
 
   unsigned int i;
-  
-  for (i = 0; i < size && machine->WriteMem(to+i, 1, from[i]); i++);
+
+  for (i = 0; i < size && machine->WriteMem(to + i, 1, from[i]); i++)
+    ;
 
   ASSERT(i == size);
 }
@@ -114,10 +114,9 @@ void handleError(ExceptionType which, int type)
   * Handles the call system PutChar
   * no param, read the argument in register r4
   */
-void 
-handlePutChar()
+void handlePutChar()
 {
-  DEBUG('a',"Interruption for putchar, raised by syscall\n");
+  DEBUG('a', "Interruption for putchar, raised by syscall\n");
   synchconsole->SynchPutChar((char)machine->ReadRegister(4));
 }
 
@@ -127,9 +126,9 @@ handlePutChar()
  */
 void handleGetChar()
 {
-  DEBUG('a',"Interruption for getchar, raised by syscall\n");
+  DEBUG('a', "Interruption for getchar, raised by syscall\n");
   char c = synchconsole->SynchGetChar();
-  machine->WriteRegister(2,(int)c);
+  machine->WriteRegister(2, (int)c);
 }
 
 /**
@@ -137,13 +136,12 @@ void handleGetChar()
  * puts end to the user function main
  * print some information about the process
  */
-void
-handleEnd()
+void handleEnd()
 {
-  DEBUG('a',"Interruption for end of process\n");
+  DEBUG('a', "Interruption for end of process\n");
   int ad = machine->ReadRegister(37);
   printf("Clean exit with that address %d\n", ad);
-  machine->WriteRegister(2,ad);
+  machine->WriteRegister(2, ad);
   interrupt->Halt();
 }
 
@@ -163,11 +161,12 @@ void handlePutString()
  * handleGetString handles SC_GetString system call. Get a string
  * of char from synchconsole.
  */
-void handleGetString() {
+void handleGetString()
+{
   DEBUG('a', "GetString.\n");
   char s[MAX_STRING_SIZE];
   int size = machine->ReadRegister(5);
-  
+
   synchconsole->SynchGetString(s, size);
   copyStringToMachine(s, machine->ReadRegister(4), size);
 }
@@ -175,7 +174,7 @@ void handleGetString() {
 /**
  * handlePutInt handles SC_PutIn system call. Put a given
  * Int into synchConsole.
- */ 
+ */
 void handlePutInt()
 {
   DEBUG('a', "PutIn.\n");
@@ -187,7 +186,7 @@ void handlePutInt()
 /**
  * handleGetInt handles SC_GetInt system call. Get an Int from
  * synchConsole.
- */ 
+ */
 void handleGetInt()
 {
   DEBUG('a', "GetInt.\n");
@@ -195,12 +194,13 @@ void handleGetInt()
   char s[MAX_LEN_INT];
 
   int i = 0;
-	char ch = synchconsole->SynchGetChar();
-	while(i<MAX_LEN_INT-1 && ch >= '0' && ch <= '9' && ch != EOF && ch != '\n' && ch != '\t'){
-		s[i] = ch;
-		ch = synchconsole->SynchGetChar();
-		i++;
-	}
+  char ch = synchconsole->SynchGetChar();
+  while (i < MAX_LEN_INT - 1 && ch >= '0' && ch <= '9' && ch != EOF && ch != '\n' && ch != '\t')
+  {
+    s[i] = ch;
+    ch = synchconsole->SynchGetChar();
+    i++;
+  }
   s[i] = '\0';
 
   int d = 0;
@@ -208,10 +208,17 @@ void handleGetInt()
   machine->WriteRegister(2, d);
 }
 
-void
-handleUserThreadCreate()
+/**
+ * Handler that creates a new thread with the arguments in r4 and r5 registers
+ * 
+ * Retrieve the function and the arguments we want 
+ * to create a new thread for and call do_UserThreadCreate()
+ * to actually create the new thread. The return value of 
+ * do_UserThreadCreate() is then written in the r2 register
+ */
+void handleUserThreadCreate()
 {
-  DEBUG('t',"Call for creating user thread\n");
+  DEBUG('t', "Call for creating user thread\n");
   //Retrieve f and arg here and pass them to DoUserThreadCreate
   int f = machine->ReadRegister(4);
   int arg = machine->ReadRegister(5);
@@ -219,16 +226,18 @@ handleUserThreadCreate()
   int retval = do_UserThreadCreate(f, arg);
 
   machine->WriteRegister(2, retval);
-
-
-/**
- * handleUserThreadExit
- */ 
-void handleUserThreadExit() {
-  do_UserThreadExit();
 }
 
-
+/**
+   * Handle the exit of user threads
+   * 
+   * Work by calling do_UserThreadExit() to correctly
+   * end a user thread
+   */
+void handleUserThreadExit()
+{
+  do_UserThreadExit();
+}
 
 //----------------------------------------------------------------------
 // ExceptionHandler
