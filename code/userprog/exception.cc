@@ -208,20 +208,22 @@ void handleGetInt()
   machine->WriteRegister(2, d);
 }
 
+
+
 void
 handleUserThreadCreate()
 {
   DEBUG('t',"Call for creating user thread\n");
-  //preparer environment 
-  Thread *newThread = new Thread("new_user_thread");
-  newThread->Fork(StartUserThread,f);
+  //Retrieve f and arg here and pass them to DoUserThreadCreate
+  int f = machine->ReadRegister(4);
+  int arg = machine->ReadRegister(5);
 
-  //thread can't be created
-  if(newThread==NULL)
-    machine->WriteRegister(2,-1);
-  //appeler DoUserThreadCreate();
+  int retval = do_UserThreadCreate(f, arg);
 
+  machine->WriteRegister(2, retval);
 }
+
+
 
 //----------------------------------------------------------------------
 // ExceptionHandler
