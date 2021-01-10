@@ -38,14 +38,14 @@ Thread::Thread (const char *threadName)
     stackTop = NULL;
     stack = NULL;
     status = JUST_CREATED;
-#ifdef USER_PROGRAM
+  #ifdef USER_PROGRAM
     space = NULL;
     // FBT: Need to initialize special registers of simulator to 0
     // in particular LoadReg or it could crash when switching
     // user threads.
     for (int r=NumGPRegs; r<NumTotalRegs; r++)
       userRegisters[r] = 0;
-#endif
+  #endif
 }
 
 //----------------------------------------------------------------------
@@ -66,7 +66,7 @@ Thread::~Thread ()
 
     ASSERT (this != currentThread);
     if (stack != NULL)
-	DeallocBoundedArray ((char *) stack, StackSize * sizeof (int));
+	 DeallocBoundedArray ((char *) stack, StackSize * sizeof (int));
 }
 
 //----------------------------------------------------------------------
@@ -128,7 +128,7 @@ Thread::Fork(VoidFunctionPtr func, void *arg)
     currentThread->SaveUserState();
 
     for (int i = 0; i < NumTotalRegs; i++)
-      userRegisters[i] = 0;
+      userRegisters[i] = currentThread->userRegisters[i];
 
 #endif // USER_PROGRAM
 

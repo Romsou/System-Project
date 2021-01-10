@@ -10,6 +10,10 @@ struct forkArgs
   int args;
 };
 
+void TestZeroPointe(){
+  printf("Test zero pointe\n");
+}
+
 ///Procedure test de StartUserThread
 void ThreadTestPrint(int which){
   printf("In ThreadTestPrint\n");
@@ -29,8 +33,8 @@ static void StartUserThread(int f) {
   currentThread->space->RestoreState();
 
   //machine->ReadRegister(StackReg);
-  machine->WriteRegister(PCReg, f);
-  //machine->Run();
+  //machine->WriteRegister(PCReg, f);
+  machine->Run();
 }
 
 /**
@@ -39,12 +43,12 @@ static void StartUserThread(int f) {
 int do_UserThreadCreate(int f,int arg) {
   DEBUG('t',"Call of do_UserThreadCreate\n");
   struct forkArgs fArgs;
-  fArgs.args = 1;
-  fArgs.func = (int)&ThreadTestPrint;
+  // fArgs.args = 1;
+  fArgs.func = (int)&TestZeroPointe;
   void *ptrfArgs = &fArgs;
 
   Thread *newThread = new Thread("new_user_thread");
-  newThread->Fork(StartUserThread,(int)ptrfArgs);
+  newThread->Fork(StartUserThread,ptrfArgs);
   //StartUserThread(fArgs.func);
 
   return 0; //Return something about the thread... tid?
