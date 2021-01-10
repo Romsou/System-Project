@@ -1,5 +1,5 @@
 // userthread.cc 
- 
+#include "syscall.h" 
 #include "thread.h"
 #include "system.h"
 #include "machine.h"
@@ -10,6 +10,15 @@ struct forkArgs
   int args;
 };
 
+///Procedure test de StartUserThread
+void ThreadPrint(int which){
+  for(int i = 0 ; i < 6 ; i++){
+    printf("Executing thread %d\n",which);
+    //PutInt(which);
+    //PutChar('\n');
+    currentThread->Yield();
+  }
+}
 /**
  * StartUserThread
  */
@@ -28,8 +37,9 @@ static void StartUserThread(int f) {
 int do_UserThreadCreate(int f,int arg) {
 
   struct forkArgs fArgs;
-  fArgs.args = arg;
-  fArgs.func = f;
+  fArgs.args = 1;
+  fArgs.func = (int)&ThreadPrint;
+
 
   Thread *newThread = new Thread("new_user_thread");
   newThread->Fork(StartUserThread,(int)&fArgs);
