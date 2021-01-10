@@ -187,7 +187,8 @@ void End();
  * 
  * UserThreadCreate works by calling DoUserThreadCreate()
  */
-int UserThreadCreate(void f(void *arg),void *arg);
+int UserThreadCreate();
+//int UserThreadCreate(void f(void *arg),void *arg);
 
 /**
  * UserThreadExit ends properly currentThread.
