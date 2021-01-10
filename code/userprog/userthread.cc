@@ -10,6 +10,8 @@ struct forkArgs
   int args;
 };
 
+struct forkArgs* fArgs;
+
 /**
  * Starts a new user thread with function f
  * 
@@ -21,11 +23,13 @@ struct forkArgs
  * @param f: The address of the function we want to jump to
  */
 static void StartUserThread(int f) {
+
+  currentThread->space->SaveState();
   currentThread->space->InitRegisters();
-  currentThread->space->RestoreState();
+  //currentThread->space->RestoreState();
 
   //machine->ReadRegister(StackReg);
-  machine->WriteRegister(PCReg, f);
+  machine->WriteRegister(PCReg, fArgs->func);
   machine->Run();
 }
 
@@ -34,13 +38,13 @@ static void StartUserThread(int f) {
  */
 int do_UserThreadCreate(int f,int arg) {
 
-  struct forkArgs fArgs;
-  fArgs.args = arg;
-  fArgs.func = f;
+  fArgs = new forkArgs;
+  fArgs->args = arg;
+  fArgs->func = f;
 
   Thread *newThread = new Thread("new_user_thread");
-  newThread->Fork(StartUserThread,(int)&fArgs);
-
+  newThread->Fork(StartUserThread,(int)fArgs);
+  currentThread->Yield();
   return 0; //Return something about the thread... tid?
 }
 
