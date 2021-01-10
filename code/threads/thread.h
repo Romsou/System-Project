@@ -92,6 +92,7 @@ class Thread
     // basic thread operations
 
     void Fork (VoidFunctionPtr func, int arg);	// Make thread run (*func)(arg)
+    void Fork (VoidFunctionPtr func, void *arg);    // Make thread run (*func)(*args)
     void Yield ();		// Relinquish the CPU if any 
     // other thread is runnable
     void Sleep ();		// Put the thread to sleep and 
@@ -122,7 +123,7 @@ class Thread
     ThreadStatus status;	// ready, running or blocked
     const char *name;
 
-    void StackAllocate (VoidFunctionPtr func, int arg);
+    void StackAllocate (VoidFunctionPtr func, void *arg);
     // Allocate a stack for thread.
     // Used internally by Fork()
 

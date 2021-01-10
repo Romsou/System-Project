@@ -12,7 +12,9 @@ void print(void *j){
 
 int main(){
 	PutString("Debut du main...\n");
-	int a = 12, b=13;
+	int a = 12;
+	//int b=13;
 	UserThreadCreate(print,&a);
-	UserThreadCreate(print,&b);
+	PutString("Fin du main.\n");
+	//UserThreadCreate(print,&b);
 }

@@ -94,8 +94,9 @@ Thread::Fork (VoidFunctionPtr func, int arg)
 {
     DEBUG ('t', "Forking thread \"%s\" with func = 0x%x, arg = %d\n",
 	   name, (int) func, arg);
-
-    StackAllocate (func, arg);
+    void *ptr = NULL;
+    *((int*)ptr) = arg;
+    StackAllocate (func, ptr);
 
 #ifdef USER_PROGRAM
 
@@ -112,6 +113,24 @@ Thread::Fork (VoidFunctionPtr func, int arg)
     IntStatus oldLevel = interrupt->SetLevel (IntOff);
     scheduler->ReadyToRun (this);	// ReadyToRun assumes that interrupts 
     // are disabled!
+    (void) interrupt->SetLevel (oldLevel);
+}
+
+void
+Thread::Fork(VoidFunctionPtr func, void *arg)
+{
+  DEBUG ('t', "Forking thread \"%s\" with func = Ox%x et a struct for arg",name, (int)func);
+
+  StackAllocate (func, arg);
+  currentThread->SaveUserState();
+
+#ifdef USER_PROGRAM
+    this->space = currentThread->space;
+
+#endif // USER_PROGRAM
+
+    IntStatus oldLevel = interrupt->SetLevel (IntOff);
+    scheduler->ReadyToRun (this);
     (void) interrupt->SetLevel (oldLevel);
 }
 
@@ -335,7 +354,7 @@ ThreadPrint (int arg)
 //----------------------------------------------------------------------
 
 void
-Thread::StackAllocate (VoidFunctionPtr func, int arg)
+Thread::StackAllocate (VoidFunctionPtr func, void *arg)
 {
     stack = (int *) AllocBoundedArray (StackSize * sizeof (int));
 
@@ -370,7 +389,7 @@ Thread::StackAllocate (VoidFunctionPtr func, int arg)
     // End of modification
     
     machineState[InitialPCState] = (int) func;
-    machineState[InitialArgState] = arg;
+    machineState[InitialArgState] = *((int *)arg);
     machineState[WhenDonePCState] = (int) ThreadFinish;
 }
 
