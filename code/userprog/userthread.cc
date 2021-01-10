@@ -41,10 +41,10 @@ int do_UserThreadCreate(int f,int arg) {
   struct forkArgs fArgs;
   fArgs.args = 1;
   fArgs.func = (int)&ThreadTestPrint;
-
+  void *ptrfArgs = &fArgs;
 
   Thread *newThread = new Thread("new_user_thread");
-  newThread->Fork(StartUserThread,fArgs.func);
+  newThread->Fork(StartUserThread,(int)ptrfArgs);
   //StartUserThread(fArgs.func);
 
   return 0; //Return something about the thread... tid?

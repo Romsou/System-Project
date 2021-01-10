@@ -122,10 +122,13 @@ Thread::Fork(VoidFunctionPtr func, void *arg)
   DEBUG ('t', "Forking thread \"%s\" with func = Ox%x et a struct for arg",name, (int)func);
 
   StackAllocate (func, arg);
-  currentThread->SaveUserState();
-
+  
 #ifdef USER_PROGRAM
     this->space = currentThread->space;
+    currentThread->SaveUserState();
+
+    for (int i = 0; i < NumTotalRegs; i++)
+      userRegisters[i] = 0;
 
 #endif // USER_PROGRAM
 
