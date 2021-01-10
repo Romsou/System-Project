@@ -208,8 +208,6 @@ void handleGetInt()
   machine->WriteRegister(2, d);
 }
 
-
-
 void
 handleUserThreadCreate()
 {
@@ -221,6 +219,13 @@ handleUserThreadCreate()
   int retval = do_UserThreadCreate(f, arg);
 
   machine->WriteRegister(2, retval);
+
+
+/**
+ * handleUserThreadExit
+ */ 
+void handleUserThreadExit() {
+  do_UserThreadExit();
 }
 
 
@@ -282,8 +287,8 @@ void ExceptionHandler(ExceptionType which)
       handleGetChar();
       break;
     case SC_UserThreadExit:
-    //TODO
-    break;
+      handleUserThreadExit();
+      break;
     case SC_End:
       handleEnd();
       break;

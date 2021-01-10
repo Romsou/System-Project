@@ -37,7 +37,6 @@
 #define SC_GetString	16
 #define SC_End		17
 #define SC_UserThreadCreate 18
-
 #define SC_UserThreadExit 19
 
 
@@ -177,8 +176,6 @@ void PutInt(int d);
  */
 int GetInt();
 
-void UserThreadExit(int f);
-
 /**
  * End a main program, and allows to recover linked 
  * data.
@@ -191,6 +188,11 @@ void End();
  * UserThreadCreate works by calling DoUserThreadCreate()
  */
 int UserThreadCreate(void f(void *arg),void *arg);
+
+/**
+ * UserThreadExit ends properly currentThread.
+ */
+void UserThreadExit(int f);
 
 #endif // IN_USER_MODE
 
