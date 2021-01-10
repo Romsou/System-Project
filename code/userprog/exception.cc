@@ -24,7 +24,6 @@
 #include "copyright.h"
 #include "system.h"
 #include "syscall.h"
-#include "thread.h"
 #include "userthread.h"
 
 #define MAX_LEN_INT 11
@@ -133,6 +132,20 @@ void handleGetChar()
   machine->WriteRegister(2,(int)c);
 }
 
+/**
+ * Handles the call system End
+ * puts end to the user function main
+ * print some information about the process
+ */
+void
+handleEnd()
+{
+  DEBUG('a',"Interruption for end of process\n");
+  int ad = machine->ReadRegister(37);
+  printf("Clean exit with that address %d\n", ad);
+  machine->WriteRegister(2,ad);
+  interrupt->Halt();
+}
 //----------------------------------------------------------------------
 // handlePutString : Handler for system call SC_PutString. Put a given
 // String into synchConsole.
@@ -181,12 +194,12 @@ void handleGetInt()
   char s[MAX_LEN_INT];
 
   int i = 0;
-	char ch = synchconsole->SynchGetChar();
-	while(i<MAX_LEN_INT-1 && ch >= '0' && ch <= '9' && ch != EOF && ch != '\n' && ch != '\t'){
-		s[i] = ch;
-		ch = synchconsole->SynchGetChar();
-		i++;
-	}
+  char ch = synchconsole->SynchGetChar();
+  while(i<MAX_LEN_INT-1 && ch >= '0' && ch <= '9' && ch != EOF && ch != '\n' && ch != '\t'){
+    s[i] = ch;
+    ch = synchconsole->SynchGetChar();
+    i++;
+  }
   s[i] = '\0';
 
   int d = 0;
@@ -194,29 +207,19 @@ void handleGetInt()
   machine->WriteRegister(2, d);
 }
 
-
-/**
- * handleEnd handles SC_End system calls. End properly a main
- * program.
- */
-void handleEnd()
+void
+handleUserThreadCreate()
 {
-  DEBUG('a',"Interruption for end of process\n");
-  int ad = machine->ReadRegister(37);
-  printf("Clean exit with that address %d\n", ad);
-  machine->WriteRegister(2,ad);
-  interrupt->Halt();
-}
+  DEBUG('t',"Call for creating user thread\n");
+  //Retrieve f and arg here and pass them to DoUserThreadCreate
+  int f = machine->ReadRegister(4);
+  int arg = machine->ReadRegister(5);
+
+  int retval = do_UserThreadCreate(f, arg);
+
+  machine->WriteRegister(2, retval);
 
 
-/**
- * handleUserThreadCreate
- */ 
-void handleUserThreadCreate()
-{
-  DEBUG('t',"handleUserThreadCreate.\n");
-  int res = do_UserThreadCreate(machine->ReadRegister(4), machine->ReadRegister(5));
-  machine->WriteRegister(2,res);
 }
 
 /**
@@ -225,6 +228,8 @@ void handleUserThreadCreate()
 void handleUserThreadExit() {
   do_UserThreadExit();
 }
+
+
 
 //----------------------------------------------------------------------
 // ExceptionHandler
