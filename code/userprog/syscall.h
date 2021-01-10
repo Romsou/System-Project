@@ -141,6 +141,7 @@ void Yield ();
 
 /**
  * PutChar put a simple char onto the (standard) output.
+ * 
  * @param c, the character to write.
  */
 void PutChar(char c);
@@ -152,18 +153,21 @@ char GetChar();
 
 /**
  * PutChar put a string of char onto the (standard) output.
+ * 
  * @param s, the string of char to write.
  */
 void PutString(char* s);
 
 /**
  * GetString read a string of char from (standard) input.
+ * 
  * @param s, the string to which we want to copy
  */
 void GetString(char* s, int size);
 
 /**
  * PutInt put an int onto the (standard) output.
+ * 
  * @param d, the int to write.
  */
 void PutInt(int d);
@@ -176,13 +180,15 @@ int GetInt();
 void UserThreadExit(int f);
 
 /**
- * End ends a main program, and allows to recover linked 
+ * End a main program, and allows to recover linked 
  * data.
  */
 void End();
 
 /**
- * UserThreadCreate calls DoUserThreadCreate
+ * System call to create user threads
+ * 
+ * UserThreadCreate works by calling DoUserThreadCreate()
  */
 int UserThreadCreate(void f(void *arg),void *arg);
 
