@@ -11,7 +11,14 @@ struct forkArgs
 };
 
 /**
- * StartUserThread
+ * Starts a new user thread with function f
+ * 
+ * This function works by initializing the machine environment
+ * for the f function to work properly. It then proceeds to 
+ * initialize the PC register with the address of f so that we can
+ * jump to the user code once it is called.
+ * 
+ * @param f: The address of the function we want to jump to
  */
 static void StartUserThread(int f) {
   currentThread->space->InitRegisters();
