@@ -208,15 +208,18 @@ void handleGetInt()
   machine->WriteRegister(2, d);
 }
 
-/**
- * handleUserThreadCreate
- */ 
-void handleUserThreadCreate()
+void
+handleUserThreadCreate()
 {
-  DEBUG('t',"handleUserThreadCreate.\n");
-  int res = do_UserThreadCreate(machine->ReadRegister(4), machine->ReadRegister(5));
-  machine->WriteRegister(2,res);
-}
+  DEBUG('t',"Call for creating user thread\n");
+  //Retrieve f and arg here and pass them to DoUserThreadCreate
+  int f = machine->ReadRegister(4);
+  int arg = machine->ReadRegister(5);
+
+  int retval = do_UserThreadCreate(f, arg);
+
+  machine->WriteRegister(2, retval);
+
 
 /**
  * handleUserThreadExit
@@ -224,6 +227,8 @@ void handleUserThreadCreate()
 void handleUserThreadExit() {
   do_UserThreadExit();
 }
+
+
 
 //----------------------------------------------------------------------
 // ExceptionHandler

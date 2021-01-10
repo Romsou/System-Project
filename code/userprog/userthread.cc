@@ -1,7 +1,5 @@
-
 // userthread.cc 
-// 
-
+ 
 #include "thread.h"
 #include "system.h"
 #include "machine.h"
@@ -16,8 +14,11 @@ struct forkArgs
  * StartUserThread
  */
 static void StartUserThread(int f) {
-  //TODO : ...
+  currentThread->space->InitRegisters();
+  currentThread->space->RestoreState();
 
+  //machine->ReadRegister(StackReg);
+  machine->WriteRegister(PCReg, f);
   machine->Run();
 }
 
