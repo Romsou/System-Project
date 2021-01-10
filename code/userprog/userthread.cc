@@ -11,7 +11,7 @@ struct forkArgs
 };
 
 ///Procedure test de StartUserThread
-void ThreadPrint(int which){
+void ThreadTestPrint(int which){
   for(int i = 0 ; i < 6 ; i++){
     printf("Executing thread %d\n",which);
     //PutInt(which);
@@ -38,7 +38,7 @@ int do_UserThreadCreate(int f,int arg) {
 
   struct forkArgs fArgs;
   fArgs.args = 1;
-  fArgs.func = (int)&ThreadPrint;
+  fArgs.func = (int)&ThreadTestPrint;
 
 
   Thread *newThread = new Thread("new_user_thread");
