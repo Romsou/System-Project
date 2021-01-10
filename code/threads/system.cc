@@ -121,7 +121,7 @@ void Initialize(int argc, char **argv)
         if (!strcmp(*argv, "-s"))
             debugUserProg = TRUE;
         if (!strcmp(*argv, "-sc"))
-        { // test the synchconsole
+        { // test the synchconsole            
             if (argc > 2) 
             {
             inputFile = *(argv + 1);

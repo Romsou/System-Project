@@ -146,7 +146,6 @@ handleEnd()
   machine->WriteRegister(2,ad);
   interrupt->Halt();
 }
-
 //----------------------------------------------------------------------
 // handlePutString : Handler for system call SC_PutString. Put a given
 // String into synchConsole.
@@ -195,12 +194,12 @@ void handleGetInt()
   char s[MAX_LEN_INT];
 
   int i = 0;
-	char ch = synchconsole->SynchGetChar();
-	while(i<MAX_LEN_INT-1 && ch >= '0' && ch <= '9' && ch != EOF && ch != '\n' && ch != '\t'){
-		s[i] = ch;
-		ch = synchconsole->SynchGetChar();
-		i++;
-	}
+  char ch = synchconsole->SynchGetChar();
+  while(i<MAX_LEN_INT-1 && ch >= '0' && ch <= '9' && ch != EOF && ch != '\n' && ch != '\t'){
+    s[i] = ch;
+    ch = synchconsole->SynchGetChar();
+    i++;
+  }
   s[i] = '\0';
 
   int d = 0;
@@ -220,6 +219,8 @@ handleUserThreadCreate()
 
   machine->WriteRegister(2, retval);
 
+
+}
 
 /**
  * handleUserThreadExit
