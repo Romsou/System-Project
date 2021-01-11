@@ -98,6 +98,7 @@ void copyStringToMachine(char *from, int to, unsigned size)
 void handleHalt()
 {
   DEBUG('a', "Shutdown, initiated by user program.\n");
+  Thread::lock->P();
   interrupt->Halt();
 }
 
@@ -138,12 +139,9 @@ void handleGetChar()
  */
 void handleEnd()
 {
-  DEBUG('a', "Interruption for end of process\n");
-  int ad = machine->ReadRegister(37);
-  printf("Clean exit with that address %d\n", ad);
-  machine->WriteRegister(2, ad);
-  while(currentThread->getNbChild()>1){}
-  interrupt->Halt();
+  DEBUG('a', "Interruption for end of process %s\n",currentThread->getName());  
+  machine->WriteRegister(2, currentThread->getPid());
+  handleHalt();
 }
 
 //----------------------------------------------------------------------

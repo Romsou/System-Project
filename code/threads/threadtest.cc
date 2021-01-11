@@ -28,7 +28,7 @@ SimpleThread (int which)
 
     for (num = 0; num < 5; num++)
       {
-	  printf ("*** thread %d - %d looped %d times\n", currentThread->getPid(), currentThread->getPPid(),num);
+	  printf ("*** thread %d looped %d times\n", which,num);
 	  currentThread->Yield ();
       }
 }

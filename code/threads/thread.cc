@@ -33,15 +33,18 @@
 //----------------------------------------------------------------------
 int Thread::threadCount = 0;
 int Thread::userThreadCount = 0;
-
+#ifdef USER_PROGRAM
+ Semaphore *Thread::lock = new Semaphore("lock for thread",USER_THREAD_MAX);
+#endif
 Thread::Thread (const char *threadName)
 {
     name = threadName;
     stackTop = NULL;
     stack = NULL;
     status = JUST_CREATED;
-    threadCount++;
     pid = threadCount;
+    threadCount++;
+    
     if(pid==0){
       parent = NULL;
       ppid = 0;
@@ -58,7 +61,6 @@ Thread::Thread (const char *threadName)
     // in particular LoadReg or it could crash when switching
     // user threads.
     userThreadCount++;
-    this->lock = new Semaphore("lock for thread",USER_THREAD_MAX);
     for (int r=NumGPRegs; r<NumTotalRegs; r++)
       userRegisters[r] = 0;
   #endif
@@ -126,7 +128,7 @@ Thread::Fork (VoidFunctionPtr func, int arg)
     
     // LB: Observe that currentThread->space may be NULL at that time.
     this->space = currentThread->space;
-    this->lock->P();
+    Thread::lock->P();
 
 #endif // USER_PROGRAM
 
@@ -199,7 +201,7 @@ Thread::Finish ()
     ASSERT (threadToBeDestroyed == NULL);
     // End of addition 
     #ifdef USER_PROGRAM
-    this->lock->V();
+    Thread::lock->V();
     #endif
     threadToBeDestroyed = currentThread;
     Sleep ();			// invokes SWITCH

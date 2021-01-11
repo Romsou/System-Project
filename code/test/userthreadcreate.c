@@ -12,6 +12,7 @@ void print(void *j){
 
 int main(){
 	PutString("Debut du main...\n");
+	
 	int a = 12;
 	//int b=13;
 	UserThreadCreate(print,&a);
