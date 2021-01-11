@@ -10,6 +10,7 @@ int main()
 {
     char* phrase = "hello coco\n";
     int ret = UserThreadCreate(print, phrase);
-
+    UserThreadJoin(ret);
+  
     return ret;
 }
