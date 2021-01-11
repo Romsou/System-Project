@@ -1,14 +1,15 @@
 #include "syscall.h"
 
-static void print() 
+static void print(void *arg)
 {
-   PutString("Baba");
+    char* phrase = (char*) arg;
+    PutString(phrase);
 }
 
-int main() 
+int main()
 {
-    int ret = UserThreadCreate(print, 0);
-    //PutString("Threadmain");
-    //UserThreadExit(print);
+    char* phrase = "hello coco\n";
+    int ret = UserThreadCreate(print, phrase);
+
     return ret;
 }
