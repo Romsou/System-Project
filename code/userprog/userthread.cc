@@ -7,7 +7,7 @@
 
 #define NBMAXTHREADS 10 //Pour l'instant 10
 
-struct forkArgs *listOfUserThreads[NBMAXTHREADS] = {};
+struct FunctionAndArgs *listOfUserThreads[NBMAXTHREADS] = {};
 
 /**
  * Starts a new user thread with function f
