@@ -144,6 +144,7 @@ void handleEnd()
   machine->WriteRegister(2, ad);
   interrupt->Halt();
 }
+
 //----------------------------------------------------------------------
 // handlePutString : Handler for system call SC_PutString. Put a given
 // String into synchConsole.
@@ -194,14 +195,12 @@ void handleGetInt()
 
   int i = 0;
   char ch = synchconsole->SynchGetChar();
-  
   while (i < MAX_LEN_INT - 1 && ch >= '0' && ch <= '9' && ch != EOF && ch != '\n' && ch != '\t')
   {
     s[i] = ch;
     ch = synchconsole->SynchGetChar();
     i++;
   }
-  
   s[i] = '\0';
 
   int d = 0;
@@ -209,14 +208,6 @@ void handleGetInt()
   machine->WriteRegister(2, d);
 }
 
-/**
- * Handler that creates a new thread with the arguments in r4 and r5 registers
- * 
- * Retrieve the function and the arguments we want 
- * to create a new thread for and call do_UserThreadCreate()
- * to actually create the new thread. The return value of 
- * do_UserThreadCreate() is then written in the r2 register
- */
 void handleUserThreadCreate()
 {
   DEBUG('t', "Call for creating user thread\n");
@@ -230,11 +221,8 @@ void handleUserThreadCreate()
 }
 
 /**
-   * Handle the exit of user threads
-   * 
-   * Work by calling do_UserThreadExit() to correctly
-   * end a user thread
-   */
+ * handleUserThreadExit
+ */
 void handleUserThreadExit()
 {
   do_UserThreadExit();

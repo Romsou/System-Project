@@ -1,5 +1,5 @@
-// userthread.cc 
- 
+// userthread.cc
+
 #include "thread.h"
 #include "system.h"
 #include "machine.h"
@@ -20,36 +20,44 @@ struct forkArgs
  * 
  * @param f: The address of the function we want to jump to
  */
-static void StartUserThread(int f) {
-  currentThread->space->InitRegisters();
-  currentThread->space->RestoreState();
+static void StartUserThread(int f)
+{
+  int stackAddress = machine->ReadRegister(StackReg);
 
-  //machine->ReadRegister(StackReg);
-  machine->WriteRegister(PCReg, f);
+  machine->WriteRegister(PCReg, ((forkArgs *)f)->func);
+  machine->WriteRegister(NextPCReg, machine->ReadRegister(PCReg) + 4);
+  machine->WriteRegister(StackReg, stackAddress + 2 * PageSize);
+
   machine->Run();
 }
 
 /**
  * do_UserThreadCreate
  */
-int do_UserThreadCreate(int f,int arg) {
+int do_UserThreadCreate(int f, int arg)
+{
 
-  struct forkArgs fArgs;
-  fArgs.args = arg;
-  fArgs.func = f;
+  struct forkArgs *fArgs = (forkArgs *)malloc(sizeof(forkArgs));
+  fArgs->args = arg;
+  fArgs->func = f;
 
   Thread *newThread = new Thread("new_user_thread");
-  newThread->Fork(StartUserThread,(int)&fArgs);
+  newThread->Fork(StartUserThread, (int)fArgs);
+
+  if (newThread == NULL)
+    return -1;
+
+  currentThread->Yield();
 
   return 0; //Return something about the thread... tid?
 }
 
-
 /**
  * do_UserThreadExit erases and ends properly current thread
  */
-void do_UserThreadExit(){
+void do_UserThreadExit()
+{
 
-  delete currentThread->space; //TODO : A vÃ©rifier 
+  delete currentThread->space; //TODO : A vÃ©rifier
   currentThread->Finish();
 }
