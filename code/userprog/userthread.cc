@@ -5,7 +5,9 @@
 struct forkArgs
 {
   void (*func)(int);
+  int fun;
   int args;
+  int *pta;
 };
 
 void TestZeroPointe(){
@@ -39,12 +41,13 @@ static void StartUserThread(int f)
 
   //void *b = (void *)(&args);
   
-  //struct forkArgs *fa = (struct forkArgs *)(void *)(&args);
-  //printf("In SUT : %p et %d\n",fa->func,fa->args);
+  struct forkArgs *fa = (struct forkArgs *)(&f);
+  printf("In SUT : %p = %d et %d\n",fa->func,fa->fun,fa->args);
+  printf("Créé %d\n", *((int*)fa->func));
   
   int stackAddress = machine->ReadRegister(StackReg);
 
-  machine->WriteRegister(PCReg, ((forkArgs *)f)->func);
+  machine->WriteRegister(PCReg, *((int*)fa->func));
   machine->WriteRegister(NextPCReg, machine->ReadRegister(PCReg) + 4);
   machine->WriteRegister(StackReg, stackAddress + 2 * PageSize);
 
@@ -59,11 +62,15 @@ int do_UserThreadCreate(int f, int arg)
 {
 
   struct forkArgs *fArgs = (forkArgs *)malloc(sizeof(forkArgs));
-  fArgs->args = arg;
-  fArgs->func = f;
+  int a = 2;
+  fArgs->pta = &a;
+  fArgs->args = a;
+  fArgs->func = &ThreadTestPrint;
+  fArgs->fun = *((int*)fArgs->func);
+  printf("In DUTC: %p = %d avec %d\n",fArgs->func,fArgs->fun,fArgs->args);
 
   Thread *newThread = new Thread("new_user_thread");
-	newThread->Fork(StartUserThread, (int)fArgs);
+	newThread->Fork(StartUserThread, fArgs);
 
   if (newThread == NULL)
     return -1;

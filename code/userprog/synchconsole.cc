@@ -45,8 +45,10 @@ SynchConsole::~SynchConsole()
  */
 void SynchConsole::SynchPutChar(const char ch)
 {
+	lock->P();
 	console->PutChar(ch);
 	writeDone->P();
+	lock->V();
 }
 
 /**

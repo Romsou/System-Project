@@ -43,6 +43,7 @@
 #ifdef USER_PROGRAM
 #include "machine.h"
 #include "addrspace.h"
+#include "synch.h"
 #endif
 
 // CPU register state to be saved on context switch.  
@@ -81,6 +82,7 @@ class Thread
     // THEY MUST be in this position for SWITCH to work.
     int *stackTop;		// the current stack pointer
     int machineState[MachineStateSize];	// all registers except for stackTop
+    const int USER_THREAD_MAX = 3;
 
   public:
       Thread (const char *debugName);	// initialize a Thread 
@@ -88,7 +90,8 @@ class Thread
     // NOTE -- thread being deleted
     // must not be running when delete 
     // is called
-
+    static int threadCount;
+    static int userThreadCount;
     // basic thread operations
 
     void Fork (VoidFunctionPtr func, int arg);	// Make thread run (*func)(arg)
@@ -113,6 +116,9 @@ class Thread
     {
 	printf ("%s, ", name);
     }
+    int getPid(){return pid;}
+    int getPPid(){return ppid;}
+    int getNbChild(){return childNb;}
 
   private:
     // some of the private data for this class is listed above
@@ -121,11 +127,16 @@ class Thread
     // NULL if this is the main thread
     // (If NULL, don't deallocate stack)
     ThreadStatus status;	// ready, running or blocked
+    Thread *parent;
     const char *name;
+    int pid;
+    int ppid;
+    int childNb;
 
     void StackAllocate (VoidFunctionPtr func, int arg);
     // Allocate a stack for thread.
     // Used internally by Fork()
+    void newChild(){ childNb++;}
 
 #ifdef USER_PROGRAM
 // A thread running a user program actually has *two* sets of CPU registers -- 
@@ -139,6 +150,7 @@ class Thread
     void RestoreUserState ();	// restore user-level register state
 
     AddrSpace *space;		// User code this thread is running.
+    Semaphore *lock;        // Lock shared by user thread
 #endif
 };
 

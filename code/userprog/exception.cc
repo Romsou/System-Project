@@ -142,6 +142,7 @@ void handleEnd()
   int ad = machine->ReadRegister(37);
   printf("Clean exit with that address %d\n", ad);
   machine->WriteRegister(2, ad);
+  while(currentThread->getNbChild()>1){}
   interrupt->Halt();
 }
 

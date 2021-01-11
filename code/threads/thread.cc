@@ -31,6 +31,8 @@
 //
 //      "threadName" is an arbitrary string, useful for debugging.
 //----------------------------------------------------------------------
+int Thread::threadCount = 0;
+int Thread::userThreadCount = 0;
 
 Thread::Thread (const char *threadName)
 {
@@ -38,11 +40,25 @@ Thread::Thread (const char *threadName)
     stackTop = NULL;
     stack = NULL;
     status = JUST_CREATED;
+    threadCount++;
+    pid = threadCount;
+    if(pid==0){
+      parent = NULL;
+      ppid = 0;
+    }else{
+      parent = currentThread;
+      ppid = currentThread->getPid();
+      currentThread->newChild();
+    }
+    
+    childNb = 0;
   #ifdef USER_PROGRAM
     space = NULL;
     // FBT: Need to initialize special registers of simulator to 0
     // in particular LoadReg or it could crash when switching
     // user threads.
+    userThreadCount++;
+    this->lock = new Semaphore("lock for thread",USER_THREAD_MAX);
     for (int r=NumGPRegs; r<NumTotalRegs; r++)
       userRegisters[r] = 0;
   #endif
@@ -64,6 +80,10 @@ Thread::~Thread ()
 {
     DEBUG ('t', "Deleting thread \"%s\"\n", name);
 
+    threadCount--;
+    #ifdef USER_PROGRAM
+    userThreadCount--;
+    #endif
     ASSERT (this != currentThread);
     if (stack != NULL)
 	 DeallocBoundedArray ((char *) stack, StackSize * sizeof (int));
@@ -106,12 +126,14 @@ Thread::Fork (VoidFunctionPtr func, int arg)
     
     // LB: Observe that currentThread->space may be NULL at that time.
     this->space = currentThread->space;
+    this->lock->P();
 
 #endif // USER_PROGRAM
 
     IntStatus oldLevel = interrupt->SetLevel (IntOff);
     scheduler->ReadyToRun (this);	// ReadyToRun assumes that interrupts 
     // are disabled!
+
     (void) interrupt->SetLevel (oldLevel);
 }
 
@@ -119,21 +141,7 @@ void
 Thread::Fork(VoidFunctionPtr func, void *arg)
 {
   DEBUG ('t', "Forking thread \"%s\" with func = Ox%x et a struct for arg",name, (int)func);
-  int a = *((int *)arg);
-  StackAllocate (func, a);
-  
-#ifdef USER_PROGRAM
-    this->space = currentThread->space;
-    currentThread->SaveUserState();
-
-    for (int i = 0; i < NumTotalRegs; i++)
-      userRegisters[i] = currentThread->userRegisters[i];
-
-#endif // USER_PROGRAM
-
-    IntStatus oldLevel = interrupt->SetLevel (IntOff);
-    scheduler->ReadyToRun (this);
-    (void) interrupt->SetLevel (oldLevel);
+  Fork(func,*((int *)arg));  
 }
 
 //----------------------------------------------------------------------
@@ -190,7 +198,9 @@ Thread::Finish ()
     // is ever lost 
     ASSERT (threadToBeDestroyed == NULL);
     // End of addition 
-
+    #ifdef USER_PROGRAM
+    this->lock->V();
+    #endif
     threadToBeDestroyed = currentThread;
     Sleep ();			// invokes SWITCH
     // not reached
