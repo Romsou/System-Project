@@ -118,6 +118,8 @@ class Thread
     {
 	printf ("%s, ", name);
     }
+    int getTid(){return tid;}
+    void setTid(int t){tid = t;}
     int getPid(){return pid;}
     int getPPid(){return ppid;}
     int getNbChild(){return childNb;}
@@ -131,6 +133,7 @@ class Thread
     Thread *parent;
     const char *name;
     int pid;
+    int tid;
     int ppid;
     int childNb;
 

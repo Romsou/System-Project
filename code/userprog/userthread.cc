@@ -1,6 +1,7 @@
 #include "thread.h"
 #include "system.h"
 #include "machine.h"
+#include "userthread.h"
 #define NBMAXTHREADS 10 //Pour l'instant 10
 
 struct FunctionAndArgs *listOfUserThreads[NBMAXTHREADS] = {};
@@ -21,15 +22,21 @@ static void StartUserThread(int f)
 	DEBUG('t',"Call of StartUserThread\n");
 
 	currentThread->space->InitRegisters();
+  DEBUG('t',"SUT : registres inities");
   
   int stackaddress = machine->ReadRegister(StackReg) + 16;
-  
-  machine->WriteRegister(PCReg, ((FunctionAndArgs *)f)->func);
+  DEBUG('t',"SUT : lecture de la pile");
+
+  struct FunctionAndArgs *st = (struct FunctionAndArgs *)&f;
+
+  DEBUG('t',"SUT : avant l'ecriture");
+  machine->WriteRegister(PCReg, st->func);
 
   machine->WriteRegister(NextPCReg, machine->ReadRegister(PCReg) + 4);
   machine->WriteRegister(StackReg, stackaddress - 2 * PageSize);
-  machine->WriteRegister(4, ((FunctionAndArgs *)f)->args);
+  machine->WriteRegister(4, st->args);
 
+  DEBUG('t',"SUT : avant l'execution");
   machine->Run();
 }
 
@@ -70,7 +77,6 @@ int do_UserThreadCreate(int f, int arg)
   listOfUserThreads[thread_id] = fArgs;
 
   Thread *newThread = new Thread("new_user_thread" + thread_id);
-  newThread->setTid(thread_id);
   newThread->Fork(StartUserThread, (int)fArgs);
 
   if (newThread == NULL)
@@ -78,6 +84,8 @@ int do_UserThreadCreate(int f, int arg)
 
   for(;;)
     currentThread->Yield();
+
+  
 
   return thread_id;
 }
@@ -87,7 +95,7 @@ int do_UserThreadCreate(int f, int arg)
  */
 void do_UserThreadExit()
 {
-
+  free(listOfUserThreads[currentThread->getTid()]);
   delete listOfUserThreads[currentThread->getTid()];
   listOfUserThreads[currentThread->getTid()] = NULL;
   //delete currentThread->space; //TODO : A vÃ©rifier
