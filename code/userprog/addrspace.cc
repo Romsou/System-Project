@@ -120,6 +120,8 @@ AddrSpace::AddrSpace (OpenFile * executable)
 			      noffH.initData.size, noffH.initData.inFileAddr);
       }
 
+    //Initialize semaphore
+	sem = new Semaphore("sem for threads with same address space", 1);
 }
 
 //----------------------------------------------------------------------

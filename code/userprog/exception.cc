@@ -27,6 +27,7 @@
 #include "userthread.h"
 
 #define MAX_LEN_INT 11
+
 //----------------------------------------------------------------------
 // UpdatePC : Increments the Program Counter register in order to resume
 // the user program immediately after the "syscall" instruction.
@@ -97,8 +98,13 @@ void copyStringToMachine(char *from, int to, unsigned size)
  */
 void handleHalt()
 {
+  currentThread->space->sem->P();
+
   DEBUG('a', "Shutdown, initiated by user program.\n");
   interrupt->Halt();
+
+  currentThread->space->sem->V();
+
 }
 
 /**
@@ -210,6 +216,8 @@ void handleGetInt()
 
 void handleUserThreadCreate()
 {
+    currentThread->space->sem->P();
+  
   DEBUG('t', "Call for creating user thread\n");
   //Retrieve f and arg here and pass them to DoUserThreadCreate
   int f = machine->ReadRegister(4);
@@ -218,6 +226,7 @@ void handleUserThreadCreate()
   int retval = do_UserThreadCreate(f, arg);
 
   machine->WriteRegister(2, retval);
+  
 }
 
 /**
@@ -225,6 +234,7 @@ void handleUserThreadCreate()
  */
 void handleUserThreadExit()
 {
+  currentThread->space->sem->V();
   do_UserThreadExit();
 }
 
