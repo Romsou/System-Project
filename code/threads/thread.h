@@ -1,9 +1,9 @@
-// thread.h 
+// thread.h
 //      Data structures for managing threads.  A thread represents
 //      sequential execution of code within a program.
 //      So the state of a thread includes the program counter,
 //      the processor registers, and the execution stack.
-//      
+//
 //      Note that because we allocate a fixed size stack for each
 //      thread, it is possible to overflow the stack -- for instance,
 //      by recursing to too deep a level.  The most common reason
@@ -17,12 +17,12 @@
 //              void foo() { int *buf = new int[1000]; ...}
 //
 //
-//      Bad things happen if you overflow the stack, and in the worst 
+//      Bad things happen if you overflow the stack, and in the worst
 //      case, the problem may not be caught explicitly.  Instead,
 //      the only symptom may be bizarre segmentation faults.  (Of course,
 //      other problems can cause seg faults, so that isn't a sure sign
 //      that your thread stacks are too small.)
-//      
+//
 //      One thing to try if you find yourself with seg faults is to
 //      increase the size of thread stack -- ThreadStackSize.
 //
@@ -31,7 +31,7 @@
 //      Only then can we do the fork: "t->fork(f, arg)".
 //
 // Copyright (c) 1992-1993 The Regents of the University of California.
-// All rights reserved.  See copyright.h for copyright notice and limitation 
+// All rights reserved.  See copyright.h for copyright notice and limitation
 // of liability and disclaimer of warranty provisions.
 
 #ifndef THREAD_H
@@ -46,23 +46,26 @@
 #include "synch.h"
 #endif
 
-// CPU register state to be saved on context switch.  
+// CPU register state to be saved on context switch.
 // The SPARC and MIPS only need 10 registers, but the Snake needs 18.
 // For simplicity, this is just the max over all architectures.
 #define MachineStateSize 18
 
-
 // Size of the thread's private execution stack.
 // WATCH OUT IF THIS ISN'T BIG ENOUGH!!!!!
-#define StackSize	(4 * 1024)	// in words
-
+#define StackSize (4 * 1024) // in words
 
 // Thread state
 enum ThreadStatus
-{ JUST_CREATED, RUNNING, READY, BLOCKED };
+{
+  JUST_CREATED,
+  RUNNING,
+  READY,
+  BLOCKED
+};
 
 // external function, dummy routine whose sole job is to call Thread::Print
-extern void ThreadPrint (int arg);
+extern void ThreadPrint(int arg);
 
 // The following class defines a "thread control block" -- which
 // represents a single thread of execution.
@@ -71,7 +74,7 @@ extern void ThreadPrint (int arg);
 //     an execution stack for activation records ("stackTop" and "stack")
 //     space to save CPU registers while not running ("machineState")
 //     a "status" (running/ready/blocked)
-//    
+//
 //  Some threads also belong to a user address space; threads
 //  that only run in the kernel have a NULL address space.
 
@@ -83,7 +86,6 @@ class Thread
     int *stackTop;		// the current stack pointer
     int machineState[MachineStateSize];	// all registers except for stackTop
     static const int USER_THREAD_MAX = 3;
-
   public:
       Thread (const char *debugName);	// initialize a Thread 
      ~Thread ();		// deallocate a Thread
@@ -94,7 +96,6 @@ class Thread
     static int userThreadCount;
     static Semaphore *lock;
     // basic thread operations
-
     void Fork (VoidFunctionPtr func, int arg);	// Make thread run (*func)(arg)
     void Fork (VoidFunctionPtr func, void *arg);    // Make thread run (*func)(*args)
     void Yield ();		// Relinquish the CPU if any 
@@ -120,7 +121,6 @@ class Thread
     int getPid(){return pid;}
     int getPPid(){return ppid;}
     int getNbChild(){return childNb;}
-
   private:
     // some of the private data for this class is listed above
 
@@ -140,17 +140,17 @@ class Thread
     void newChild(){ childNb++;}
 
 #ifdef USER_PROGRAM
-// A thread running a user program actually has *two* sets of CPU registers -- 
-// one for its state while executing user code, one for its state 
-// while executing kernel code.
+  // A thread running a user program actually has *two* sets of CPU registers --
+  // one for its state while executing user code, one for its state
+  // while executing kernel code.
 
-    int userRegisters[NumTotalRegs];	// user-level CPU register state
+  int userRegisters[NumTotalRegs]; // user-level CPU register state
 
-  public:
-    void SaveUserState ();	// save user-level register state
-    void RestoreUserState ();	// restore user-level register state
+public:
+  void SaveUserState();    // save user-level register state
+  void RestoreUserState(); // restore user-level register state
 
-    AddrSpace *space;		// User code this thread is running.
+  AddrSpace *space; // User code this thread is running.
 #endif
 };
 
@@ -158,14 +158,14 @@ class Thread
 
 extern "C"
 {
-// First frame on thread execution stack; 
-//      enable interrupts
-//      call "func"
-//      (when func returns, if ever) call ThreadFinish()
-    void ThreadRoot ();
+  // First frame on thread execution stack;
+  //      enable interrupts
+  //      call "func"
+  //      (when func returns, if ever) call ThreadFinish()
+  void ThreadRoot();
 
-// Stop running oldThread and start running newThread
-    void SWITCH (Thread * oldThread, Thread * newThread);
+  // Stop running oldThread and start running newThread
+  void SWITCH(Thread *oldThread, Thread *newThread);
 }
 
-#endif				// THREAD_H
+#endif // THREAD_H

@@ -38,6 +38,7 @@
 #define SC_End		17
 #define SC_UserThreadCreate 18
 #define SC_UserThreadExit 19
+#define SC_UserThreadJoin 20
 
 
 #ifdef IN_USER_MODE
@@ -194,6 +195,11 @@ int UserThreadCreate();
  * UserThreadExit ends properly currentThread.
  */
 void UserThreadExit(int f);
+
+/**
+* UserThreadJoin waits for the termination of another user thread.
+*/
+int UserThreadJoin(int tid);
 
 #endif // IN_USER_MODE
 

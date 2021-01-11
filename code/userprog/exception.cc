@@ -227,6 +227,13 @@ void handleUserThreadExit()
   do_UserThreadExit();
 }
 
+void handleUserThreadJoin()
+{
+  int id = machine->ReadRegister(4);
+  int retval = do_UserThreadJoin(id);
+  machine->WriteRegister(2, retval);
+}
+
 //----------------------------------------------------------------------
 // ExceptionHandler
 //      Entry point into the Nachos kernel.  Called when a user program
@@ -300,6 +307,9 @@ void ExceptionHandler(ExceptionType which)
       break;
     case SC_UserThreadCreate:
       handleUserThreadCreate();
+      break;
+    case SC_UserThreadJoin:
+      handleUserThreadJoin();
       break;
     default:
       handleError(which, type);
