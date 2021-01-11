@@ -6,7 +6,12 @@
 static Semaphore *readAvail;
 static Semaphore *writeDone;
 
-static Semaphore *lock;
+//Semaphore in order to put in critical section any calls
+static Semaphore *lockPutChar;
+static Semaphore *lockGetChar;
+static Semaphore *lockPutString;
+static Semaphore *lockGetString;
+
 
 static void ReadAvail(int arg) { readAvail->V(); }
 static void WriteDone(int arg) { writeDone->V(); }
@@ -28,15 +33,26 @@ SynchConsole::SynchConsole(char *readFile, char *writeFile)
 	readAvail = new Semaphore("read avail", 0);
 	writeDone = new Semaphore("write done", 0);
 
-	lock = new Semaphore("lock synchgetstring", 1);
+	//Semaphore in order to put in critical section each calls for put and get
+	lockPutChar = new Semaphore("lockPutChar", 1);
+	lockGetChar = new Semaphore("lockGetChar", 1);
+	lockPutString = new Semaphore("lockPutString", 1);
+	lockGetString = new Semaphore("lockGetString", 1);
 
 	console = new Console (readFile, writeFile, ReadAvail, WriteDone, 0);
 }
 SynchConsole::~SynchConsole()
 {
 	delete console;
+	
 	delete writeDone;
 	delete readAvail;
+
+	delete lockPutChar;
+	delete lockGetChar;
+	delete lockPutString;
+	delete lockGetString;
+
 }
 
 /**
@@ -45,8 +61,12 @@ SynchConsole::~SynchConsole()
  */
 void SynchConsole::SynchPutChar(const char ch)
 {
+	lockPutChar->P();
+
 	console->PutChar(ch);
 	writeDone->P();
+
+	lockPutChar->V();
 }
 
 /**
@@ -56,11 +76,14 @@ void SynchConsole::SynchPutChar(const char ch)
  */
 char SynchConsole::SynchGetChar()
 {
+	lockGetChar->P();
+	
 	char ch;
-
 	readAvail->P();
 	ch = console->GetChar();
 	return ch;
+
+	lockGetChar->V();
 }
 
 /**
@@ -70,10 +93,14 @@ char SynchConsole::SynchGetChar()
  */
 void SynchConsole::SynchPutString(const char s[])
 {
+	lockPutString->P();
+
 	int i;
 	for(i = 0; s[i]!='\0'; i++) {
 		SynchPutChar(s[i]);
 	}
+
+	lockPutString->V();
 }
 
 /**
@@ -84,7 +111,7 @@ void SynchConsole::SynchPutString(const char s[])
  */
 void SynchConsole::SynchGetString(char *s, int n)
 {
-	lock->P();
+	lockGetString->P();
 
 	int i = 0;
 	
@@ -95,5 +122,6 @@ void SynchConsole::SynchGetString(char *s, int n)
 		i++;
 	}
 	s[i] = '\0';
-	lock->V();
+
+	lockGetString->V();
 }

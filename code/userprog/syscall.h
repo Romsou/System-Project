@@ -192,7 +192,7 @@ int UserThreadCreate(void f(void *arg),void *arg);
 /**
  * UserThreadExit ends properly currentThread.
  */
-void UserThreadExit(int f);
+void UserThreadExit();
 
 #endif // IN_USER_MODE
 

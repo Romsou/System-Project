@@ -25,6 +25,7 @@ static void StartUserThread(int f)
   int stackAddress = machine->ReadRegister(StackReg);
 
   machine->WriteRegister(PCReg, ((forkArgs *)f)->func);
+  machine->WriteRegister(4, ((forkArgs *)f)->args);
   machine->WriteRegister(NextPCReg, machine->ReadRegister(PCReg) + 4);
   machine->WriteRegister(StackReg, stackAddress + 2 * PageSize);
 
@@ -37,7 +38,7 @@ static void StartUserThread(int f)
 int do_UserThreadCreate(int f, int arg)
 {
 
-  struct forkArgs *fArgs = (forkArgs *)malloc(sizeof(forkArgs));
+  struct forkArgs *fArgs = new forkArgs();
   fArgs->args = arg;
   fArgs->func = f;
 
@@ -47,7 +48,7 @@ int do_UserThreadCreate(int f, int arg)
   if (newThread == NULL)
     return -1;
 
-  currentThread->Yield();
+  // currentThread->Yield();
 
   return 0; //Return something about the thread... tid?
 }
@@ -57,7 +58,6 @@ int do_UserThreadCreate(int f, int arg)
  */
 void do_UserThreadExit()
 {
-
-  delete currentThread->space; //TODO : A vÃ©rifier
   currentThread->Finish();
+  delete currentThread->space;
 }
