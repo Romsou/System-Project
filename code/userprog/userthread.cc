@@ -31,6 +31,7 @@ static void StartUserThread(int f)
   machine->WriteRegister(4, ((FunctionAndArgs *)f)->args);
 
   machine->Run();
+}
 
 int findFreeThread()
 {
