@@ -123,7 +123,7 @@ class Thread
     ThreadStatus status;	// ready, running or blocked
     const char *name;
 
-    void StackAllocate (VoidFunctionPtr func, void *arg);
+    void StackAllocate (VoidFunctionPtr func, int arg);
     // Allocate a stack for thread.
     // Used internally by Fork()
 

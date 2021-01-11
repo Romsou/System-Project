@@ -94,9 +94,8 @@ Thread::Fork (VoidFunctionPtr func, int arg)
 {
     DEBUG ('t', "Forking thread \"%s\" with func = 0x%x, arg = %d\n",
 	   name, (int) func, arg);
-    void *ptr = NULL;
-    *((int*)ptr) = arg;
-    StackAllocate (func, ptr);
+   
+    StackAllocate (func, arg);
 
 #ifdef USER_PROGRAM
 
@@ -120,8 +119,8 @@ void
 Thread::Fork(VoidFunctionPtr func, void *arg)
 {
   DEBUG ('t', "Forking thread \"%s\" with func = Ox%x et a struct for arg",name, (int)func);
-
-  StackAllocate (func, arg);
+  int a = *((int *)arg);
+  StackAllocate (func, a);
   
 #ifdef USER_PROGRAM
     this->space = currentThread->space;
@@ -357,7 +356,7 @@ ThreadPrint (int arg)
 //----------------------------------------------------------------------
 
 void
-Thread::StackAllocate (VoidFunctionPtr func, void *arg)
+Thread::StackAllocate (VoidFunctionPtr func, int arg)
 {
     stack = (int *) AllocBoundedArray (StackSize * sizeof (int));
 
@@ -392,7 +391,7 @@ Thread::StackAllocate (VoidFunctionPtr func, void *arg)
     // End of modification
     
     machineState[InitialPCState] = (int) func;
-    machineState[InitialArgState] = *((int *)arg);
+    machineState[InitialArgState] = arg;
     machineState[WhenDonePCState] = (int) ThreadFinish;
 }
 

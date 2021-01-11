@@ -6,7 +6,7 @@
 
 struct forkArgs
 {
-  int func;
+  void (*func)(int);
   int args;
 };
 
@@ -27,14 +27,21 @@ void ThreadTestPrint(int which){
 /**
  * StartUserThread
  */
-static void StartUserThread(int f) {
+static void StartUserThread(int args) {
   DEBUG('t',"Call of StartUserThread\n");
+
+  //void *b = (void *)(&args);
+  
+  struct forkArgs *fa = (struct forkArgs *)(void *)(&args);
+  printf("In SUT : %p et %d\n",fa->func,fa->args);
+  
   currentThread->space->InitRegisters();
   currentThread->space->RestoreState();
 
+  (fa->func)(fa->args);
   //machine->ReadRegister(StackReg);
   //machine->WriteRegister(PCReg, f);
-  machine->Run();
+  //machine->Run();
 }
 
 /**
@@ -42,13 +49,13 @@ static void StartUserThread(int f) {
  */
 int do_UserThreadCreate(int f,int arg) {
   DEBUG('t',"Call of do_UserThreadCreate\n");
-  struct forkArgs fArgs;
-  // fArgs.args = 1;
-  fArgs.func = (int)&TestZeroPointe;
-  void *ptrfArgs = &fArgs;
+  struct forkArgs *fArgs = (struct forkArgs *)malloc(sizeof(struct forkArgs));
+  fArgs->args = 5;
+  fArgs->func = &ThreadTestPrint;
+  printf("Une fonction %p ave comme arg %d\n",fArgs->func,fArgs->args);
 
   Thread *newThread = new Thread("new_user_thread");
-  newThread->Fork(StartUserThread,ptrfArgs);
+  newThread->Fork(StartUserThread,fArgs);
   //StartUserThread(fArgs.func);
 
   return 0; //Return something about the thread... tid?
