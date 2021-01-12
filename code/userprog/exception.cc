@@ -218,6 +218,7 @@ void handleUserThreadCreate()
   int retval = do_UserThreadCreate(f, arg);
 
   machine->WriteRegister(2, retval);
+  
 }
 
 /**

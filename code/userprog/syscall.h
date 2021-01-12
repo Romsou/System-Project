@@ -193,7 +193,7 @@ int UserThreadCreate(void f(void *arg),void *arg);
 /**
  * UserThreadExit ends properly currentThread.
  */
-void UserThreadExit(int f);
+void UserThreadExit();
 
 /**
 * UserThreadJoin waits for the termination of another user thread.
