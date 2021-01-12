@@ -4,7 +4,7 @@
 void countDown(void* arg)
 {
     int i;
-    for (i = 100; i >= 0; i--)
+    for (i = 10; i >= 0; i--)
     {
         PutInt(i);
         PutChar('\n');

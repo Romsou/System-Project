@@ -3,15 +3,13 @@
 
 void print(void *j){
 	int i = *(int *)j;
-	//PutString("L'entier est : ");
-	//PutInt(i);
-	//PutChar('\n');
+	PutString("L'entier est : ");
+	PutInt(i);
+	PutChar('\n');
 	if(i%2)
 		PutString("Je suis un nombre impair\n");
 	else
 		PutString("Je suis un nombre pair\n");
-
-	UserThreadExit();
 }
 
 int main(){

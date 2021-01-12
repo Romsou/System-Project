@@ -11,7 +11,7 @@ static void print(void *arg)
 
 int main()
 {
-    char* phrase = "hello coco\n";
+    char* phrase = "Un thread\n";
     
     int i, nbThreads;
     for (i=0; i<NB_THREADS; i++) {
@@ -22,6 +22,10 @@ int main()
 
     PutString("NbThreads : "); 
     PutInt(nbThreads);
+    PutChar('\n');
+
+    PutString("Expected NbThreads : "); 
+    PutInt(NB_THREADS);
     PutChar('\n');
 
     Halt();

@@ -6,6 +6,16 @@
 //This array will be used to identify and track the different threads
 struct FunctionAndArgs *listOfUserThreads[NB_MAX_THREADS] = {};
 
+static int getNumberOfUserThreads()
+{
+  int nbOfThread = 0;
+  for (int i = 0; i < NB_MAX_THREADS; i++)
+    if (listOfUserThreads[i] != 0)
+      nbOfThread++;
+
+  return nbOfThread;
+}
+
 /**
  * Return true if all users threads are properly ends,with an 
  * UserThreadExit() call. Else, return false.
