@@ -43,6 +43,7 @@
 #ifdef USER_PROGRAM
 #include "machine.h"
 #include "addrspace.h"
+#include "synch.h"
 #endif
 
 // CPU register state to be saved on context switch.
@@ -84,6 +85,7 @@ private:
   // THEY MUST be in this position for SWITCH to work.
   int *stackTop;                      // the current stack pointer
   int machineState[MachineStateSize]; // all registers except for stackTop
+  static const int USER_THREAD_MAX = 3;
 
 public:
   Thread(const char *debugName); // initialize a Thread
@@ -91,11 +93,13 @@ public:
   // NOTE -- thread being deleted
   // must not be running when delete
   // is called
-
+  static int threadCount;
+  static int userThreadCount;
+  static Semaphore *lock;
   // basic thread operations
-
-  void Fork(VoidFunctionPtr func, int arg); // Make thread run (*func)(arg)
-  void Yield();                             // Relinquish the CPU if any
+  void Fork(VoidFunctionPtr func, int arg);   // Make thread run (*func)(arg)
+  void Fork(VoidFunctionPtr func, void *arg); // Make thread run (*func)(*args)
+  void Yield();                               // Relinquish the CPU if any
   // other thread is runnable
   void Sleep(); // Put the thread to sleep and
   // relinquish the processor
@@ -123,6 +127,9 @@ public:
   {
     id = i;
   }
+  int getPid() { return pid; }
+  int getPPid() { return ppid; }
+  int getNbChild() { return childNb; }
 
 private:
   // some of the private data for this class is listed above
@@ -131,12 +138,17 @@ private:
   // NULL if this is the main thread
   // (If NULL, don't deallocate stack)
   ThreadStatus status; // ready, running or blocked
+  Thread *parent;
   const char *name;
-  int id; // our tid
+  int pid;
+  int ppid;
+  int childNb;
+  int id; //our id
 
   void StackAllocate(VoidFunctionPtr func, int arg);
   // Allocate a stack for thread.
   // Used internally by Fork()
+  void newChild() { childNb++; }
 
 #ifdef USER_PROGRAM
   // A thread running a user program actually has *two* sets of CPU registers --

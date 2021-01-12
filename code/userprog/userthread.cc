@@ -1,12 +1,11 @@
-// userthread.cc
-
 #include "thread.h"
 #include "system.h"
 #include "machine.h"
 #include "userthread.h"
 
 //This array will be used to identify and track the different threads
-struct FunctionAndArgs *listOfUserThreads[NBMAXTHREADS] = {};
+struct FunctionAndArgs *listOfUserThreads[NB_MAX_THREADS] = {};
+
 
 bool isEmptyListOfUserThreads()
 {
@@ -37,12 +36,14 @@ bool isEmptyListOfUserThreads()
  */
 static void StartUserThread(int f)
 {
-  // Used to put the StackReg at the end of the address space
-  currentThread->space->InitRegisters();
+	DEBUG('t',"Call of StartUserThread\n");
+
+	currentThread->space->InitRegisters();
   
   int stackaddress = machine->ReadRegister(StackReg) + 16;
   
   machine->WriteRegister(PCReg, ((FunctionAndArgs *)f)->func);
+
   machine->WriteRegister(NextPCReg, machine->ReadRegister(PCReg) + 4);
   machine->WriteRegister(StackReg, stackaddress - 2 * PageSize);
   machine->WriteRegister(4, ((FunctionAndArgs *)f)->args);
@@ -63,7 +64,7 @@ static void StartUserThread(int f)
 int findFreeThread()
 {
   int i = 0;
-  while ((i < NBMAXTHREADS) && listOfUserThreads[i] != 0)
+  while ((i < NB_MAX_THREADS) && listOfUserThreads[i] != 0)
   {
     i++;
   }
