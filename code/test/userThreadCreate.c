@@ -9,13 +9,12 @@ void countDown(void* arg)
         PutChar(i - ((int)'0'));
     }
     PutChar('\n');
-    UserThreadExit();
 }
 
 int main()
 {
     PutString("Début du main...\n");
-    UserThreadCreate(countDown, 0);
-    UserThreadCreate(countDown,0);
+    int ret1 = UserThreadCreate(countDown, 0);
+    int ret2 = UserThreadCreate(countDown,0);
     return 0;
 }
