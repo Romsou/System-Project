@@ -213,7 +213,12 @@ void handleGetInt()
 }
 
 /**
- * handleUserThreadCreate
+ * handleUserThreadCreate create a new user thread on system call
+ * 
+ * handleUserThreadCreate extracts the system call arguments
+ * contained in the fourth and fifth registers of the simulated
+ * machine, which represents the function we want to create a thread for
+ * and its arguments.
  */
 void handleUserThreadCreate()
 {  
@@ -326,6 +331,9 @@ void ExceptionHandler(ExceptionType which)
       break;
     case SC_UserThreadCreate:
       handleUserThreadCreate();
+      break;
+    case SC_UserThreadJoin:
+      handleUserThreadJoin();
       break;
     default:
       handleError(which, type);

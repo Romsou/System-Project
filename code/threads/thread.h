@@ -80,67 +80,74 @@ extern void ThreadPrint(int arg);
 
 class Thread
 {
-  private:
-    // NOTE: DO NOT CHANGE the order of these first two members.
-    // THEY MUST be in this position for SWITCH to work.
-    int *stackTop;		// the current stack pointer
-    int machineState[MachineStateSize];	// all registers except for stackTop
-    static const int USER_THREAD_MAX = 3;
-  public:
-      Thread (const char *debugName);	// initialize a Thread 
-     ~Thread ();		// deallocate a Thread
-    // NOTE -- thread being deleted
-    // must not be running when delete 
-    // is called
-    static int threadCount;
-    static int userThreadCount;
-    static Semaphore *lock;
-    // basic thread operations
-    void Fork (VoidFunctionPtr func, int arg);	// Make thread run (*func)(arg)
-    void Fork (VoidFunctionPtr func, void *arg);    // Make thread run (*func)(*args)
-    void Yield ();		// Relinquish the CPU if any 
-    // other thread is runnable
-    void Sleep ();		// Put the thread to sleep and 
-    // relinquish the processor
-    void Finish ();		// The thread is done executing
+private:
+  // NOTE: DO NOT CHANGE the order of these first two members.
+  // THEY MUST be in this position for SWITCH to work.
+  int *stackTop;                      // the current stack pointer
+  int machineState[MachineStateSize]; // all registers except for stackTop
+  static const int USER_THREAD_MAX = 3;
+public:
+  Thread(const char *debugName); // initialize a Thread
+  ~Thread();                     // deallocate a Thread
+  // NOTE -- thread being deleted
+  // must not be running when delete
+  // is called
+  static int threadCount;
+  static int userThreadCount;
+  static Semaphore *lock;
+  // basic thread operations
+  void Fork(VoidFunctionPtr func, int arg);   // Make thread run (*func)(arg)
+  void Fork(VoidFunctionPtr func, void *arg); // Make thread run (*func)(*args)
+  void Yield();                               // Relinquish the CPU if any
+  // other thread is runnable
+  void Sleep(); // Put the thread to sleep and
+  // relinquish the processor
+  void Finish(); // The thread is done executing
 
-    void CheckOverflow ();	// Check if thread has 
-    // overflowed its stack
-    void setStatus (ThreadStatus st)
-    {
-	status = st;
-    }
-    const char *getName ()
-    {
-	return (name);
-    }
-    void Print ()
-    {
-	printf ("%s, ", name);
-    }
-    int getTid(){return tid;}
-    void setTid(int t){tid = t;}
-    int getPid(){return pid;}
-    int getPPid(){return ppid;}
-    int getNbChild(){return childNb;}
-  private:
-    // some of the private data for this class is listed above
+  void CheckOverflow(); // Check if thread has
+  // overflowed its stack
+  void setStatus(ThreadStatus st)
+  {
+    status = st;
+  }
+  const char *getName()
+  {
+    return (name);
+  }
+  void Print()
+  {
+    printf("%s, ", name);
+  }
+  int getTid()
+  {
+    return id;
+  }
+  void setTid(int i)
+  {
+    id = i;
+  }
+  int getPid() { return pid; }
+  int getPPid() { return ppid; }
+  int getNbChild() { return childNb; }
 
-    int *stack;			// Bottom of the stack 
-    // NULL if this is the main thread
-    // (If NULL, don't deallocate stack)
-    ThreadStatus status;	// ready, running or blocked
-    Thread *parent;
-    const char *name;
-    int pid;
-    int tid;
-    int ppid;
-    int childNb;
+private:
+  // some of the private data for this class is listed above
 
-    void StackAllocate (VoidFunctionPtr func, int arg);
-    // Allocate a stack for thread.
-    // Used internally by Fork()
-    void newChild(){ childNb++;}
+  int *stack; // Bottom of the stack
+  // NULL if this is the main thread
+  // (If NULL, don't deallocate stack)
+  ThreadStatus status; // ready, running or blocked
+  Thread *parent;
+  const char *name;
+  int pid;
+  int ppid;
+  int childNb;
+  int id; //our id
+
+  void StackAllocate(VoidFunctionPtr func, int arg);
+  // Allocate a stack for thread.
+  // Used internally by Fork()
+  void newChild() { childNb++; }
 
 #ifdef USER_PROGRAM
   // A thread running a user program actually has *two* sets of CPU registers --
