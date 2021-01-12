@@ -9,6 +9,7 @@ void countDown(void* arg)
         PutChar(i - ((int)'0'));
     }
     PutChar('\n');
+    UserThreadExit();
 }
 
 int main()

@@ -19,6 +19,11 @@ struct FunctionAndArgs
 };
 
 /**
+ * 
+ */
+extern bool isEmptyListOfUserThreads();
+
+/**
  * Create a new user thread and puts it in the ready list.
  * 
  * @param f: The function we want to create a user thread for.
@@ -27,8 +32,19 @@ struct FunctionAndArgs
  */
 extern int do_UserThreadCreate(int f,int arg);
 
+/**
+ * Remove properly current thread from ListOfUserThreads.
+ */
+extern void DeleteThreadFromList();
+
+/**
+ * do_UserThreadExit erases and ends properly current thread
+ */
 extern void do_UserThreadExit();
 
+/**
+ * do_UserThreadJoin
+ */
 extern int do_UserThreadJoin(int tid);
 
 #endif //USERTHREAD_H

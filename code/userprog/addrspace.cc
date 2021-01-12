@@ -121,7 +121,7 @@ AddrSpace::AddrSpace (OpenFile * executable)
       }
 
     //Initialize semaphore
-	sem = new Semaphore("sem for threads with same address space", 1);
+	sem = new Semaphore("sem for threads with same address space", NB_MAX_THREADS);
 }
 
 //----------------------------------------------------------------------

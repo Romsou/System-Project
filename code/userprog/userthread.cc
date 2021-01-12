@@ -5,9 +5,23 @@
 #include "machine.h"
 #include "userthread.h"
 
-#define NBMAXTHREADS 10 //Pour l'instant 10
+struct FunctionAndArgs *listOfUserThreads[NB_MAX_THREADS] = {};
 
-struct FunctionAndArgs *listOfUserThreads[NBMAXTHREADS] = {};
+bool isEmptyListOfUserThreads()
+{
+  if (listOfUserThreads == NULL)
+    return true;
+
+  int i = 0;
+  while ((i < NB_MAX_THREADS)) {
+    if (listOfUserThreads[i] != NULL)
+      return false;
+  
+    i++;
+  }
+
+  return true;
+}
 
 /**
  * Starts a new user thread with function f
@@ -38,11 +52,11 @@ static void StartUserThread(int f)
 int findFreeThread()
 {
   int i = 0;
-  while ((i < NBMAXTHREADS) && listOfUserThreads[i] != NULL)
+  while ((i < NB_MAX_THREADS) && listOfUserThreads[i] != NULL)
   {
     i++;
   }
-  if (i < NBMAXTHREADS)
+  if (i < NB_MAX_THREADS)
   {
     return i;
   }
@@ -78,10 +92,15 @@ int do_UserThreadCreate(int f, int arg)
   if (newThread == NULL)
     return -1;
 
-  for(;;)
-    currentThread->Yield();
+  //for(;;)
+   // currentThread->Yield();
 
   return thread_id;
+}
+
+void DeleteThreadFromList() {
+  delete listOfUserThreads[currentThread->getTid()];
+  listOfUserThreads[currentThread->getTid()] = NULL;
 }
 
 /**
@@ -89,21 +108,20 @@ int do_UserThreadCreate(int f, int arg)
  */
 void do_UserThreadExit()
 {
-
-  delete listOfUserThreads[currentThread->getTid()];
-  listOfUserThreads[currentThread->getTid()] = NULL;
   currentThread->Finish();
-  //delete currentThread->space; //TODO : A vÃ©rifier
+  delete currentThread->space; //TODO : A vÃ©rifier
 }
 
 int do_UserThreadJoin(int tid)
 {
-
   while (listOfUserThreads[tid] != NULL)
   {
     currentThread->Yield();
   }
 
   return 0;
+}
 
+extern void do_WakeUp() {
+  //....
 }
