@@ -105,7 +105,6 @@ void handleHalt()
     interrupt->SetLevel(oldValue);
   }
   DEBUG('a', "Shutdown, initiated by user program.\n");
-  Thread::lock->P();
   interrupt->Halt();
 }
 
