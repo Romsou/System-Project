@@ -12,22 +12,41 @@ static Semaphore *lockGetChar;
 static Semaphore *lockPutString;
 static Semaphore *lockGetString;
 
-
 static void ReadAvail(int arg) { readAvail->V(); }
 static void WriteDone(int arg) { writeDone->V(); }
 
-//-------------------------------------------------------
-//Class SynchConsole émule class Console
-//Cache la presence de sémaphore
-//Constructeur :
-// Attributs : deux sémaphores readAvail et writeDone
-// similaires à ceux utilisés dans progtest.cc
-// et un console de la classe Console
-// Argument : readFile et writeFile 2 fichier en lecture 
-// et ecriture, si NULL on prend stdin et stdout
-// servent à construire console comme ReadAvail et WriteDone
-// les deux fonctions definies en static
-//-------------------------------------------------------
+/**
+ * @class SynchConsole
+ * 
+ * @abstract SynchConsole is a class that provides synchronous I/O functions
+ * 
+ * @discussion SynchConsole works by encapsulating semaphores and call to the 
+ * 			   Console class I/O methods, thus, providing synchronous I/O methods
+ * 			   Moreover, the class contains several additional semaphores to allow
+ * 			   concurrent calls by different user threads to the I/O methods.
+ * 			   The output and input of SynchConsole are settled on readFile
+ * 			   and writeFile respectively
+ * 
+ * @function SynchConsole
+ * 		The constructor method of SynchConsole
+ * 		@param readFile The input from which we read
+ * 		@param writeFile The output to which we write
+ * 
+ * 
+ * @function SynchPutChar
+ * 		A function that provides a synchronous way to write a char on the output
+ * 
+ * @function SynchGetChar
+ * 		A function that provides a synchronous way to get a char from input
+ * 
+ * @function SynchGetString
+ * 		A function that provides a synchronous way to get a string from the input
+ * 
+ * @function SynchPutString
+ * 		A function that provides a synchronous way to write a string on output
+ * 
+ * @var Console*
+ */
 SynchConsole::SynchConsole(char *readFile, char *writeFile)
 {
 	readAvail = new Semaphore("read avail", 0);
@@ -39,12 +58,12 @@ SynchConsole::SynchConsole(char *readFile, char *writeFile)
 	lockPutString = new Semaphore("lockPutString", 1);
 	lockGetString = new Semaphore("lockGetString", 1);
 
-	console = new Console (readFile, writeFile, ReadAvail, WriteDone, 0);
+	console = new Console(readFile, writeFile, ReadAvail, WriteDone, 0);
 }
 SynchConsole::~SynchConsole()
 {
 	delete console;
-	
+
 	delete writeDone;
 	delete readAvail;
 
@@ -52,7 +71,6 @@ SynchConsole::~SynchConsole()
 	delete lockGetChar;
 	delete lockPutString;
 	delete lockGetString;
-
 }
 
 /**
@@ -78,7 +96,7 @@ void SynchConsole::SynchPutChar(const char ch)
 char SynchConsole::SynchGetChar()
 {
 	lockGetChar->P();
-	
+
 	char ch;
 	readAvail->P();
 	ch = console->GetChar();
@@ -97,7 +115,8 @@ void SynchConsole::SynchPutString(const char s[])
 	lockPutString->P();
 
 	int i;
-	for(i = 0; s[i]!='\0'; i++) {
+	for (i = 0; s[i] != '\0'; i++)
+	{
 		SynchPutChar(s[i]);
 	}
 
@@ -115,10 +134,11 @@ void SynchConsole::SynchGetString(char *s, int n)
 	lockGetString->P();
 
 	int i = 0;
-	
+
 	char ch = SynchGetChar();
-	while(i<n && ch != EOF){
-		*(s+i) = ch;
+	while (i < n && ch != EOF)
+	{
+		*(s + i) = ch;
 		ch = SynchGetChar();
 		i++;
 	}
