@@ -1,5 +1,5 @@
 // userthread.h
-//      
+//
 
 #ifndef USERTHREAD_H
 #define USERTHREAD_H
@@ -22,15 +22,15 @@
  */
 struct FunctionAndArgs
 {
-  int func; 
+  int func;
   int args;
   int end;
 };
 
 /**
- * Return true if all users threads are properly ends,with an 
- * UserThreadExit() call. Else, return false.
- * @return a boolean, true if lsit of userThread is empty.
+ * Indicates whether the list of user threads is empty
+ * 
+ * @return A boolean indicating whether the list of user thread is empty
  */
 extern bool isEmptyListOfUserThreads();
 
@@ -41,20 +41,23 @@ extern bool isEmptyListOfUserThreads();
  * @param arg: The argument we want to pass to f
  * @return: thread id or -1 if the creation of the thread fails 
  */
-extern int do_UserThreadCreate(int f,int arg);
+extern int do_UserThreadCreate(int f, int arg);
 
 /**
- * Remove properly current thread from ListOfUserThreads.
+ * Properly removes the current thread from ListOfUserThreads.
  */
 extern void DeleteThreadFromList();
 
 /**
- * do_UserThreadExit erases and ends properly current thread
+ * do_UserThreadExit erases and properly ends the current thread
  */
 extern void do_UserThreadExit();
 
 /**
- * do_UserThreadJoin
+ * Indicate to the current thread to wait for the thread
+ * identified by "tid"
+ * 
+ * @param tid: The id of the thread we want to wait;
  */
 extern int do_UserThreadJoin(int tid);
 

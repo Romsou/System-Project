@@ -6,6 +6,14 @@
 //This array will be used to identify and track the different threads
 struct FunctionAndArgs *listOfUserThreads[NB_MAX_THREADS] = {};
 
+/**
+ * Count the number of user threads
+ * 
+ * getNumberOfUserThreads goes through listOfUserThreads
+ * and count the number of user threads it contains.
+ * 
+ * @return The number of running user thread
+ */
 static int getNumberOfUserThreads()
 {
   int nbOfThread = 0;
@@ -77,18 +85,15 @@ static void StartUserThread(int f)
  * @return: Returns the index corresponding to the free element of listOfUserThreads.
  *          The function shall return -1 if the array is full.
  */
-
 int findFreeThread()
 {
   int i = 0;
   while ((i < NB_MAX_THREADS) && listOfUserThreads[i] != 0)
-  {
     i++;
-  }
+
   if (i < NB_MAX_THREADS)
-  {
     return i;
-  }
+
   DEBUG('a', "Cannot create more user threads (listOfUserThreads full)");
   return -1;
 }
@@ -111,9 +116,8 @@ int do_UserThreadCreate(int f, int arg)
 
   int thread_id = findFreeThread();
   if (thread_id == -1)
-  {
     return -1;
-  }
+
   listOfUserThreads[thread_id] = fArgs;
 
   Thread *newThread = new Thread("new_user_thread" + thread_id);
@@ -127,15 +131,16 @@ int do_UserThreadCreate(int f, int arg)
 }
 
 /**
- * Remove properly current thread from ListOfUserThreads.
+ * Properly removes the current thread from ListOfUserThreads.
  */
-void DeleteThreadFromList() {
+void DeleteThreadFromList()
+{
   delete listOfUserThreads[currentThread->getTid()];
   listOfUserThreads[currentThread->getTid()] = 0;
 }
 
 /**
- * do_UserThreadExit erases and ends properly current thread
+ * do_UserThreadExit erases and properly ends the current thread
  */
 void do_UserThreadExit()
 {
@@ -155,9 +160,7 @@ void do_UserThreadExit()
 int do_UserThreadJoin(int tid)
 {
   while (listOfUserThreads[tid] != 0)
-  {
     currentThread->Yield();
-  }
 
   return 0;
 }
