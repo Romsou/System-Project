@@ -4,8 +4,8 @@
 #include "userthread.h"
 
 //This array will be used to identify and track the different threads
+struct FunctionAndArgs *listOfUserThreads[NB_MAX_THREADS] = {};
 
-struct FunctionAndArgs *listOfUserThreads[NBMAXTHREADS] = {};
 
 bool isEmptyListOfUserThreads()
 {
@@ -64,7 +64,7 @@ static void StartUserThread(int f)
 int findFreeThread()
 {
   int i = 0;
-  while ((i < NBMAXTHREADS) && listOfUserThreads[i] != 0)
+  while ((i < NB_MAX_THREADS) && listOfUserThreads[i] != 0)
   {
     i++;
   }

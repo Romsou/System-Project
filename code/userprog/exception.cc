@@ -327,6 +327,9 @@ void ExceptionHandler(ExceptionType which)
     case SC_UserThreadCreate:
       handleUserThreadCreate();
       break;
+    case SC_UserThreadJoin:
+      handleUserThreadJoin();
+      break;
     default:
       handleError(which, type);
       break;
