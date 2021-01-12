@@ -14,8 +14,10 @@ void countDown(void* arg)
 int main()
 {
     PutString("Début du main...\n");
-    UserThreadCreate(countDown, 0);
-    UserThreadCreate(countDown,0);
+    int ret1 = UserThreadCreate(countDown, 0);
+    int ret2 = UserThreadCreate(countDown,0);
+    UserThreadJoin(ret1);
+    UserThreadJoin(ret2);
 
     Halt();
     //Not reached
