@@ -5,10 +5,24 @@
 #include "machine.h"
 #include "userthread.h"
 
-#define NBMAXTHREADS 10 //Pour l'instant 10
-
 //This array will be used to identify and track the different threads
 struct FunctionAndArgs *listOfUserThreads[NBMAXTHREADS] = {};
+
+bool isEmptyListOfUserThreads()
+{
+  if (listOfUserThreads == NULL)
+    return true;
+
+  int i = 0;
+  while ((i < NB_MAX_THREADS)) {
+    if (listOfUserThreads[i] != NULL)
+      return false;
+  
+    i++;
+  }
+
+  return true;
+}
 
 /**
  * Starts a new user thread with function f
@@ -53,7 +67,7 @@ int findFreeThread()
   {
     i++;
   }
-  if (i < NBMAXTHREADS)
+  if (i < NB_MAX_THREADS)
   {
     return i;
   }
@@ -94,16 +108,20 @@ int do_UserThreadCreate(int f, int arg)
   return thread_id;
 }
 
+void DeleteThreadFromList() {
+  delete listOfUserThreads[currentThread->getTid()];
+  listOfUserThreads[currentThread->getTid()] = NULL;
+}
+
 /**
  * do_UserThreadExit erases and ends properly current thread
  */
 void do_UserThreadExit()
 {
-
   delete listOfUserThreads[currentThread->getTid()];
   listOfUserThreads[currentThread->getTid()] = 0;
-  //delete currentThread->space; //TODO : A vÃ©rifier
   currentThread->Finish();
+  delete currentThread->space; //TODO : A vÃ©rifier
 }
 
 /**
@@ -117,12 +135,14 @@ void do_UserThreadExit()
  */
 int do_UserThreadJoin(int tid)
 {
-
   while (listOfUserThreads[tid] != 0)
   {
     currentThread->Yield();
   }
 
   return 0;
+}
 
+extern void do_WakeUp() {
+  //....
 }

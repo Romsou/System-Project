@@ -152,28 +152,32 @@ void PutChar(char c);
 char GetChar();
 
 /**
- * PutChar put a string of char onto the (standard) output.
+ * PutChar put a string of char onto the (standard) output. Note that
+ * this function cannot write more than 512 character.
  * 
  * @param s, the string of char to write.
  */
 void PutString(char* s);
 
 /**
- * GetString read a string of char from (standard) input.
- * 
+ * GetString read a string of char from (standard) input. Note that
+ * this function cannot read more than 512 character.
  * @param s, the string to which we want to copy
+ * @param size, Number of character to read
  */
 void GetString(char* s, int size);
 
 /**
- * PutInt put an int onto the (standard) output.
- * 
- * @param d, the int to write.
+ * PutInt put an int onto the (standard) output. The paramater
+ * given int d cannot be longer than 10 digits.
+ * @param d, the int to write. 
  */
 void PutInt(int d);
 
 /**
- * GetInt read an int from (standard) input.
+ * GetInt read an int from (standard) input. Int returned cannot be
+ * longer than 10 digits.
+ * @return the readed int.
  */
 int GetInt();
 

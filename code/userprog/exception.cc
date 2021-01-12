@@ -26,7 +26,7 @@
 #include "syscall.h"
 #include "userthread.h"
 
-#define MAX_LEN_INT 11
+Thread* savedThread;
 //----------------------------------------------------------------------
 // UpdatePC : Increments the Program Counter register in order to resume
 // the user program immediately after the "syscall" instruction.
@@ -97,6 +97,11 @@ void copyStringToMachine(char *from, int to, unsigned size)
  */
 void handleHalt()
 {
+  if (!isEmptyListOfUserThreads()) {
+    interrupt->SetLevel(IntOff);
+    savedThread = currentThread;
+    currentThread->Sleep();
+  }
   DEBUG('a', "Shutdown, initiated by user program.\n");
   interrupt->Halt();
 }
@@ -208,8 +213,11 @@ void handleGetInt()
   machine->WriteRegister(2, d);
 }
 
+/**
+ * handleUserThreadCreate
+ */
 void handleUserThreadCreate()
-{
+{  
   DEBUG('t', "Call for creating user thread\n");
   //Retrieve f and arg here and pass them to DoUserThreadCreate
   int f = machine->ReadRegister(4);
@@ -222,19 +230,29 @@ void handleUserThreadCreate()
 }
 
 /**
- * handleUserThreadExit
+ * handleUserThreadExit exits properly a current thread by remonving it from
+ * userThreads list of threads and erases and ends it properly.
  */
 void handleUserThreadExit()
 {
+  DeleteThreadFromList();
+  if(isEmptyListOfUserThreads()) {
+    if (savedThread != NULL)
+      scheduler->ReadyToRun (savedThread);
+  }
   do_UserThreadExit();
 }
 
+/**
+ * 
+ */
 void handleUserThreadJoin()
 {
   int id = machine->ReadRegister(4);
   int retval = do_UserThreadJoin(id);
   machine->WriteRegister(2, retval);
 }
+
 
 //----------------------------------------------------------------------
 // ExceptionHandler
@@ -309,9 +327,6 @@ void ExceptionHandler(ExceptionType which)
       break;
     case SC_UserThreadCreate:
       handleUserThreadCreate();
-      break;
-    case SC_UserThreadJoin:
-      handleUserThreadJoin();
       break;
     default:
       handleError(which, type);
