@@ -5,7 +5,7 @@
 
 //This array will be used to identify and track the different threads
 
-struct FunctionAndArgs *listOfUserThreads[NBMAXTHREADS] = {};
+struct FunctionAndArgs *listOfUserThreads[NB_MAX_THREADS] = {};
 
 bool isEmptyListOfUserThreads()
 {
@@ -38,7 +38,7 @@ static void StartUserThread(int f)
 {
 	DEBUG('t',"Call of StartUserThread\n");
 
-	currentThread->space->InitRegisters()  
+	currentThread->space->InitRegisters();  
   int stackaddress = machine->ReadRegister(StackReg) + 16;
   
   struct FunctionAndArgs *st = (struct FunctionAndArgs *)f;
@@ -65,7 +65,7 @@ static void StartUserThread(int f)
 int findFreeThread()
 {
   int i = 0;
-  while ((i < NBMAXTHREADS) && listOfUserThreads[i] != 0)
+  while ((i < NB_MAX_THREADS) && listOfUserThreads[i] != 0)
   {
     i++;
   }
