@@ -224,10 +224,10 @@ void handleUserThreadCreate()
 {  
   DEBUG('t', "Call for creating user thread\n");
   //Retrieve f and arg here and pass them to DoUserThreadCreate
-  //int f = machine->ReadRegister(4);
-  //int arg = machine->ReadRegister(5);
+  int f = machine->ReadRegister(4);
+  int arg = machine->ReadRegister(5);
 
-  int retval = do_UserThreadCreate(0, 0);
+  int retval = do_UserThreadCreate(f, arg);
 
   machine->WriteRegister(2, retval);
   
