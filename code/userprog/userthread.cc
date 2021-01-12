@@ -7,6 +7,13 @@
 
 struct FunctionAndArgs *listOfUserThreads[NB_MAX_THREADS] = {};
 
+/**
+ * Return true if all users threads are properly ends,with an 
+ * UserThreadExit() call. Else, return false.
+ * 
+ * @return a boolean, true if lsit of userThread is empty.
+ */
+
 bool isEmptyListOfUserThreads()
 {
   if (listOfUserThreads == NULL)
@@ -92,12 +99,12 @@ int do_UserThreadCreate(int f, int arg)
   if (newThread == NULL)
     return -1;
 
-  //for(;;)
-   // currentThread->Yield();
-
   return thread_id;
 }
 
+/**
+ * Remove properly current thread from ListOfUserThreads.
+ */
 void DeleteThreadFromList() {
   delete listOfUserThreads[currentThread->getTid()];
   listOfUserThreads[currentThread->getTid()] = NULL;
@@ -109,7 +116,7 @@ void DeleteThreadFromList() {
 void do_UserThreadExit()
 {
   currentThread->Finish();
-  delete currentThread->space; //TODO : A vÃ©rifier
+  delete currentThread->space;
 }
 
 int do_UserThreadJoin(int tid)
@@ -120,8 +127,4 @@ int do_UserThreadJoin(int tid)
   }
 
   return 0;
-}
-
-extern void do_WakeUp() {
-  //....
 }

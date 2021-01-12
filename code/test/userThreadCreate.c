@@ -17,5 +17,8 @@ int main()
     PutString("Début du main...\n");
     UserThreadCreate(countDown, 0);
     UserThreadCreate(countDown,0);
+
+    Halt();
+    //Not reached
     return 0;
 }

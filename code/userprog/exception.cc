@@ -98,9 +98,11 @@ void copyStringToMachine(char *from, int to, unsigned size)
 void handleHalt()
 {
   if (!isEmptyListOfUserThreads()) {
+    IntStatus oldValue = interrupt->getLevel();
     interrupt->SetLevel(IntOff);
     savedThread = currentThread;
     currentThread->Sleep();
+    interrupt->SetLevel(oldValue);
   }
   DEBUG('a', "Shutdown, initiated by user program.\n");
   interrupt->Halt();
@@ -236,10 +238,11 @@ void handleUserThreadCreate()
 void handleUserThreadExit()
 {
   DeleteThreadFromList();
-  if(isEmptyListOfUserThreads()) {
+  
+  if(isEmptyListOfUserThreads())
     if (savedThread != NULL)
       scheduler->ReadyToRun (savedThread);
-  }
+
   do_UserThreadExit();
 }
 

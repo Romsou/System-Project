@@ -27,4 +27,6 @@ int main(){
 	UserThreadCreate(print,&b);
 
 	Halt();
+	//Not reached
+	return 0;
 }

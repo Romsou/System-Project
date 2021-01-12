@@ -41,6 +41,10 @@ SynchConsole::SynchConsole(char *readFile, char *writeFile)
 
 	console = new Console (readFile, writeFile, ReadAvail, WriteDone, 0);
 }
+
+/**
+ * Dealloate synchconsole ,it associated console and all it semaphores.
+ */
 SynchConsole::~SynchConsole()
 {
 	delete console;

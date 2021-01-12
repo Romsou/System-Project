@@ -19,7 +19,9 @@ struct FunctionAndArgs
 };
 
 /**
- * 
+ * Return true if all users threads are properly ends,with an 
+ * UserThreadExit() call. Else, return false.
+ * @return a boolean, true if lsit of userThread is empty.
  */
 extern bool isEmptyListOfUserThreads();
 
