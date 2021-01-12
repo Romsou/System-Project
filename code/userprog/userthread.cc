@@ -27,7 +27,7 @@ static void StartUserThread(int f)
   int stackaddress = machine->ReadRegister(StackReg) + 16;
   DEBUG('t',"SUT : lecture de la pile");
 
-  struct FunctionAndArgs *st = (struct FunctionAndArgs *)&f;
+  struct FunctionAndArgs *st = (struct FunctionAndArgs *)f;
 
   DEBUG('t',"SUT : avant l'ecriture");
   machine->WriteRegister(PCReg, st->func);
@@ -77,6 +77,7 @@ int do_UserThreadCreate(int f, int arg)
   listOfUserThreads[thread_id] = fArgs;
 
   Thread *newThread = new Thread("new_user_thread" + thread_id);
+  newThread->setTid(thread_id);
   newThread->Fork(StartUserThread, (int)fArgs);
 
   if (newThread == NULL)
