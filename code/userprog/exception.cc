@@ -103,6 +103,7 @@ void handleHalt()
     currentThread->Sleep();
   }
   DEBUG('a', "Shutdown, initiated by user program.\n");
+  Thread::lock->P();
   interrupt->Halt();
 }
 
@@ -143,11 +144,9 @@ void handleGetChar()
  */
 void handleEnd()
 {
-  DEBUG('a', "Interruption for end of process\n");
-  int ad = machine->ReadRegister(37);
-  printf("Clean exit with that address %d\n", ad);
-  machine->WriteRegister(2, ad);
-  interrupt->Halt();
+  DEBUG('a', "Interruption for end of process %s\n",currentThread->getName());  
+  machine->WriteRegister(2, currentThread->getPid());
+  handleHalt();
 }
 
 //----------------------------------------------------------------------
@@ -220,10 +219,10 @@ void handleUserThreadCreate()
 {  
   DEBUG('t', "Call for creating user thread\n");
   //Retrieve f and arg here and pass them to DoUserThreadCreate
-  int f = machine->ReadRegister(4);
-  int arg = machine->ReadRegister(5);
+  //int f = machine->ReadRegister(4);
+  //int arg = machine->ReadRegister(5);
 
-  int retval = do_UserThreadCreate(f, arg);
+  int retval = do_UserThreadCreate(0, 0);
 
   machine->WriteRegister(2, retval);
   

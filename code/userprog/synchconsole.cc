@@ -67,6 +67,7 @@ void SynchConsole::SynchPutChar(const char ch)
 	writeDone->P();
 
 	lockPutChar->V();
+
 }
 
 /**
