@@ -11,13 +11,13 @@
 /**
  * @struct FunctionAndArgs
  * 
- * A structure use to pass the address of our function
+ * A structure used to pass the address of our function
  * and its arguments to StartUserThread in userthread.cc
  * 
- * @field func The adress of the function we want to pass as a parameter
- * @field args The adress of the first argument to the function we want to
+ * @field func The address of the function we want to pass as a parameter
+ * @field args The address of the first argument to the function we want to
  *             make a thread for.
- * @field end Adress of UserThreadExit function, to allow us to automatically
+ * @field end Address of UserThreadExit function, to allow us to automatically
  *            exit the thread once it's done.
  */
 struct FunctionAndArgs
@@ -35,7 +35,7 @@ struct FunctionAndArgs
 extern bool isEmptyListOfUserThreads();
 
 /**
- * Create a new user thread and puts it in the ready list.
+ * Creates a new user thread and puts it in the ready list.
  * 
  * @param f: The function we want to create a user thread for.
  * @param arg: The argument we want to pass to f
