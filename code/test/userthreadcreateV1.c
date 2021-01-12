@@ -6,7 +6,8 @@ void countDown(void* arg)
     int i;
     for (i = 100; i >= 0; i--)
     {
-        PutChar(i - ((int)'0'));
+        PutInt(i);
+        PutChar('\n');
     }
     PutChar('\n');
 }

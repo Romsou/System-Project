@@ -131,3 +131,24 @@ Pour avoir une fonction de sortie qui permet de lire et renvoyer les données on
 -- Etape 3
 
 -- Jour 5
+
+2 appels système ont commencé à être réalisés:
+- UserThreadCreate: Créé un thread utilisateur
+- UserThreadExit: Finit un thread utilisateur
+
+Nous avons également commencé do_UserThreadCreate mais somme resté bloqué sur StartUserThread pendant 2 jours.
+
+-- Jour 6
+
+Aucun progrès notable
+
+-- Jour 7
+
+StartUserThread enfin terminé après plusieurs soucis pour dérouter correctement l'exécution vers la fonction passée en paramètre.
+
+Ajout de sémaphores pour les tentatives d'utilisations concurrentes des appels systèmes Putchar, getChar, PutString, GetString.
+
+Réalisation de:
+- UserThreadJoin
+- D'un tableau d'identifiant pour gérer les threads dans userThreads.
+- Ajout d'un sémaphore dans addrSpace pour synchroniser l'appel à Halt. Il permet d'attendre que l'ensemble des threads ait terminé avant de quitter le programme.

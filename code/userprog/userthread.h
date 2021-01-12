@@ -9,8 +9,16 @@
 #include "thread.h"
 
 /**
+ * @struct FunctionAndArgs
+ * 
  * A structure use to pass the address of our function
  * and its arguments to StartUserThread in userthread.cc
+ * 
+ * @field func The adress of the function we want to pass as a parameter
+ * @field args The adress of the first argument to the function we want to
+ *             make a thread for.
+ * @field end Adress of UserThreadExit function, to allow us to automatically
+ *            exit the thread once it's done.
  */
 struct FunctionAndArgs
 {
@@ -31,7 +39,7 @@ extern bool isEmptyListOfUserThreads();
  * 
  * @param f: The function we want to create a user thread for.
  * @param arg: The argument we want to pass to f
- * @return: 0 or -1 if the creation of the thread fails 
+ * @return: thread id or -1 if the creation of the thread fails 
  */
 extern int do_UserThreadCreate(int f,int arg);
 
