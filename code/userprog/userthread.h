@@ -16,6 +16,7 @@ struct FunctionAndArgs
 {
   int func; 
   int args;
+  int end;
 };
 
 /**
