@@ -1,6 +1,6 @@
 #include "syscall.h"
 
-#define NB_THREADS 500
+#define NB_THREADS 8
 
 static void print(void *arg)
 {

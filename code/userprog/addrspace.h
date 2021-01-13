@@ -18,7 +18,7 @@
 #include "translate.h"
 #include "synch.h"
 
-#define UserStackSize		1024	// increase this as necessary!
+#define UserStackSize		2048	// increase this as necessary!
 
 class AddrSpace
 {
