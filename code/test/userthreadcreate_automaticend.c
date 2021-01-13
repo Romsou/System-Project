@@ -9,8 +9,7 @@ static void print(void *arg)
 int main()
 {
     char* phrase = "hello coco\n";
-    int ret = UserThreadCreate(print, phrase);
-    UserThreadJoin(ret);
+    UserThreadCreate(print, phrase);
   
     Halt();
     //Not reached
