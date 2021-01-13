@@ -117,6 +117,9 @@ int do_UserThreadCreate(int f, int arg)
   newThread->setTid(thread_id);
   newThread->Fork(StartUserThread, (int)fArgs);
 
+  int nbOfThreads = scheduler->getNumberOfReadyThreads();
+  DEBUG('x',"Number of threads in ready list: %d\n" , nbOfThreads);
+
   if (newThread == NULL)
     return -1;
 
@@ -159,4 +162,3 @@ int do_UserThreadJoin(int tid)
 
   return 0;
 }
-
