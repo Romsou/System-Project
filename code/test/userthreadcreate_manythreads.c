@@ -4,9 +4,8 @@
 
 static void print(void *arg)
 {
-    //char* phrase = (char*) arg;
-    //PutString(phrase);
-    PutChar('a');
+    char* phrase = (char*) arg;
+    PutString(phrase);
 }
 
 int main()
@@ -20,6 +19,8 @@ int main()
       } else {
         nbThreadsError++;
       }
+
+      //Only in order to slow down main thread
       int a =1 + 6 * 8 - 2 / 7 + 6 / 7 - 9;
       int b = 9 * 7 / 2 - 6 + 3 + 8 + 5;
       b = a * 8 - 999 + 6 / 3;
