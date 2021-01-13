@@ -4,7 +4,7 @@
 void countDown(void* arg)
 {
     int i;
-    for (i = 100; i >= 0; i--)
+    for (i = 10; i >= 0; i--)
     {
         PutInt(i);
         PutChar('\n');
@@ -19,5 +19,8 @@ int main()
     int ret2 = UserThreadCreate(countDown,0);
     UserThreadJoin(ret1);
     UserThreadJoin(ret2);
+
+    Halt();
+    //Not reached
     return 0;
 }
