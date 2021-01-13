@@ -1,6 +1,6 @@
 #include "syscall.h"
 
-#define NB_THREADS 8
+#define NB_THREADS 100
 
 static void print(void *arg)
 {
@@ -12,10 +12,12 @@ int main()
 {
     char* phrase = "Un thread\n";
     
-    int i, nbThreads;
+    int i, nbThreads=0, nbThreadsError=0;
     for (i=0; i<NB_THREADS; i++) {
       if (UserThreadCreate(print, phrase) != -1) {
         nbThreads++;
+      } else {
+        nbThreadsError++;
       }
     }
 
@@ -23,8 +25,12 @@ int main()
     PutInt(nbThreads);
     PutChar('\n');
 
-    PutString("Expected NbThreads : "); 
+    PutString("Expected NbThreads :");
     PutInt(NB_THREADS);
+    PutChar('\n');
+
+    PutString("NbThreads not created: ");
+    PutInt(nbThreadsError);
     PutChar('\n');
 
     Halt();

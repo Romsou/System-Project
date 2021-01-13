@@ -14,7 +14,7 @@ struct FunctionAndArgs *listOfUserThreads[NB_MAX_THREADS] = {};
  * 
  * @return The number of running user thread
  */
-static int getNumberOfUserThreads()
+/*static int getNumberOfUserThreads()
 {
   int nbOfThread = 0;
   for (int i = 0; i < NB_MAX_THREADS; i++)
@@ -22,7 +22,7 @@ static int getNumberOfUserThreads()
       nbOfThread++;
 
   return nbOfThread;
-}
+}*/
 
 /**
  * Return true if all users threads are properly ends,with an 
@@ -64,12 +64,11 @@ static void StartUserThread(int f)
 
   currentThread->space->InitRegisters();
 
-  int stackaddress = machine->ReadRegister(StackReg) + 16;
+  int stackaddress = machine->ReadRegister(StackReg);
 
   machine->WriteRegister(PCReg, ((FunctionAndArgs *)f)->func);
 
   machine->WriteRegister(NextPCReg, machine->ReadRegister(PCReg) + 4);
-  machine->WriteRegister(StackReg, stackaddress - 2 * getNumberOfUserThreads() * PageSize);
   machine->WriteRegister(StackReg, stackaddress - 2 * (currentThread->getTid()+1)* PageSize);
   machine->WriteRegister(4, ((FunctionAndArgs *)f)->args);
 
