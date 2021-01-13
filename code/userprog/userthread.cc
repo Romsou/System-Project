@@ -147,7 +147,7 @@ void DeleteThreadFromList()
 void do_UserThreadExit()
 {
   currentThread->Finish();
-  delete currentThread->space; //TODO : A vÃ©rifier
+  //delete currentThread->space; //TODO : A vÃ©rifier
 }
 
 /**
