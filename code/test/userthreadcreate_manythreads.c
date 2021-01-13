@@ -20,6 +20,14 @@ int main()
       } else {
         nbThreadsError++;
       }
+
+      //Only in order to slow down main thread
+      int a =1 + 6 * 8 - 2 / 7 + 6 / 7 - 9;
+      int b = 9 * 7 / 2 - 6 + 3 + 8 + 5;
+      b = a * 8 - 999 + 6 / 3;
+      a = b + a - 88 / 2 * 3;
+      a = 999 * b - 88 / 7;
+      b = a / 7;
     }
 
     PutString("NbThreads : "); 

@@ -16,8 +16,7 @@ int main(){
 	PutString("Test sur la création et l'ordonnancement des threads\n");
 
 	int a = 1, b=2, c=3, d=4, e=5, f=6;
-	int ret = UserThreadCreate(print,&a);
-	UserThreadJoin(ret);
+	UserThreadCreate(print,&a);
 	UserThreadCreate(print,&b);
 	UserThreadCreate(print,&c);
 	UserThreadCreate(print,&d);
