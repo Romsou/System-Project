@@ -105,6 +105,7 @@ void handleHalt()
     interrupt->SetLevel(oldValue);
   }
   DEBUG('a', "Shutdown, initiated by user program.\n");
+  // Thread::lock->P();
   interrupt->Halt();
 }
 
@@ -241,11 +242,10 @@ void handleUserThreadCreate()
 void handleUserThreadExit()
 {
   DeleteThreadFromList();
-  
-  if(isEmptyListOfUserThreads())
+  if(isEmptyListOfUserThreads()) {
     if (savedThread != NULL)
       scheduler->ReadyToRun (savedThread);
-
+  }
   do_UserThreadExit();
 }
 

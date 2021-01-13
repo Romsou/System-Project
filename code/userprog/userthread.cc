@@ -30,7 +30,6 @@ static int getNumberOfUserThreads()
  * 
  * @return a boolean, true if lsit of userThread is empty.
  */
-
 bool isEmptyListOfUserThreads()
 {
   if (listOfUserThreads == NULL)
@@ -39,7 +38,7 @@ bool isEmptyListOfUserThreads()
   int i = 0;
   while ((i < NB_MAX_THREADS))
   {
-    if (listOfUserThreads[i] != NULL)
+    if (listOfUserThreads[i] != 0)
       return false;
 
     i++;
@@ -71,6 +70,7 @@ static void StartUserThread(int f)
 
   machine->WriteRegister(NextPCReg, machine->ReadRegister(PCReg) + 4);
   machine->WriteRegister(StackReg, stackaddress - 2 * getNumberOfUserThreads() * PageSize);
+  machine->WriteRegister(StackReg, stackaddress - 2 * (currentThread->getTid()+1)* PageSize);
   machine->WriteRegister(4, ((FunctionAndArgs *)f)->args);
 
   //This will allow us to call UserThreadExit (see exception.cc)
@@ -145,7 +145,7 @@ void DeleteThreadFromList()
 void do_UserThreadExit()
 {
   currentThread->Finish();
-  delete currentThread->space;
+  delete currentThread->space; //TODO : A vÃ©rifier
 }
 
 /**

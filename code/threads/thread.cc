@@ -33,6 +33,9 @@
 //----------------------------------------------------------------------
 int Thread::threadCount = 0;
 int Thread::userThreadCount = 0;
+#ifdef USER_PROGRAM
+//Semaphore *Thread::lock = new Semaphore("lock for thread",USER_THREAD_MAX);
+#endif
 Thread::Thread (const char *threadName)
 {
     name = threadName;
@@ -125,6 +128,7 @@ Thread::Fork (VoidFunctionPtr func, int arg)
     
     // LB: Observe that currentThread->space may be NULL at that time.
     this->space = currentThread->space;
+    //Thread::lock->P();
 
 #endif // USER_PROGRAM
 
@@ -196,6 +200,9 @@ Thread::Finish ()
     // is ever lost 
     ASSERT (threadToBeDestroyed == NULL);
     // End of addition 
+    #ifdef USER_PROGRAM
+    //Thread::lock->V();
+    #endif
     threadToBeDestroyed = currentThread;
     Sleep ();			// invokes SWITCH
     // not reached
@@ -435,5 +442,3 @@ Thread::RestoreUserState ()
 	machine->WriteRegister (i, userRegisters[i]);
 }
 #endif
-
-

@@ -1,12 +1,11 @@
 #include "syscall.h"
 
-#define NB_THREADS 100
+#define NB_THREADS 500
 
 static void print(void *arg)
 {
     char* phrase = (char*) arg;
     PutString(phrase);
-    UserThreadExit();
 }
 
 int main()
