@@ -7,8 +7,7 @@ static Semaphore *readAvail;
 static Semaphore *writeDone;
 
 //Semaphore in order to put in critical section any calls
-static Semaphore *lockPut;
-static Semaphore *lockGet;
+static Semaphore *lockPutGet;
 
 static void ReadAvail(int arg) { readAvail->V(); }
 static void WriteDone(int arg) { writeDone->V(); }
@@ -51,8 +50,7 @@ SynchConsole::SynchConsole(char *readFile, char *writeFile)
 	writeDone = new Semaphore("write done", 0);
 
 	//Semaphore in order to put in critical section each calls for put and get
-	lockPut = new Semaphore("lockPut", 1);
-	lockGet = new Semaphore("lockGet", 1);
+	lockPutGet = new Semaphore("lockPutGet", 1);
 
 	console = new Console(readFile, writeFile, ReadAvail, WriteDone, 0);
 }
@@ -67,8 +65,7 @@ SynchConsole::~SynchConsole()
 	delete writeDone;
 	delete readAvail;
 
-	delete lockPut;
-	delete lockGet;
+	delete lockPutGet;
 }
 
 /**
@@ -77,12 +74,12 @@ SynchConsole::~SynchConsole()
  */
 void SynchConsole::SynchPutChar(const char ch)
 {
-	lockPut->P();
+	lockPutGet->P();
 
 	console->PutChar(ch);
 	writeDone->P();
 
-	lockPut->V();
+	lockPutGet->V();
 
 }
 
@@ -93,14 +90,14 @@ void SynchConsole::SynchPutChar(const char ch)
  */
 char SynchConsole::SynchGetChar()
 {
-	lockGet->P();
+	lockPutGet->P();
 
 	char ch;
 	readAvail->P();
 	ch = console->GetChar();
 	return ch;
 
-	lockGet->V();
+	lockPutGet->V();
 }
 
 /**
@@ -110,7 +107,7 @@ char SynchConsole::SynchGetChar()
  */
 void SynchConsole::SynchPutString(const char s[])
 {
-	lockPut->P();
+	lockPutGet->P();
 
 	int i;
 	for (i = 0; s[i] != '\0'; i++)
@@ -119,7 +116,7 @@ void SynchConsole::SynchPutString(const char s[])
 		writeDone->P();
 	}
 
-	lockPut->V();
+	lockPutGet->V();
 }
 
 /**
@@ -130,7 +127,7 @@ void SynchConsole::SynchPutString(const char s[])
  */
 void SynchConsole::SynchGetString(char *s, int n)
 {
-	lockGet->P();
+	lockPutGet->P();
 
 	int i = 0;
 
@@ -145,5 +142,5 @@ void SynchConsole::SynchGetString(char *s, int n)
 	}
 	s[i] = '\0';
 
-	lockGet->V();
+	lockPutGet->V();
 }
