@@ -19,9 +19,9 @@
 int nbThreads = 0;
 int nbThreadsError = 0;
 
-void print(char *phrase)
+void print(void *phrase)
 {
-    PutString(phrase);
+    PutString((char *)phrase);
 }
 
 void create_threads()
