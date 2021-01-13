@@ -12,5 +12,7 @@ int main()
     int ret = UserThreadCreate(print, phrase);
     UserThreadJoin(ret);
   
-    return ret;
+    Halt();
+    //Not reached
+    return 0;
 }

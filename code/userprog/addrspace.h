@@ -18,7 +18,7 @@
 #include "translate.h"
 #include "synch.h"
 
-#define UserStackSize		1024	// increase this as necessary!
+#define UserStackSize	3072	//2 * NB_MAX_THREADS * PageSize + 16	// increase this as necessary!
 
 class AddrSpace
 {

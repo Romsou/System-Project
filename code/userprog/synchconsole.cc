@@ -7,10 +7,8 @@ static Semaphore *readAvail;
 static Semaphore *writeDone;
 
 //Semaphore in order to put in critical section any calls
-static Semaphore *lockPutChar;
-static Semaphore *lockGetChar;
-static Semaphore *lockPutString;
-static Semaphore *lockGetString;
+static Semaphore *lockPut;
+static Semaphore *lockGet;
 
 static void ReadAvail(int arg) { readAvail->V(); }
 static void WriteDone(int arg) { writeDone->V(); }
@@ -53,13 +51,15 @@ SynchConsole::SynchConsole(char *readFile, char *writeFile)
 	writeDone = new Semaphore("write done", 0);
 
 	//Semaphore in order to put in critical section each calls for put and get
-	lockPutChar = new Semaphore("lockPutChar", 1);
-	lockGetChar = new Semaphore("lockGetChar", 1);
-	lockPutString = new Semaphore("lockPutString", 1);
-	lockGetString = new Semaphore("lockGetString", 1);
+	lockPut = new Semaphore("lockPut", 1);
+	lockGet = new Semaphore("lockGet", 1);
 
 	console = new Console(readFile, writeFile, ReadAvail, WriteDone, 0);
 }
+
+/**
+ * Dealloate synchconsole ,it associated console and all it semaphores.
+ */
 SynchConsole::~SynchConsole()
 {
 	delete console;
@@ -67,10 +67,8 @@ SynchConsole::~SynchConsole()
 	delete writeDone;
 	delete readAvail;
 
-	delete lockPutChar;
-	delete lockGetChar;
-	delete lockPutString;
-	delete lockGetString;
+	delete lockPut;
+	delete lockGet;
 }
 
 /**
@@ -79,12 +77,12 @@ SynchConsole::~SynchConsole()
  */
 void SynchConsole::SynchPutChar(const char ch)
 {
-	lockPutChar->P();
+	lockPut->P();
 
 	console->PutChar(ch);
 	writeDone->P();
 
-	lockPutChar->V();
+	lockPut->V();
 
 }
 
@@ -95,14 +93,14 @@ void SynchConsole::SynchPutChar(const char ch)
  */
 char SynchConsole::SynchGetChar()
 {
-	lockGetChar->P();
+	lockGet->P();
 
 	char ch;
 	readAvail->P();
 	ch = console->GetChar();
 	return ch;
 
-	lockGetChar->V();
+	lockGet->V();
 }
 
 /**
@@ -112,15 +110,16 @@ char SynchConsole::SynchGetChar()
  */
 void SynchConsole::SynchPutString(const char s[])
 {
-	lockPutString->P();
+	lockPut->P();
 
 	int i;
 	for (i = 0; s[i] != '\0'; i++)
 	{
-		SynchPutChar(s[i]);
+		console->PutChar(s[i]);
+		writeDone->P();
 	}
 
-	lockPutString->V();
+	lockPut->V();
 }
 
 /**
@@ -131,18 +130,20 @@ void SynchConsole::SynchPutString(const char s[])
  */
 void SynchConsole::SynchGetString(char *s, int n)
 {
-	lockGetString->P();
+	lockGet->P();
 
 	int i = 0;
 
-	char ch = SynchGetChar();
+	readAvail->P();
+	char ch = console->GetChar();
 	while (i < n && ch != EOF)
 	{
 		*(s + i) = ch;
-		ch = SynchGetChar();
+		readAvail->P();
+		ch = console->GetChar();
 		i++;
 	}
 	s[i] = '\0';
 
-	lockGetString->V();
+	lockGet->V();
 }

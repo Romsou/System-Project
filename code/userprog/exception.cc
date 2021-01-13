@@ -98,12 +98,13 @@ void copyStringToMachine(char *from, int to, unsigned size)
 void handleHalt()
 {
   if (!isEmptyListOfUserThreads()) {
+    IntStatus oldValue = interrupt->getLevel();
     interrupt->SetLevel(IntOff);
     savedThread = currentThread;
     currentThread->Sleep();
+    interrupt->SetLevel(oldValue);
   }
   DEBUG('a', "Shutdown, initiated by user program.\n");
-  Thread::lock->P();
   interrupt->Halt();
 }
 

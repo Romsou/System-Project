@@ -85,7 +85,7 @@ private:
   // THEY MUST be in this position for SWITCH to work.
   int *stackTop;                      // the current stack pointer
   int machineState[MachineStateSize]; // all registers except for stackTop
-  static const int USER_THREAD_MAX = 3;
+
 public:
   Thread(const char *debugName); // initialize a Thread
   ~Thread();                     // deallocate a Thread
@@ -94,7 +94,6 @@ public:
   // is called
   static int threadCount;
   static int userThreadCount;
-  static Semaphore *lock;
   // basic thread operations
   void Fork(VoidFunctionPtr func, int arg);   // Make thread run (*func)(arg)
   void Fork(VoidFunctionPtr func, void *arg); // Make thread run (*func)(*args)

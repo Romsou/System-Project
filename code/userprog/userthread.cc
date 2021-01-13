@@ -14,7 +14,7 @@ struct FunctionAndArgs *listOfUserThreads[NB_MAX_THREADS] = {};
  * 
  * @return The number of running user thread
  */
-static int getNumberOfUserThreads()
+/*static int getNumberOfUserThreads()
 {
   int nbOfThread = 0;
   for (int i = 0; i < NB_MAX_THREADS; i++)
@@ -22,8 +22,14 @@ static int getNumberOfUserThreads()
       nbOfThread++;
 
   return nbOfThread;
-}
+}*/
 
+/**
+ * Return true if all users threads are properly ends,with an 
+ * UserThreadExit() call. Else, return false.
+ * 
+ * @return a boolean, true if lsit of userThread is empty.
+ */
 bool isEmptyListOfUserThreads()
 {
   if (listOfUserThreads == NULL)
@@ -32,7 +38,7 @@ bool isEmptyListOfUserThreads()
   int i = 0;
   while ((i < NB_MAX_THREADS))
   {
-    if (listOfUserThreads[i] != NULL)
+    if (listOfUserThreads[i] != 0)
       return false;
 
     i++;
@@ -54,14 +60,17 @@ bool isEmptyListOfUserThreads()
  */
 static void StartUserThread(int f)
 {
-  int stackaddress = machine->ReadRegister(StackReg) + 16;
-  struct FunctionAndArgs *st = (struct FunctionAndArgs *)f;
+  DEBUG('t', "Call of StartUserThread\n");
 
-  machine->WriteRegister(PCReg, st->func);
+  currentThread->space->InitRegisters();
+
+  int stackaddress = machine->ReadRegister(StackReg);
+
+  machine->WriteRegister(PCReg, ((FunctionAndArgs *)f)->func);
 
   machine->WriteRegister(NextPCReg, machine->ReadRegister(PCReg) + 4);
-  machine->WriteRegister(StackReg, stackaddress - 2 * getNumberOfUserThreads() * PageSize);
-  machine->WriteRegister(4, st->args);
+  machine->WriteRegister(StackReg, stackaddress - 2 * (currentThread->getTid()+1)* PageSize);
+  machine->WriteRegister(4, ((FunctionAndArgs *)f)->args);
 
   //This will allow us to call UserThreadExit (see exception.cc)
   machine->WriteRegister(RetAddrReg, st->end);
@@ -130,7 +139,7 @@ int do_UserThreadCreate(int f, int arg)
 void DeleteThreadFromList()
 {
   delete listOfUserThreads[currentThread->getTid()];
-  listOfUserThreads[currentThread->getTid()] = NULL;
+  listOfUserThreads[currentThread->getTid()] = 0;
 }
 
 /**
@@ -138,8 +147,6 @@ void DeleteThreadFromList()
  */
 void do_UserThreadExit()
 {
-  delete listOfUserThreads[currentThread->getTid()];
-  listOfUserThreads[currentThread->getTid()] = 0;
   currentThread->Finish();
   delete currentThread->space; //TODO : A vÃ©rifier
 }
