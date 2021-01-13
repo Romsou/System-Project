@@ -81,7 +81,7 @@ int findFreeThread()
   while ((i < NB_MAX_THREADS) && listOfUserThreads[i] != 0)
   {
     i++;
-
+  }
   if (i < NB_MAX_THREADS)
     return i;
 
