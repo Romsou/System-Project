@@ -73,7 +73,7 @@ static void StartUserThread(int f)
   machine->WriteRegister(4, ((FunctionAndArgs *)f)->args);
 
   //This will allow us to call UserThreadExit (see exception.cc)
-  machine->WriteRegister(RetAddrReg, st->end);
+  machine->WriteRegister(RetAddrReg, ((FunctionAndArgs *)f)->end);
 
   machine->Run();
 }
@@ -115,6 +115,7 @@ int do_UserThreadCreate(int f, int arg)
   fArgs->end = machine->ReadRegister(6);
 
   int thread_id = findFreeThread();
+  
   if (thread_id == -1)
     return -1;
 
@@ -123,9 +124,9 @@ int do_UserThreadCreate(int f, int arg)
   Thread *newThread = new Thread("new_user_thread" + thread_id);
   newThread->setTid(thread_id);
   newThread->Fork(StartUserThread, (int)fArgs);
-
-  int nbOfThreads = scheduler->getNumberOfReadyThreads();
-  DEBUG('x',"Number of threads in ready list: %d\n" , nbOfThreads);
+  DEBUG('x',"Number of the next free thread_id: %d\n" , thread_id);
+  //int nbOfThreads = scheduler->getNumberOfReadyThreads();
+  //DEBUG('x',"Number of threads in ready list: %d\n" , nbOfThreads);
 
   if (newThread == NULL)
     return -1;
