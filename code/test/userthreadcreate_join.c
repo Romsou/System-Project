@@ -16,8 +16,8 @@ int main()
 {
     PutString("Début du main...\n");
     int ret1 = UserThreadCreate(countDown, 0);
-    int ret2 = UserThreadCreate(countDown,0);
     UserThreadJoin(ret1);
+    int ret2 = UserThreadCreate(countDown,0);
     UserThreadJoin(ret2);
 
     Halt();
