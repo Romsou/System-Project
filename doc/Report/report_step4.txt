@@ -64,5 +64,10 @@ qu'est-ce que doit faire la methode int ForkExec(char *s) ou s est le nom d'un f
 
 chaque processus doit s'executer entierement il faut donc attendre les autres avant d'effectuer le Halt(), un processus qui termine doit relacher toutes ses ressources
 
+comment un executable est executé ? exemple dans progtes.c method StartProess
+le fichie est ouvert avec la methode Open de filesystem, on peut alors créé un addrspace à partir du fichier ouvert, on associe cet addrspace au thread courant (qui a donc du être créé auparavant), le fichier est fermé
+on initialise les registre de l'espace d'adressage : tous les registres sont mis à 0 sauf NextPCReg à 4 et StackReg en fin de pile.
+on restore l'etat de l'espace d'adressage : on donne a la page la translationEntry pageTable et le nombre d page pour que le programme puisse s'executer. Executer avec machine->Run()
+
 !attention un test de 12 processus avec 12 threads chacun est demandé et il faut bien vérifier que les ressources sont relachés (cela peut impliquer redefinition de new ou delete)
 
