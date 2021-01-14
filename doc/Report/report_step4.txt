@@ -43,7 +43,7 @@ on lit le fichier executable dans un tampon, on retient numBytes a partir de pos
 pageTable et numPages donnent l'addresse virtuelle ou ecrire ce qui est lu
 pageTable fait la traduction physique/virtuelle (il faut qu'on puisse ecrire dedans), pageSize * numPages donnent la taille du segment à lire (pageSize dans machine.h)
 donc numBytes doit etre inferieur ou egal à cette taille
-** est-ce que virtualaddr donné doit ou va correspondre avec pageTable->virtualaddr ?
+** est-ce que virtualaddr donné doit ou va correspondre avec pageTable->virtualaddr ? ====> virtualaddr contiendra à la fin l'adresse logique ou est enregistré la lecture
 on ecrit dans les pages données avec Machine::WriteMem(int addr, int size, int value) def dans translate.cc
 addr = virtualaddr, size = 1,2 ou 4, value = contenu de numPages pages à partie du tampon de lecture -> il faudra passer par une boucle pour remplir petit a petit les pages
 
