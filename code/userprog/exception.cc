@@ -158,8 +158,7 @@ void handlePutString()
 {
   DEBUG('a', "PutString.\n");
   char s[MAX_STRING_SIZE];
-  int size = machine->ReadRegister(5);
-  copyStringFromMachine(machine->ReadRegister(4), s, size);
+  copyStringFromMachine(machine->ReadRegister(4), s, MAX_STRING_SIZE);
   synchconsole->SynchPutString(s);
 }
 
