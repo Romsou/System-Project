@@ -15,7 +15,7 @@
 #include "filehdr.h"
 #include "openfile.h"
 #include "system.h"
-
+#include "translate.h"
 #include <strings.h> /* for bzero */
 
 //----------------------------------------------------------------------
@@ -194,3 +194,4 @@ OpenFile::Length()
 { 
     return hdr->FileLength(); 
 }
+

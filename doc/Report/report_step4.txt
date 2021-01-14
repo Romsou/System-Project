@@ -1,0 +1,44 @@
+
+#######Partie 1
+Sur la fonction ReadAt
+appel type : executable->ReadAt(char *into, int numBytes, int position)
+lit le fichier executable et place les numBytes à partir de position dans into
+cette fonction lit tout le fichier executable
+la lecture s'effectue par secteur defini dans disk.h avec SectorSize
+le buffer defini est donc rempli en entier avant qu'on copie
+uniquement la partie voulu dans into
+la valeur de retour est numBytes au cas ou elle a changé l.125 de openfile.cc
+change si on atteind la fin du fichier
+
+Sur constructeur AddSpace
+Pour rappel : un segment est composé de {int virtualAddr, int inFileAddr, int size;} et un noffHeader de {int noffMagic; Segment code; Segment initData; Segment uninitData;}
+On lit l'executable passer en argument avec ReadAt, les donnees sont ecrites dans noffH
+la taille du processus est defini a partir des tailles des 3 segments de noffH +
+la taille de la pile utilisateur 
+puis calcul de nombre de page nécessaire pour cette taille
+puis on arrondit la taille au multiple superieur
+
+puis creation tableau de TranslationEntry def dans translate.h
+composé de int virtualPage, physicalPage, et 4 bool : valid, readOnly, use, dirty
+chaque entrée initialisé
+mise à 0 du partie de la memoire du main
+ensuite on copie les segment code et initData dans la memoire du main
+et on initialise semaphore
+
+Fonction utility.h
+divRoundDown(n,s) = n/s
+divRoundUp(n,s) = n/s + 1 si n%s > 0 et n/s sinon
+
+
+On doit coder la fonction suivante
+static void ReadAtVirtual(OpenFile *executable, int virtualaddr,int numBytes, int position,TranslationEntry *pageTable,unsigned numPages);
+
+//----------------------------------------------------------------------
+// OpenFile::ReatAtVirtual
+// Fait la meme chose que ReadAt (ie lit un executable et le stock dans into)
+// Mais stockage en memoire virtuelle def par pageTabe, numPages
+// possible de remplir un tampon temporairaire avec readAt
+// recopier ce tampon en memoire avec WriteMem
+//---------------------------------------------------------------------
+
+
