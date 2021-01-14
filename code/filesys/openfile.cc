@@ -15,7 +15,7 @@
 #include "filehdr.h"
 #include "openfile.h"
 #include "system.h"
-
+#include "translate.h"
 #include <strings.h> /* for bzero */
 
 //----------------------------------------------------------------------
@@ -193,4 +193,27 @@ int
 OpenFile::Length() 
 { 
     return hdr->FileLength(); 
+}
+
+//----------------------------------------------------------------------
+// OpenFile::ReatAtVirtual
+// Fait la meme chose que ReadAt (ie lit un executable et le stock dans into)
+// Mais stockage en memoire virtuelle def par pageTabe, numPages
+// possible de remplir un tampon temporairaire avec readAt
+// recopier ce tampon en memoire avec WriteMem
+//---------------------------------------------------------------------
+static void ReadAtVirtual(OpenFile *executable, int virtualaddr,
+        int numBytes, int position, TranslationEntry *pageTable,unsigned numPages){
+    char *buf;
+    buf = new char[numBytes];
+    int r = executable->ReadAt(buf,numBytes,0);
+    ASSERT(r==numBytes);
+
+    virtualaddr = pageTable->virtualPage * PageSize + position;
+    machine->writeMem(virtualaddr,numBytes,(int)buf);
+
+
+    delete []buf;
+
+
 }
