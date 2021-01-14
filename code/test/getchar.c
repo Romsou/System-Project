@@ -15,7 +15,7 @@ void read_and_write()
 int main ()
 {
     read_and_write();
-    //Halt ();
+    Halt ();
 
     /* not reached */
     return 0;

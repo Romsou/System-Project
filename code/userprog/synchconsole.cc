@@ -95,9 +95,9 @@ char SynchConsole::SynchGetChar()
 	char ch;
 	readAvail->P();
 	ch = console->GetChar();
-	return ch;
 
 	lockPutGet->V();
+	return ch;
 }
 
 /**
