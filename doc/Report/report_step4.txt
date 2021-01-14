@@ -13,15 +13,13 @@ change si on atteind la fin du fichier
 Sur constructeur AddSpace
 Pour rappel : un segment est composé de {int virtualAddr, int inFileAddr, int size;} et un noffHeader de {int noffMagic; Segment code; Segment initData; Segment uninitData;}
 On lit l'executable passer en argument avec ReadAt, les donnees sont ecrites dans noffH
-la taille du processus est defini a partir des tailles des 3 segments de noffH +
-la taille de la pile utilisateur 
+la taille du processus est defini a partir des tailles des 3 segments de noffH + la taille de la pile utilisateur 
 puis calcul de nombre de page nécessaire pour cette taille
 puis on arrondit la taille au multiple superieur
 
 puis creation tableau de TranslationEntry def dans translate.h
 composé de int virtualPage, physicalPage, et 4 bool : valid, readOnly, use, dirty
-chaque entrée initialisé
-mise à 0 du partie de la memoire du main
+chaque entrée initialisé, mise à 0 d'une partie de la memoire du main
 ensuite on copie les segment code et initData dans la memoire du main
 et on initialise semaphore
 
@@ -37,8 +35,14 @@ static void ReadAtVirtual(OpenFile *executable, int virtualaddr,int numBytes, in
 // OpenFile::ReatAtVirtual
 // Fait la meme chose que ReadAt (ie lit un executable et le stock dans into)
 // Mais stockage en memoire virtuelle def par pageTabe, numPages
-// possible de remplir un tampon temporairaire avec readAt
+// possible de remplir un tampon temporaire avec readAt
 // recopier ce tampon en memoire avec WriteMem
 //---------------------------------------------------------------------
 
-
+on lit le fichier executable dans un tampon, on retient numBytes a partir de position (comme dans ReadAt)
+pageTable et numPages donnent l'addresse virtuelle ou ecrire ce qui est lu
+pageTable fait la traduction physique/virtuelle (il faut qu'on puisse ecrire dedans), pageSize * numPages donnent la taille du segment à lire (pageSize dans machine.h)
+donc numBytes doit etre inferieur ou egal à cette taille
+** est-ce que virtualaddr donné doit ou va correspondre avec pageTable->virtualaddr ?
+on ecrit dans les pages données avec Machine::WriteMem(int addr, int size, int value) def dans translate.cc
+addr = virtualaddr, size = 1,2 ou 4, value = contenu de numPages pages à partie du tampon de lecture -> il faudra passer par une boucle pour remplir petit a petit les pages
