@@ -61,10 +61,10 @@ void copyStringFromMachine(int from, char *to, unsigned size)
   int valRead;
   unsigned int i;
 
-  for (i = 0; i < size && machine->ReadMem(from + i, 1, &valRead); i++)
+  for (i = 0; i < size && machine->ReadMem(from + i, 1, &valRead) && valRead != '\0'; i++)
     to[i] = valRead;
 
-  ASSERT(i == size);
+  ASSERT(i <= size);
   to[i] = '\0';
 }
 
