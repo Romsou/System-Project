@@ -16,7 +16,7 @@
 #include "stats.h"
 #include "timer.h"
 
-#define MAX_STRING_SIZE 32
+#define MAX_STRING_SIZE 512
 #define MAX_LEN_INT 11
 #define NB_MAX_THREADS 10
 
