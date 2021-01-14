@@ -74,13 +74,8 @@ SynchConsole::~SynchConsole()
  */
 void SynchConsole::SynchPutChar(const char ch)
 {
-	lockPutGet->P();
-
 	console->PutChar(ch);
 	writeDone->P();
-
-	lockPutGet->V();
-
 }
 
 /**
@@ -90,14 +85,8 @@ void SynchConsole::SynchPutChar(const char ch)
  */
 char SynchConsole::SynchGetChar()
 {
-	lockPutGet->P();
-
-	char ch;
 	readAvail->P();
-	ch = console->GetChar();
-
-	lockPutGet->V();
-	return ch;
+	return console->GetChar();
 }
 
 /**
@@ -111,10 +100,7 @@ void SynchConsole::SynchPutString(const char s[])
 
 	int i;
 	for (i = 0; s[i] != '\0'; i++)
-	{
-		console->PutChar(s[i]);
-		writeDone->P();
-	}
+		this->SynchPutChar(s[i]);
 
 	lockPutGet->V();
 }
@@ -127,19 +113,17 @@ void SynchConsole::SynchPutString(const char s[])
  */
 void SynchConsole::SynchGetString(char *s, int n)
 {
+	ASSERT(s != NULL);
+	ASSERT(n > 0);
+	
 	lockPutGet->P();
 
 	int i = 0;
 
-	readAvail->P();
-	char ch = console->GetChar();
-	while (i < n && ch != EOF)
-	{
-		*(s + i) = ch;
-		readAvail->P();
-		ch = console->GetChar();
-		i++;
-	}
+	s[0] = this->SynchGetChar();
+	for (i = 1; i < n && s[i - 1] != EOF; i++)
+		s[i] = this->SynchGetChar();
+
 	s[i] = '\0';
 
 	lockPutGet->V();
