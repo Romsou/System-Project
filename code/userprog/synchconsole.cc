@@ -68,15 +68,23 @@ SynchConsole::~SynchConsole()
 	delete lockPutGet;
 }
 
+void SynchConsole::EncapsulatedPutChar(const char ch) 
+{
+	console->PutChar(ch);
+	writeDone->P();
+}
+
 /**
  * SynchPutChar allows to write, if possible, a character onto output.
  * @param ch character to put.
  */
 void SynchConsole::SynchPutChar(const char ch)
 {
-	console->PutChar(ch);
-	writeDone->P();
+	lockPutGet->P();
+	this->EncapsulatedPutChar(ch);
+	lockPutGet->V();
 }
+
 
 /**
  * SynchGetChar allows to read, if possible, a character from input
@@ -100,7 +108,7 @@ void SynchConsole::SynchPutString(const char s[])
 
 	int i;
 	for (i = 0; s[i] != '\0'; i++)
-		this->SynchPutChar(s[i]);
+		this->EncapsulatedPutChar(s[i]);
 
 	lockPutGet->V();
 }
