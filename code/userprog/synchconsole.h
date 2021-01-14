@@ -72,6 +72,8 @@ public:
 	void SynchGetString(char *s, int n);
 
 private:
+	void EncapsulatedPutChar(const char ch);
+
 	Console *console;
 };
 
