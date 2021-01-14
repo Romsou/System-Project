@@ -22,6 +22,22 @@
 
 #include <strings.h>		/* for bzero */
 
+
+/**
+ * ReadAtVirtual
+ * @param executable
+ * @param virtualaddr
+ * @param numBytes
+ * @param position
+ * @param pageTable
+ * @param numPages
+ * 
+ */
+static void ReadAtVirtual(OpenFile *executable, int virtualaddr,
+    int numBytes, int position, TranslationEntry *pageTable,unsigned numPages) {
+
+}
+
 //----------------------------------------------------------------------
 // SwapHeader
 //      Do little endian to big endian conversion on the bytes in the 
@@ -86,6 +102,7 @@ AddrSpace::AddrSpace (OpenFile * executable)
 	   numPages, size);
 // first, set up the translation 
     pageTable = new TranslationEntry[numPages];
+
     for (i = 0; i < numPages; i++)
       {
 	  pageTable[i].virtualPage = i;	// for now, virtual page # = phys page #
@@ -107,6 +124,7 @@ AddrSpace::AddrSpace (OpenFile * executable)
       {
 	  DEBUG ('a', "Initializing code segment, at 0x%x, size %d\n",
 		 noffH.code.virtualAddr, noffH.code.size);
+        ReadAtVirtual(executable, 0, noffH.code.size, noffH.code.inFileAddr, pageTable, 0); //les zero sont a changer mais par quoi?
 	  executable->ReadAt (&(machine->mainMemory[noffH.code.virtualAddr]),
 			      noffH.code.size, noffH.code.inFileAddr);
       }
@@ -114,6 +132,8 @@ AddrSpace::AddrSpace (OpenFile * executable)
       {
 	  DEBUG ('a', "Initializing data segment, at 0x%x, size %d\n",
 		 noffH.initData.virtualAddr, noffH.initData.size);
+        ReadAtVirtual(executable, 0, noffH.initData.size, noffH.initData.inFileAddr, pageTable, 0); //les zero sont a changer mais par quoi?
+        executable->ReadAt()
 	  executable->ReadAt (&
 			      (machine->mainMemory
 			       [noffH.initData.virtualAddr]),
