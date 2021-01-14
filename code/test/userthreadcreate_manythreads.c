@@ -6,6 +6,7 @@ static void print(void *arg)
 {
     char* phrase = (char*) arg;
     PutString(phrase);
+    UserThreadExit();
 }
 
 int main()

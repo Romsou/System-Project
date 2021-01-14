@@ -29,3 +29,7 @@ Donc lorsqu'on crée un thread pour la première fois, on a juste besoin d'initi
 La fonction StackAllocate semble s'occuper de la pile, mais j'ai l'impression qu'elle n'initialise pas le compteur de pile, au contraire de la fonction InitRegisters
 
 Structure de fonction{ int func - int nbArg - unsigned int sizeTab[nbArg] - void argTab[nbArg]} s'inspirer du tp sur pthread
+
+Semaphore de la classe Thread :
+Le semaphore est commun à la classe, initialiser avec un nombre de thread defini dans thread.h. Quand on va appeler Halt, on essaie de prendre le verrou (la il faudrait que j'arrive à avoir un moyen de faire un truc plus propre pcq ça peut bloquer)
+Mise en place des identifiants pid et ppid pour tenir compte des hiérarchies de processus. Récupérable par getPid() et getPPid(). 

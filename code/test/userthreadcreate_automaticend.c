@@ -11,7 +11,7 @@ int main()
     char* phrase = "hello coco\n";
     UserThreadCreate(print, phrase);
   
-    Halt();
+    //Halt();
     //Not reached
     return 0;
 }
