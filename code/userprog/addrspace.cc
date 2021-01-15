@@ -245,7 +245,7 @@ bool AddrSpace::isEmptyUserThread()
  */
 void AddrSpace::DeleteThreadFromArray(int index)
 {
-	userThreads[index] = 0;
+	userThreads[index] = NULL;
 }
 
 /**
@@ -256,7 +256,7 @@ void AddrSpace::DeleteThreadFromArray(int index)
 int AddrSpace::AddThreadInArray()
 {
 	for (int i = 0; i < NB_MAX_THREADS; i++)
-		if (userThreads[i] == 0)
+		if (userThreads[i] == NULL)
 			return i;
 
 	DEBUG('a', "Cannot create more user threads (userThreads full)");
