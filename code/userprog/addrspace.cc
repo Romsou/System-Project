@@ -272,7 +272,7 @@ int AddrSpace::AddThreadInArray()
 Thread *AddrSpace::getThreadAtId(int id)
 {
 	for (int i = 0; i < NB_MAX_THREADS; i++)
-		if (userThreads[i]->getTid() == id)
+		if (userThreads[i] != NULL && userThreads[i]->getTid() == id)
 			return userThreads[i];
 
 	return NULL;
