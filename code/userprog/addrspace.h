@@ -19,6 +19,7 @@
 #include "synch.h"
 
 #define UserStackSize	3072	//2 * NB_MAX_THREADS * PageSize + 16	// increase this as necessary!
+#define NB_MAX_THREADS 10
 
 class AddrSpace
 {
@@ -37,8 +38,24 @@ class AddrSpace
     //Semaphore for synch Halt/Exit
     Semaphore *sem;
 
-    //List of all running UserThread in one process
-    struct FunctionAndArgs *listOfUserThreads[10] = {};
+    /**
+     * Indicates whether the list of user threads is empty
+     * 
+     * @return A boolean indicating whether the list of user thread is empty
+     */
+    bool isEmptyUserThread();
+
+    /**
+     * Properly removes the current thread from userThread.
+     */
+    void DeleteThreadFromList(int index);
+
+    /**
+     * Put the current thread at in table of userThreads if find a free space.
+     * @param index, index of a free space in table
+     * @return index of free space found in user thread table, -1 table in full. 
+     */
+    int AddThreadInList();
 
   private:
       TranslationEntry * pageTable;	// Assume linear page table translation
@@ -47,6 +64,7 @@ class AddrSpace
     // address space
 
     //This array will be used to identify and track the different threads
+    struct Thread *userThread[NB_MAX_THREADS] = {};
 };
 
 #endif // ADDRSPACE_H

@@ -138,7 +138,7 @@ void handleGetChar()
  */
 void handleEnd()
 {
-  if (!isEmptyListOfUserThreads()) {
+  if (!currentThread->space->isEmptyUserThread()) {
     currentThread->space->sem->P();
   }
   DEBUG('a', "Interruption for end of process %s\n",currentThread->getName());  
@@ -236,8 +236,8 @@ void handleUserThreadCreate()
  */
 void handleUserThreadExit()
 {
-  DeleteThreadFromList();
-  if(isEmptyListOfUserThreads()) {
+  currentThread->space->DeleteThreadFromList(currentThread->getTid()); //REPLACE BY INDEX TODO!
+  if(currentThread->space->isEmptyUserThread()) {
     currentThread->space->sem->V();
   }
   do_UserThreadExit();
