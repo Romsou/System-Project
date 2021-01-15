@@ -85,9 +85,6 @@ class OpenFile {
 					// file (this interface is simpler 
 					// than the UNIX idiom -- lseek to 
 					// end of file, tell, lseek back 
-
-    static void ReadAtVirtual(OpenFile *executable, int virtualaddr,
-        int numBytes, int position, TranslationEntry *pageTable,unsigned numPages);
     
   private:
     FileHeader *hdr;			// Header for this file 

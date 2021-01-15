@@ -34,12 +34,19 @@ class AddrSpace
     void SaveState ();		// Save/restore address space-specific
     void RestoreState ();	// info on a context switch 
 
+    //Semaphore for synch Halt/Exit
     Semaphore *sem;
+
+    //List of all running UserThread in one process
+    struct FunctionAndArgs *listOfUserThreads[10] = {};
+
   private:
       TranslationEntry * pageTable;	// Assume linear page table translation
     // for now!
     unsigned int numPages;	// Number of pages in the virtual 
     // address space
+
+    //This array will be used to identify and track the different threads
 };
 
 #endif // ADDRSPACE_H
