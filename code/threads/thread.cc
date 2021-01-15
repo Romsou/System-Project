@@ -67,7 +67,7 @@ Thread::Thread(const char *threadName)
     id = threadCount;
     threadCount++;
     index = -1;
-    waitQueue = new Semaphore("Thread wait Queue", 0);
+    waitQueue = new Semaphore("Thread wait Queue", 1);
     functionAndArgs = new FunctionAndArgs();
 #endif
 }
