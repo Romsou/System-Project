@@ -5,35 +5,6 @@
 
 
 /**
- * Count the number of user threads
- * 
- * getNumberOfUserThreads goes through currentThread->space->listOfUserThreads
- * and count the number of user threads it contains.
- * 
- * @return The number of running user thread
- */
-/*static int getNumberOfUserThreads()
-{
-  int nbOfThread = 0;
-  for (int i = 0; i < NB_MAX_THREADS; i++)
-    if (currentThread->space->listOfUserThreads[i] != 0)
-      nbOfThread++;
-
-  return nbOfThread;
-}*/
-
-/**
- * Return true if all users threads are properly ends,with an 
- * UserThreadExit() call. Else, return false.
- * 
- * @return a boolean, true if lsit of userThread is empty.
- */
-bool isEmptyListOfUserThreads()
-{
-  return currentThread->space->listOfUserThreads->NumSet() == 0;
-}
-
-/**
  * Starts a new user thread with function f
  * 
  * This function works by initializing the machine environment
@@ -73,29 +44,24 @@ static void StartUserThread(int f)
  */
 int do_UserThreadCreate(int f, int arg)
 {
-
   struct FunctionAndArgs *fArgs = (FunctionAndArgs *)malloc(sizeof(FunctionAndArgs));
   fArgs->args = arg;
   fArgs->func = f;
   //We read the 6th register, as it contains the call of UserThreadExit (see start.S)
   fArgs->end = machine->ReadRegister(6);
 
-  int thread_id = currentThread->space->listOfUserThreads->Find();
-
+  int thread_id = currentThread->space->AddThreadInList();
+  
   if (thread_id == -1)
   {
     DEBUG('a', "Cannot create more user threads (currentThread->space->listOfUserThreads full)");
     return -1;
   }
 
-  //currentThread->space->listOfUserThreads[thread_id] = fArgs;
-
-  Thread *newThread = new Thread("usear_thread");
+  Thread *newThread = new Thread("new_user_thread" + thread_id);
   newThread->setTid(thread_id);
   newThread->Fork(StartUserThread, (int)fArgs);
-  DEBUG('x', "Number of the next free thread_id: %d\n", thread_id);
-  //int nbOfThreads = scheduler->getNumberOfReadyThreads();
-  //DEBUG('x',"Number of threads in ready list: %d\n" , nbOfThreads);
+  DEBUG('x',"Number of the next free thread_id: %d\n" , thread_id);
 
   if (newThread == NULL)
     return -1;
@@ -104,24 +70,11 @@ int do_UserThreadCreate(int f, int arg)
 }
 
 /**
- * Properly removes the current thread from currentThread->space->listOfUserThreads.
- */
-void DeleteThreadFromList()
-{
-  /*
-  delete currentThread->space->listOfUserThreads[currentThread->getTid()];
-  currentThread->space->listOfUserThreads[currentThread->getTid()] = 0;
-  */
-  currentThread->space->listOfUserThreads->Clear(currentThread->getTid());
-}
-
-/**
  * do_UserThreadExit erases and properly ends the current thread
  */
 void do_UserThreadExit()
 {
   currentThread->Finish();
-  //delete currentThread->space; //TODO : A vÃ©rifier
 }
 
 /**
@@ -135,8 +88,5 @@ void do_UserThreadExit()
  */
 int do_UserThreadJoin(int tid)
 {
-  while (currentThread->space->listOfUserThreads->Test(tid))
-    currentThread->Yield();
-
   return 0;
 }

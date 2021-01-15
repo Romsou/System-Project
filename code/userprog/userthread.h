@@ -28,13 +28,6 @@ struct FunctionAndArgs
 };
 
 /**
- * Indicates whether the list of user threads is empty
- * 
- * @return A boolean indicating whether the list of user thread is empty
- */
-extern bool isEmptyListOfUserThreads();
-
-/**
  * Creates a new user thread and puts it in the ready list.
  * 
  * @param f: The function we want to create a user thread for.
@@ -42,11 +35,6 @@ extern bool isEmptyListOfUserThreads();
  * @return: thread id or -1 if the creation of the thread fails 
  */
 extern int do_UserThreadCreate(int f, int arg);
-
-/**
- * Properly removes the current thread from ListOfUserThreads.
- */
-extern void DeleteThreadFromList();
 
 /**
  * do_UserThreadExit erases and properly ends the current thread

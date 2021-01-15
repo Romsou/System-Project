@@ -138,7 +138,7 @@ void handleGetChar()
  */
 void handleEnd()
 {
-  if (!isEmptyListOfUserThreads()) {
+  if (!currentThread->space->isEmptyUserThread()) {
     currentThread->space->sem->P();
   }
   DEBUG('a', "Interruption for end of process %s\n",currentThread->getName());  
@@ -196,7 +196,7 @@ void handleGetInt()
 
   int i = 0;
   char ch = synchconsole->SynchGetChar();
-  while (i < MAX_LEN_INT - 1 && ch >= '0' && ch <= '9' && ch != EOF && ch != '\n' && ch != '\t')
+  while (i < MAX_LEN_INT && ch >= '0' && ch <= '9' && ch != EOF && ch != '\n' && ch != '\t')
   {
     s[i] = ch;
     ch = synchconsole->SynchGetChar();
@@ -236,8 +236,8 @@ void handleUserThreadCreate()
  */
 void handleUserThreadExit()
 {
-  DeleteThreadFromList();
-  if(isEmptyListOfUserThreads()) {
+  currentThread->space->DeleteThreadFromList(currentThread->getTid()); //REPLACE BY INDEX TODO!
+  if(currentThread->space->isEmptyUserThread()) {
     currentThread->space->sem->V();
   }
   do_UserThreadExit();

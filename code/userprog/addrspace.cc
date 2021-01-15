@@ -146,7 +146,6 @@ AddrSpace::AddrSpace(OpenFile *executable)
 														 [noffH.initData.virtualAddr]),
 											 noffH.initData.size, noffH.initData.inFileAddr);
 	}
-	listOfUserThreads = new BitMap(10);
 	sem = new Semaphore("sem", 0);
 }
 
@@ -219,4 +218,56 @@ void AddrSpace::RestoreState()
 {
 	machine->pageTable = pageTable;
 	machine->pageTableSize = numPages;
+}
+
+/**
+ * Return true if all users threads are properly ends,with an 
+ * UserThreadExit() call. Else, return false.
+ * 
+ * @return a boolean, true if lsit of userThread is empty.
+ */
+bool AddrSpace::isEmptyUserThread()
+{
+  if (userThread == NULL)
+    return true;
+
+  int i = 0;
+  while ((i < NB_MAX_THREADS))
+  {
+    if (userThread[i] != 0)
+      return false;
+
+    i++;
+  }
+
+  return true;
+}
+
+/**
+ * Properly removes the current thread from userThread.
+ */
+void AddrSpace::DeleteThreadFromList(int index)
+{
+  userThread[index] = 0;
+}
+
+/**
+ * Put the current thread at in table of userThreads if find a free space.
+ * @param index, index of a free space in table
+ * @return index of free space found in user thread table, -1 table in full. 
+ */
+int AddrSpace::AddThreadInList() 
+{
+	int i = 0;
+  while ((i < NB_MAX_THREADS) && userThread[i] != 0)
+  {
+    i++;
+  }
+  if (i < NB_MAX_THREADS) {
+  	userThread[i] = currentThread;
+    return i;
+	}
+
+  DEBUG('a', "Cannot create more user threads (userThread full)");
+  return -1;
 }
