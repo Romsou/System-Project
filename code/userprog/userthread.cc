@@ -3,14 +3,11 @@
 #include "machine.h"
 #include "userthread.h"
 
-//This array will be used to identify and track the different threads
-//struct FunctionAndArgs *listOfUserThreads[NB_MAX_THREADS] = {};
-BitMap *listOfUserThreads = new BitMap(NB_MAX_THREADS);
 
 /**
  * Count the number of user threads
  * 
- * getNumberOfUserThreads goes through listOfUserThreads
+ * getNumberOfUserThreads goes through currentThread->space->listOfUserThreads
  * and count the number of user threads it contains.
  * 
  * @return The number of running user thread
@@ -19,7 +16,7 @@ BitMap *listOfUserThreads = new BitMap(NB_MAX_THREADS);
 {
   int nbOfThread = 0;
   for (int i = 0; i < NB_MAX_THREADS; i++)
-    if (listOfUserThreads[i] != 0)
+    if (currentThread->space->listOfUserThreads[i] != 0)
       nbOfThread++;
 
   return nbOfThread;
@@ -33,7 +30,7 @@ BitMap *listOfUserThreads = new BitMap(NB_MAX_THREADS);
  */
 bool isEmptyListOfUserThreads()
 {
-  return listOfUserThreads->NumSet() == 0;
+  return currentThread->space->listOfUserThreads->NumSet() == 0;
 }
 
 /**
@@ -83,15 +80,15 @@ int do_UserThreadCreate(int f, int arg)
   //We read the 6th register, as it contains the call of UserThreadExit (see start.S)
   fArgs->end = machine->ReadRegister(6);
 
-  int thread_id = listOfUserThreads->Find();
+  int thread_id = currentThread->space->listOfUserThreads->Find();
 
   if (thread_id == -1)
   {
-    DEBUG('a', "Cannot create more user threads (listOfUserThreads full)");
+    DEBUG('a', "Cannot create more user threads (currentThread->space->listOfUserThreads full)");
     return -1;
   }
 
-  //listOfUserThreads[thread_id] = fArgs;
+  //currentThread->space->listOfUserThreads[thread_id] = fArgs;
 
   Thread *newThread = new Thread("usear_thread");
   newThread->setTid(thread_id);
@@ -107,15 +104,15 @@ int do_UserThreadCreate(int f, int arg)
 }
 
 /**
- * Properly removes the current thread from ListOfUserThreads.
+ * Properly removes the current thread from currentThread->space->listOfUserThreads.
  */
 void DeleteThreadFromList()
 {
   /*
-  delete listOfUserThreads[currentThread->getTid()];
-  listOfUserThreads[currentThread->getTid()] = 0;
+  delete currentThread->space->listOfUserThreads[currentThread->getTid()];
+  currentThread->space->listOfUserThreads[currentThread->getTid()] = 0;
   */
-  listOfUserThreads->Clear(currentThread->getTid());
+  currentThread->space->listOfUserThreads->Clear(currentThread->getTid());
 }
 
 /**
@@ -131,14 +128,14 @@ void do_UserThreadExit()
  * Allows a user thread to wait for the termination of another user thread.
  * 
  * This function shall wait until a thread is finished (noticeable by checking the array
- * listOfUserThreads). do_UserThreadExit is the function that marks the thread as finished by setting
+ * currentThread->space->listOfUserThreads). do_UserThreadExit is the function that marks the thread as finished by setting
  * to zero the element tid of the array.
  * @param arg: The tid of the thread
  * @return: 0 on success
  */
 int do_UserThreadJoin(int tid)
 {
-  while (listOfUserThreads->Test(tid))
+  while (currentThread->space->listOfUserThreads->Test(tid))
     currentThread->Yield();
 
   return 0;

@@ -7,7 +7,6 @@
 #include "copyright.h"
 #include "utility.h"
 #include "thread.h"
-#include "bitmap.h"
 
 /**
  * @struct FunctionAndArgs
