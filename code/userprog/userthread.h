@@ -20,12 +20,6 @@
  * @field end Address of UserThreadExit function, to allow us to automatically
  *            exit the thread once it's done.
  */
-struct FunctionAndArgs
-{
-  int func;
-  int args;
-  int end;
-};
 
 /**
  * Indicates whether the list of user threads is empty

@@ -20,9 +20,10 @@
 #include "synch.h"
 #include "system.h"
 
-#define STACK_FENCEPOST 0xdeadbeef // this is put at the top of the
-                                   // execution stack, for detecting
-                                   // stack overflows
+// this is put at the top of the
+// execution stack, for detecting
+// stack overflows
+#define STACK_FENCEPOST 0xdeadbeef
 
 //----------------------------------------------------------------------
 // Thread::Thread
@@ -63,6 +64,11 @@ Thread::Thread(const char *threadName)
     userThreadCount++;
     for (int r = NumGPRegs; r < NumTotalRegs; r++)
         userRegisters[r] = 0;
+    id = threadCount;
+    threadCount++;
+    index = -1;
+    waitQueue = new Semaphore("Thread wait Queue", 0);
+    functionAndArgs = new FunctionAndArgs();
 #endif
 }
 
@@ -85,6 +91,8 @@ Thread::~Thread()
     threadCount--;
 #ifdef USER_PROGRAM
     userThreadCount--;
+    delete waitQueue;
+    delete functionAndArgs;
 #endif
     ASSERT(this != currentThread);
     if (stack != NULL)
@@ -457,5 +465,36 @@ void Thread::clearWaitingThreads()
     waitQueue->V();
 }
 
+int Thread::getFunction()
+{
+    return functionAndArgs->func;
+}
+
+void Thread::setFunction(int f)
+{
+    ASSERT(f >= 0);
+    functionAndArgs->func = f;
+}
+
+int Thread::getArgs()
+{
+    return functionAndArgs->args;
+}
+
+void Thread::setArgs(int args)
+{
+    functionAndArgs->args = args;
+}
+
+int Thread::getReturnAddr()
+{
+    return functionAndArgs->returnAddr;
+}
+
+void Thread::setReturnAddr(int returnAddr)
+{
+    ASSERT(returnAddr >= 0);
+    functionAndArgs->returnAddr = returnAddr;
+}
 
 #endif
