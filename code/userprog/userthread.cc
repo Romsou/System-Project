@@ -71,7 +71,7 @@ int do_UserThreadCreate(int f, int arg)
   if (newThread == NULL)
     return -1;
 
-  return thread_id;
+  return newThread->getTid();
 }
 
 /**
