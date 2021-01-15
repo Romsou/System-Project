@@ -245,7 +245,7 @@ bool AddrSpace::isEmptyUserThread()
  */
 void AddrSpace::DeleteThreadFromArray(int index)
 {
-	userThreads[index] = 0;
+	userThreads[index] = NULL;
 }
 
 /**
