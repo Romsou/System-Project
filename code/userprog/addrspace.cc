@@ -146,7 +146,7 @@ AddrSpace::AddrSpace(OpenFile *executable)
 														 [noffH.initData.virtualAddr]),
 											 noffH.initData.size, noffH.initData.inFileAddr);
 	}
-
+	listOfUserThreads = new BitMap(10);
 	sem = new Semaphore("sem", 0);
 }
 

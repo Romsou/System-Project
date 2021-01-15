@@ -3,6 +3,7 @@
 #include "machine.h"
 #include "userthread.h"
 
+
 /**
  * Starts a new user thread with function f
  * 
@@ -25,7 +26,7 @@ static void StartUserThread(int f)
   machine->WriteRegister(PCReg, ((FunctionAndArgs *)f)->func);
 
   machine->WriteRegister(NextPCReg, machine->ReadRegister(PCReg) + 4);
-  machine->WriteRegister(StackReg, stackaddress - 2 * (currentThread->getTid()+1)* PageSize);
+  machine->WriteRegister(StackReg, stackaddress - 2 * (currentThread->getTid() + 1) * PageSize);
   machine->WriteRegister(4, ((FunctionAndArgs *)f)->args);
 
   //This will allow us to call UserThreadExit (see exception.cc)
@@ -52,7 +53,10 @@ int do_UserThreadCreate(int f, int arg)
   int thread_id = currentThread->space->AddThreadInList();
   
   if (thread_id == -1)
+  {
+    DEBUG('a', "Cannot create more user threads (currentThread->space->listOfUserThreads full)");
     return -1;
+  }
 
   Thread *newThread = new Thread("new_user_thread" + thread_id);
   newThread->setTid(thread_id);
@@ -77,7 +81,7 @@ void do_UserThreadExit()
  * Allows a user thread to wait for the termination of another user thread.
  * 
  * This function shall wait until a thread is finished (noticeable by checking the array
- * listOfUserThreads). do_UserThreadExit is the function that marks the thread as finished by setting
+ * currentThread->space->listOfUserThreads). do_UserThreadExit is the function that marks the thread as finished by setting
  * to zero the element tid of the array.
  * @param arg: The tid of the thread
  * @return: 0 on success

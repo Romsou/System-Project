@@ -142,7 +142,7 @@ void handleEnd()
     currentThread->space->sem->P();
   }
   DEBUG('a', "Interruption for end of process %s\n",currentThread->getName());  
-  machine->WriteRegister(2, currentThread->getPid());
+  machine->WriteRegister(2, currentThread->getTid());
   handleHalt();
 }
 
