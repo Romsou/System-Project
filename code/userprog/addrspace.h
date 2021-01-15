@@ -34,6 +34,8 @@ class AddrSpace
     void SaveState ();		// Save/restore address space-specific
     void RestoreState ();	// info on a context switch 
 
+    Thread* getThreadAtId(int id);
+
     //Semaphore for synch Halt/Exit
     Semaphore *sem;
 
@@ -45,6 +47,7 @@ class AddrSpace
     // for now!
     unsigned int numPages;	// Number of pages in the virtual 
     // address space
+    Thread *userthreads[];
 
     //This array will be used to identify and track the different threads
 };

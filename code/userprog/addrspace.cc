@@ -220,3 +220,17 @@ void AddrSpace::RestoreState()
 	machine->pageTable = pageTable;
 	machine->pageTableSize = numPages;
 }
+
+Thread* AddrSpace::getThreadAtId(int id)
+{
+    int tid;
+    Thread* ptr_thread = NULL;
+    for(int i = 0; i < NB_MAX_THREADS; i++){
+        tid = *(userthread[i])->getId();
+        if(tid==id){
+            ptr_thread = userthread[i];
+            break;
+        }
+    }
+    return ptr_thread;
+}
