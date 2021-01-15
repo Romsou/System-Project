@@ -78,6 +78,13 @@ extern void ThreadPrint(int arg);
 //  Some threads also belong to a user address space; threads
 //  that only run in the kernel have a NULL address space.
 
+struct FunctionAndArgs
+{
+  int func;
+  int args;
+  int returnAddr;
+};
+
 class Thread
 {
 private:
@@ -155,7 +162,8 @@ private:
   int id;                           // id of our UserThread
   int index;                       // index in the Thread array use in addrSpace 
   Semaphore* waitQueue;
-  
+  struct FunctionAndArgs* functionAndArgs;
+
   int userRegisters[NumTotalRegs]; // user-level CPU register state
 
 public:
@@ -170,6 +178,15 @@ public:
 
   void waitThread();
   void clearWaitingThreads();  
+
+  int getFunction();
+  void setFunction(int f);
+
+  int getArgs();
+  void setArgs(int args);
+
+  int getReturnAddr();
+  void setReturnAddr(int returnAddr);
 
   AddrSpace *space; // User code this thread is running.
 #endif

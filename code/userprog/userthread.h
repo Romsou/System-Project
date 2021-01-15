@@ -20,12 +20,6 @@
  * @field end Address of UserThreadExit function, to allow us to automatically
  *            exit the thread once it's done.
  */
-struct FunctionAndArgs
-{
-  int func;
-  int args;
-  int end;
-};
 
 /**
  * Creates a new user thread and puts it in the ready list.
