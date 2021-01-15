@@ -17,6 +17,7 @@
 #include "filesys.h"
 #include "translate.h"
 #include "synch.h"
+#include "bitmap.h"
 
 #define UserStackSize	3072	//2 * NB_MAX_THREADS * PageSize + 16	// increase this as necessary!
 
@@ -38,7 +39,7 @@ class AddrSpace
     Semaphore *sem;
 
     //List of all running UserThread in one process
-    struct FunctionAndArgs *listOfUserThreads[10] = {};
+    BitMap *listOfUserThreads;
 
   private:
       TranslationEntry * pageTable;	// Assume linear page table translation
