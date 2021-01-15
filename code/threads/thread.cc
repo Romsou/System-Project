@@ -153,7 +153,6 @@ void Thread::Fork(VoidFunctionPtr func, void *arg)
 //      overflows by not putting large data structures on the stack.
 //      Don't do this: void foo() { int bigArray[10000]; ... }
 //----------------------------------------------------------------------
-
 void Thread::CheckOverflow()
 {
     if (stack != NULL)
@@ -178,7 +177,6 @@ void Thread::CheckOverflow()
 //      NOTE: we disable interrupts, so that we don't get a time slice
 //      between setting threadToBeDestroyed, and going to sleep.
 //----------------------------------------------------------------------
-
 void Thread::Finish()
 {
     (void)interrupt->SetLevel(IntOff);
@@ -212,7 +210,6 @@ void Thread::Finish()
 //
 //      Similar to Thread::Sleep(), but a little different.
 //----------------------------------------------------------------------
-
 void Thread::Yield()
 {
     Thread *nextThread;
