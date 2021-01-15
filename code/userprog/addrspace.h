@@ -18,7 +18,6 @@
 #include "translate.h"
 #include "synch.h"
 #include "bitmap.h"
-#include "thread.h"
 
 #define UserStackSize	3072	//2 * NB_MAX_THREADS * PageSize + 16	// increase this as necessary!
 #define NB_MAX_THREADS 10
@@ -37,8 +36,6 @@ class AddrSpace
     void SaveState ();		// Save/restore address space-specific
     void RestoreState ();	// info on a context switch 
 
-    Thread* getThreadAtId(int id);
-
     //Semaphore for synch Halt/Exit
     Semaphore *sem;
 
@@ -50,30 +47,33 @@ class AddrSpace
     bool isEmptyUserThread();
 
     /**
-     * Properly removes the current thread from userThread.
+     * Properly removes the current thread from userThreads.
      */
-    void DeleteThreadFromList(int index);
+    void DeleteThreadFromArray(int index);
 
     /**
      * Put the current thread at in table of userThreads if find a free space.
      * @param index, index of a free space in table
      * @return index of free space found in user thread table, -1 table in full. 
      */
-    int AddThreadInList();
+    int AddThreadInArray();
 
     /**
     * Search in list of threads, those who is corresponding to the id
     * if none thread corresponding, return null
     */
-    //Thread* getThreadAtId(int id);
+    struct Thread* getThreadAtId(int id);
+
+    void setThreadAtIndex(Thread* thread, int index);
 
   private:
       TranslationEntry * pageTable;	// Assume linear page table translation
     // for now!
     unsigned int numPages;	// Number of pages in the virtual 
     // address space
+
     //This array will be used to identify and track the different threads
-    //Thread *userThread[NB_MAX_THREADS] ;
+    Thread** userThreads;
 };
 
 #endif // ADDRSPACE_H

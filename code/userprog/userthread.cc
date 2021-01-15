@@ -44,7 +44,6 @@ static void StartUserThread(int f)
  */
 int do_UserThreadCreate(int f, int arg)
 {
-  int thread_id = currentThread->space->Find();
   
   if (thread_id == -1)
   {
