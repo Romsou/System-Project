@@ -50,7 +50,7 @@ int do_UserThreadCreate(int f, int arg)
   //We read the 6th register, as it contains the call of UserThreadExit (see start.S)
   fArgs->returnAddr = machine->ReadRegister(6);
 
-  int thread_id = currentThread->space->AddThreadInList();
+  int thread_id = currentThread->space->AddThreadInArray();
   
   if (thread_id == -1)
   {

@@ -47,22 +47,24 @@ class AddrSpace
     bool isEmptyUserThread();
 
     /**
-     * Properly removes the current thread from userThread.
+     * Properly removes the current thread from userThreads.
      */
-    void DeleteThreadFromList(int index);
+    void DeleteThreadFromArray(int index);
 
     /**
      * Put the current thread at in table of userThreads if find a free space.
      * @param index, index of a free space in table
      * @return index of free space found in user thread table, -1 table in full. 
      */
-    int AddThreadInList();
+    int AddThreadInArray();
 
     /**
     * Search in list of threads, those who is corresponding to the id
     * if none thread corresponding, return null
     */
     struct Thread* getThreadAtId(int id);
+
+    void setThreadAtIndex(Thread* thread, int index);
 
   private:
       TranslationEntry * pageTable;	// Assume linear page table translation
@@ -71,7 +73,7 @@ class AddrSpace
     // address space
 
     //This array will be used to identify and track the different threads
-    struct Thread *userThread[NB_MAX_THREADS] = {};
+    Thread** userThreads;
 };
 
 #endif // ADDRSPACE_H
