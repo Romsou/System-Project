@@ -92,8 +92,10 @@ public:
   // NOTE -- thread being deleted
   // must not be running when delete
   // is called
+ 
   static int threadCount;
   static int userThreadCount;
+ 
   // basic thread operations
   void Fork(VoidFunctionPtr func, int arg);   // Make thread run (*func)(arg)
   void Fork(VoidFunctionPtr func, void *arg); // Make thread run (*func)(*args)
@@ -117,17 +119,13 @@ public:
   {
     printf("%s, ", name);
   }
-  int getTid()
-  {
-    return id;
-  }
-  void setTid(int i)
-  {
-    id = i;
-  }
+  
+  
+  /*
   int getPid() { return pid; }
   int getPPid() { return ppid; }
   int getNbChild() { return childNb; }
+  */
 
 private:
   // some of the private data for this class is listed above
@@ -138,26 +136,40 @@ private:
   ThreadStatus status; // ready, running or blocked
   Thread *parent;
   const char *name;
+  /*
   int pid;
   int ppid;
   int childNb;
-  int id; //our id
+  */
 
   void StackAllocate(VoidFunctionPtr func, int arg);
   // Allocate a stack for thread.
   // Used internally by Fork()
-  void newChild() { childNb++; }
+  //void newChild() { childNb++; }
 
 #ifdef USER_PROGRAM
   // A thread running a user program actually has *two* sets of CPU registers --
   // one for its state while executing user code, one for its state
   // while executing kernel code.
 
+  int id;                           // id of our UserThread
+  int index;                       // index in the Thread array use in addrSpace 
+  Semaphore* waitQueue;
+  
   int userRegisters[NumTotalRegs]; // user-level CPU register state
 
 public:
   void SaveUserState();    // save user-level register state
   void RestoreUserState(); // restore user-level register state
+
+  int getTid();
+  void setTid(int i);
+
+  int getIndex();
+  void setIndex(int i);
+
+  void waitThread();
+  void clearWaitingThreads();  
 
   AddrSpace *space; // User code this thread is running.
 #endif
