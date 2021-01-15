@@ -3,9 +3,6 @@
 #include "machine.h"
 #include "userthread.h"
 
-//This array will be used to identify and track the different threads
-struct FunctionAndArgs *listOfUserThreads[NB_MAX_THREADS] = {};
-
 /**
  * Count the number of user threads
  * 
@@ -32,13 +29,13 @@ struct FunctionAndArgs *listOfUserThreads[NB_MAX_THREADS] = {};
  */
 bool isEmptyListOfUserThreads()
 {
-  if (listOfUserThreads == NULL)
+  if (currentThread->space->listOfUserThreads == NULL)
     return true;
 
   int i = 0;
   while ((i < NB_MAX_THREADS))
   {
-    if (listOfUserThreads[i] != 0)
+    if (currentThread->space->listOfUserThreads[i] != 0)
       return false;
 
     i++;
@@ -87,7 +84,7 @@ static void StartUserThread(int f)
 int findFreeThread()
 {
   int i = 0;
-  while ((i < NB_MAX_THREADS) && listOfUserThreads[i] != 0)
+  while ((i < NB_MAX_THREADS) && currentThread->space->listOfUserThreads[i] != 0)
   {
     i++;
   }
@@ -119,7 +116,7 @@ int do_UserThreadCreate(int f, int arg)
   if (thread_id == -1)
     return -1;
 
-  listOfUserThreads[thread_id] = fArgs;
+  currentThread->space->listOfUserThreads[thread_id] = fArgs;
 
   Thread *newThread = new Thread("new_user_thread" + thread_id);
   newThread->setTid(thread_id);
@@ -139,8 +136,8 @@ int do_UserThreadCreate(int f, int arg)
  */
 void DeleteThreadFromList()
 {
-  delete listOfUserThreads[currentThread->getTid()];
-  listOfUserThreads[currentThread->getTid()] = 0;
+  delete currentThread->space->listOfUserThreads[currentThread->getTid()];
+  currentThread->space->listOfUserThreads[currentThread->getTid()] = 0;
 }
 
 /**
@@ -163,7 +160,7 @@ void do_UserThreadExit()
  */
 int do_UserThreadJoin(int tid)
 {
-  while (listOfUserThreads[tid] != 0)
+  while (currentThread->space->listOfUserThreads[tid] != 0)
     currentThread->Yield();
 
   return 0;
