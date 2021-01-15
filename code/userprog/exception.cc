@@ -236,7 +236,7 @@ void handleUserThreadCreate()
  */
 void handleUserThreadExit()
 {
-  currentThread->space->DeleteThreadFromArray(currentThread->getTid()); //REPLACE BY INDEX TODO!
+  currentThread->space->DeleteThreadFromArray(currentThread->getIndex()); //REPLACE BY INDEX done
   if(currentThread->space->isEmptyUserThread()) {
     currentThread->space->sem->V();
   }
