@@ -44,6 +44,8 @@ static void StartUserThread(int f)
  */
 int do_UserThreadCreate(int f, int arg)
 {
+
+  int thread_id = currentThread->space->AddThreadInArray();
   
   if (thread_id == -1)
   {
@@ -52,6 +54,7 @@ int do_UserThreadCreate(int f, int arg)
   }
 
   Thread *newThread = new Thread("new_user_thread");
+  currentThread->space->setThreadAtIndex(newThread,thread_id);
   newThread->setIndex(thread_id);     //met a jour index
   newThread->waitThread();            //prend le semaphore
 
