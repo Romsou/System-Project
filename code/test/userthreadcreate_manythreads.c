@@ -13,9 +13,9 @@ int main()
 {
     char* phrase = "Un thread\n";
     
-    int i, nbThreads=0, nbThreadsError=0;
+    int i, nbThreads=0, nbThreadsError=0, ret;
     for (i=0; i<NB_THREADS; i++) {
-      if (UserThreadCreate(print, phrase) != -1) {
+      if ((ret = UserThreadCreate(print, phrase)) != -1) {
         nbThreads++;
       } else {
         nbThreadsError++;
@@ -28,6 +28,8 @@ int main()
       a = b + a - 88 / 2 * 3;
       a = 999 * b - 88 / 7;
       b = a / 7;
+
+      //PutInt(ret);
     }
 
     PutString("NbThreads : "); 

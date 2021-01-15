@@ -32,7 +32,6 @@
 //
 //      "threadName" is an arbitrary string, useful for debugging.
 //----------------------------------------------------------------------
-int Thread::threadCount = 0;
 int Thread::userThreadCount = 0;
 
 Thread::Thread(const char *threadName)
@@ -50,13 +49,12 @@ Thread::Thread(const char *threadName)
     for (int r = NumGPRegs; r < NumTotalRegs; r++)
         userRegisters[r] = 0;
 
-    threadCount++;
-    id = threadCount;
+    id = userThreadCount;
+    userThreadCount++;
     index = -1;
     waitQueue = new Semaphore("Thread wait Queue", 1);
     functionAndArgs = new FunctionAndArgs();
 
-    userThreadCount++;
 #endif
 }
 
@@ -76,7 +74,6 @@ Thread::~Thread()
 {
     DEBUG('t', "Deleting thread \"%s\"\n", name);
 
-    threadCount--;
 #ifdef USER_PROGRAM
     userThreadCount--;
     delete waitQueue;
