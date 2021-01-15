@@ -26,11 +26,11 @@ static void StartUserThread(int f)
   machine->WriteRegister(PCReg, ((FunctionAndArgs *)f)->func);
 
   machine->WriteRegister(NextPCReg, machine->ReadRegister(PCReg) + 4);
-  machine->WriteRegister(StackReg, stackaddress - 2 * (currentThread->getTid() + 1) * PageSize);
+  machine->WriteRegister(StackReg, stackaddress - 2 * currentThread->getIndex() * PageSize);
   machine->WriteRegister(4, ((FunctionAndArgs *)f)->args);
 
   //This will allow us to call UserThreadExit (see exception.cc)
-  machine->WriteRegister(RetAddrReg, ((FunctionAndArgs *)f)->end);
+  machine->WriteRegister(RetAddrReg, ((FunctionAndArgs *)f)->returnAddr);
 
   machine->Run();
 }
@@ -48,7 +48,7 @@ int do_UserThreadCreate(int f, int arg)
   fArgs->args = arg;
   fArgs->func = f;
   //We read the 6th register, as it contains the call of UserThreadExit (see start.S)
-  fArgs->end = machine->ReadRegister(6);
+  fArgs->returnAddr = machine->ReadRegister(6);
 
   int thread_id = currentThread->space->AddThreadInList();
   
