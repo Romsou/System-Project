@@ -18,6 +18,7 @@
 #include "translate.h"
 #include "synch.h"
 #include "bitmap.h"
+#include "thread.h"
 
 #define UserStackSize	3072	//2 * NB_MAX_THREADS * PageSize + 16	// increase this as necessary!
 #define NB_MAX_THREADS 10
@@ -64,17 +65,15 @@ class AddrSpace
     * Search in list of threads, those who is corresponding to the id
     * if none thread corresponding, return null
     */
-    struct Thread* getThreadAtId(int id);
+    Thread* getThreadAtId(int id);
 
   private:
       TranslationEntry * pageTable;	// Assume linear page table translation
     // for now!
     unsigned int numPages;	// Number of pages in the virtual 
     // address space
-    Thread *userthreads[];
-
     //This array will be used to identify and track the different threads
-    struct Thread *userThread[NB_MAX_THREADS] = {};
+    Thread *userThread[NB_MAX_THREADS] ;
 };
 
 #endif // ADDRSPACE_H

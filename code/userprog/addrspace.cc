@@ -19,6 +19,7 @@
 #include "system.h"
 #include "addrspace.h"
 #include "noff.h"
+#include "thread.h"
 
 #include <strings.h> /* for bzero */
 
@@ -273,18 +274,20 @@ int AddrSpace::AddThreadInList()
 }
 
 /**
- * @param id an index between 0 and MAX_NB_THREAD
+ * @param id an unique identifiant for each thread 
  * @return the thread pointer corresponding to id
  * Search in list of threads, those who is corresponding to the id
  * if none thread corresponding, return null
  */
-struct Thread* AddrSpace::getThreadAtId(int id)
+Thread* AddrSpace::getThreadAtId(int id)
 {
     int tid;
     Thread* ptr_thread = NULL;
     for(int i = 0; i < NB_MAX_THREADS; i++){
+        tid = userThread[i]->getTid();
         if(tid==id){
-            break;
+            ptr_thread = userThread[i];
+            return ptr_thread;
         }
     }
     return ptr_thread;
