@@ -3,6 +3,10 @@
 #include "machine.h"
 #include "userthread.h"
 
+//This array will be used to identify and track the different threads
+//struct FunctionAndArgs *listOfUserThreads[NB_MAX_THREADS] = {};
+BitMap *listOfUserThreads = new BitMap(NB_MAX_THREADS);
+
 /**
  * Count the number of user threads
  * 
@@ -29,19 +33,7 @@
  */
 bool isEmptyListOfUserThreads()
 {
-  if (currentThread->space->listOfUserThreads == NULL)
-    return true;
-
-  int i = 0;
-  while ((i < NB_MAX_THREADS))
-  {
-    if (currentThread->space->listOfUserThreads[i] != 0)
-      return false;
-
-    i++;
-  }
-
-  return true;
+  return listOfUserThreads->NumSet() == 0;
 }
 
 /**
@@ -66,33 +58,13 @@ static void StartUserThread(int f)
   machine->WriteRegister(PCReg, ((FunctionAndArgs *)f)->func);
 
   machine->WriteRegister(NextPCReg, machine->ReadRegister(PCReg) + 4);
-  machine->WriteRegister(StackReg, stackaddress - 2 * (currentThread->getTid()+1)* PageSize);
+  machine->WriteRegister(StackReg, stackaddress - 2 * (currentThread->getTid() + 1) * PageSize);
   machine->WriteRegister(4, ((FunctionAndArgs *)f)->args);
 
   //This will allow us to call UserThreadExit (see exception.cc)
   machine->WriteRegister(RetAddrReg, ((FunctionAndArgs *)f)->end);
 
   machine->Run();
-}
-
-/**
- * Finds the first free element of the array of threads listOfUserThreads.
- * 
- * @return: Returns the index corresponding to the free element of listOfUserThreads.
- *          The function shall return -1 if the array is full.
- */
-int findFreeThread()
-{
-  int i = 0;
-  while ((i < NB_MAX_THREADS) && currentThread->space->listOfUserThreads[i] != 0)
-  {
-    i++;
-  }
-  if (i < NB_MAX_THREADS)
-    return i;
-
-  DEBUG('a', "Cannot create more user threads (listOfUserThreads full)");
-  return -1;
 }
 
 /**
@@ -111,17 +83,20 @@ int do_UserThreadCreate(int f, int arg)
   //We read the 6th register, as it contains the call of UserThreadExit (see start.S)
   fArgs->end = machine->ReadRegister(6);
 
-  int thread_id = findFreeThread();
-  
+  int thread_id = listOfUserThreads->Find();
+
   if (thread_id == -1)
+  {
+    DEBUG('a', "Cannot create more user threads (listOfUserThreads full)");
     return -1;
+  }
 
-  currentThread->space->listOfUserThreads[thread_id] = fArgs;
+  //listOfUserThreads[thread_id] = fArgs;
 
-  Thread *newThread = new Thread("new_user_thread" + thread_id);
+  Thread *newThread = new Thread("usear_thread");
   newThread->setTid(thread_id);
   newThread->Fork(StartUserThread, (int)fArgs);
-  DEBUG('x',"Number of the next free thread_id: %d\n" , thread_id);
+  DEBUG('x', "Number of the next free thread_id: %d\n", thread_id);
   //int nbOfThreads = scheduler->getNumberOfReadyThreads();
   //DEBUG('x',"Number of threads in ready list: %d\n" , nbOfThreads);
 
@@ -136,8 +111,11 @@ int do_UserThreadCreate(int f, int arg)
  */
 void DeleteThreadFromList()
 {
-  delete currentThread->space->listOfUserThreads[currentThread->getTid()];
-  currentThread->space->listOfUserThreads[currentThread->getTid()] = 0;
+  /*
+  delete listOfUserThreads[currentThread->getTid()];
+  listOfUserThreads[currentThread->getTid()] = 0;
+  */
+  listOfUserThreads->Clear(currentThread->getTid());
 }
 
 /**
@@ -160,7 +138,7 @@ void do_UserThreadExit()
  */
 int do_UserThreadJoin(int tid)
 {
-  while (currentThread->space->listOfUserThreads[tid] != 0)
+  while (listOfUserThreads->Test(tid))
     currentThread->Yield();
 
   return 0;
