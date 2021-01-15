@@ -77,19 +77,22 @@ int do_UserThreadCreate(int f, int arg)
  */
 void do_UserThreadExit()
 {
+  currentThread->clearWaitingThreads();
   currentThread->Finish();
 }
 
 /**
  * Allows a user thread to wait for the termination of another user thread.
- * 
- * This function shall wait until a thread is finished (noticeable by checking the array
- * currentThread->space->listOfUserThreads). do_UserThreadExit is the function that marks the thread as finished by setting
- * to zero the element tid of the array.
- * @param arg: The tid of the thread
+ * @param tid: The tid of the thread
  * @return: 0 on success
  */
 int do_UserThreadJoin(int tid)
 {
+  Thread *t = currentThread->space->getThreadAtId(tid);
+
+  if (t != NULL) {
+    t->waitThread();
+    t->clearWaitingThreads(); 
+  }
   return 0;
 }
