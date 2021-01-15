@@ -74,6 +74,12 @@ void SynchConsole::EncapsulatedPutChar(const char ch)
 	writeDone->P();
 }
 
+char SynchConsole::EncapsulateGetChar() 
+{
+	readAvail->P();
+	return console->GetChar();
+}
+
 /**
  * SynchPutChar allows to write, if possible, a character onto output.
  * @param ch character to put.
@@ -93,8 +99,10 @@ void SynchConsole::SynchPutChar(const char ch)
  */
 char SynchConsole::SynchGetChar()
 {
-	readAvail->P();
-	return console->GetChar();
+	lockPutGet->P();
+	char c = this->EncapsulateGetChar();
+	lockPutGet->V();
+	return c;
 }
 
 /**
@@ -128,9 +136,9 @@ void SynchConsole::SynchGetString(char *s, int n)
 
 	int i = 0;
 
-	s[0] = this->SynchGetChar();
+	s[0] = this->EncapsulateGetChar();
 	for (i = 1; i < n && s[i - 1] != EOF; i++)
-		s[i] = this->SynchGetChar();
+		s[i] = this->EncapsulateGetChar();
 
 	s[i] = '\0';
 

@@ -73,6 +73,7 @@ public:
 
 private:
 	void EncapsulatedPutChar(const char ch);
+	char EncapsulateGetChar();
 
 	Console *console;
 };
