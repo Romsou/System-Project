@@ -25,7 +25,7 @@ int main(){
 	UserThreadCreate(print,&a);
 	UserThreadCreate(print,&b);
 
-	Halt();
+	End();
 	//Not reached
 	return 0;
 }

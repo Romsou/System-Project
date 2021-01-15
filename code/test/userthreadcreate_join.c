@@ -20,7 +20,7 @@ int main()
     int ret2 = UserThreadCreate(countDown,0);
     UserThreadJoin(ret2);
 
-    Halt();
+    End();
     //Not reached
     return 0;
 }
