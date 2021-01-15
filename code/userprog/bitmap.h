@@ -45,6 +45,8 @@ class BitMap
     // effect, set the bit. 
     // If no bits are clear, return -1.
     int NumClear ();		// Return the number of clear bits
+    int NumSet();       // Return the number of set bits
+    int NumBits();      // Return the number of bits in this bitmap
 
     void Print ();		// Print contents of bitmap
 
@@ -60,6 +62,9 @@ class BitMap
     //  multiple of the number of bits in
     //  a word)
     unsigned int *map;		// bit storage
+    int numOfSetBits;
+
+
 };
 
 #endif // BITMAP_H
