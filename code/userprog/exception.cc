@@ -97,13 +97,6 @@ void copyStringToMachine(char *from, int to, unsigned size)
  */
 void handleHalt()
 {
-  if (!isEmptyListOfUserThreads()) {
-    IntStatus oldValue = interrupt->getLevel();
-    interrupt->SetLevel(IntOff);
-    savedThread = currentThread;
-    currentThread->Sleep();
-    interrupt->SetLevel(oldValue);
-  }
   DEBUG('a', "Shutdown, initiated by user program.\n");
   interrupt->Halt();
 }
@@ -145,6 +138,9 @@ void handleGetChar()
  */
 void handleEnd()
 {
+  if (!isEmptyListOfUserThreads()) {
+    currentThread->space->sem->P();
+  }
   DEBUG('a', "Interruption for end of process %s\n",currentThread->getName());  
   machine->WriteRegister(2, currentThread->getPid());
   handleHalt();
@@ -242,8 +238,7 @@ void handleUserThreadExit()
 {
   DeleteThreadFromList();
   if(isEmptyListOfUserThreads()) {
-    if (savedThread != NULL)
-      scheduler->ReadyToRun (savedThread);
+    currentThread->space->sem->V();
   }
   do_UserThreadExit();
 }
