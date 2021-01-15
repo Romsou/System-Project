@@ -58,6 +58,12 @@ class AddrSpace
      */
     int AddThreadInList();
 
+    /**
+    * Search in list of threads, those who is corresponding to the id
+    * if none thread corresponding, return null
+    */
+    struct Thread* getThreadAtId(int id);
+
   private:
       TranslationEntry * pageTable;	// Assume linear page table translation
     // for now!

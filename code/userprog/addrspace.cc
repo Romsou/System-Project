@@ -271,3 +271,23 @@ int AddrSpace::AddThreadInList()
   DEBUG('a', "Cannot create more user threads (userThread full)");
   return -1;
 }
+
+/**
+ * @param id an index between 0 and MAX_NB_THREAD
+ * @return the thread pointer corresponding to id
+ * Search in list of threads, those who is corresponding to the id
+ * if none thread corresponding, return null
+ */
+struct Thread* AddrSpace::getThreadAtId(int id)
+{
+    int tid;
+    Thread* ptr_thread = NULL;
+    for(int i = 0; i < NB_MAX_THREADS; i++){
+        tid = userThread[i]->getTid();
+        if(tid==id){
+            ptr_thread = userThread[i];
+            break;
+        }
+    }
+    return ptr_thread;
+}
