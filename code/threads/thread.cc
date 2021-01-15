@@ -50,8 +50,8 @@ Thread::Thread(const char *threadName)
     for (int r = NumGPRegs; r < NumTotalRegs; r++)
         userRegisters[r] = 0;
 
-    id = threadCount;
     threadCount++;
+    id = threadCount;
     index = -1;
     waitQueue = new Semaphore("Thread wait Queue", 1);
     functionAndArgs = new FunctionAndArgs();
