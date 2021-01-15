@@ -41,34 +41,22 @@ Thread::Thread(const char *threadName)
     stackTop = NULL;
     stack = NULL;
     status = JUST_CREATED;
-    //pid = threadCount;
-    //threadCount++;
 
-    /*
-    if(pid==0){
-      parent = NULL;
-      ppid = 0;
-    }else{
-      parent = currentThread;
-      ppid = currentThread->getPid();
-      currentThread->newChild();
-    }
-    */
-
-    //childNb = 0;
 #ifdef USER_PROGRAM
     space = NULL;
     // FBT: Need to initialize special registers of simulator to 0
     // in particular LoadReg or it could crash when switching
     // user threads.
-    userThreadCount++;
     for (int r = NumGPRegs; r < NumTotalRegs; r++)
         userRegisters[r] = 0;
+
     id = threadCount;
     threadCount++;
     index = -1;
     waitQueue = new Semaphore("Thread wait Queue", 1);
     functionAndArgs = new FunctionAndArgs();
+
+    userThreadCount++;
 #endif
 }
 
@@ -191,7 +179,6 @@ void Thread::CheckOverflow()
 //      between setting threadToBeDestroyed, and going to sleep.
 //----------------------------------------------------------------------
 
-//
 void Thread::Finish()
 {
     (void)interrupt->SetLevel(IntOff);
