@@ -65,7 +65,7 @@ class AddrSpace
     * Search in list of threads, those who is corresponding to the id
     * if none thread corresponding, return null
     */
-    Thread* getThreadAtId(int id);
+    //Thread* getThreadAtId(int id);
 
   private:
       TranslationEntry * pageTable;	// Assume linear page table translation
@@ -73,7 +73,7 @@ class AddrSpace
     unsigned int numPages;	// Number of pages in the virtual 
     // address space
     //This array will be used to identify and track the different threads
-    Thread *userThread[NB_MAX_THREADS] ;
+    //Thread *userThread[NB_MAX_THREADS] ;
 };
 
 #endif // ADDRSPACE_H

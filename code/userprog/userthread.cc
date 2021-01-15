@@ -23,14 +23,14 @@ static void StartUserThread(int f)
 
   int stackaddress = machine->ReadRegister(StackReg);
 
-  machine->WriteRegister(PCReg, ((FunctionAndArgs *)f)->func);
+  machine->WriteRegister(PCReg, currentThread->getFunction());
 
   machine->WriteRegister(NextPCReg, machine->ReadRegister(PCReg) + 4);
   machine->WriteRegister(StackReg, stackaddress - 2 * currentThread->getIndex() * PageSize);
-  machine->WriteRegister(4, ((FunctionAndArgs *)f)->args);
+  machine->WriteRegister(4, currentThread->getArgs());
 
   //This will allow us to call UserThreadExit (see exception.cc)
-  machine->WriteRegister(RetAddrReg, ((FunctionAndArgs *)f)->returnAddr);
+  machine->WriteRegister(RetAddrReg, currentThread->getReturnAddr());
 
   machine->Run();
 }
@@ -44,13 +44,7 @@ static void StartUserThread(int f)
  */
 int do_UserThreadCreate(int f, int arg)
 {
-  struct FunctionAndArgs *fArgs = (FunctionAndArgs *)malloc(sizeof(FunctionAndArgs));
-  fArgs->args = arg;
-  fArgs->func = f;
-  //We read the 6th register, as it contains the call of UserThreadExit (see start.S)
-  fArgs->returnAddr = machine->ReadRegister(6);
-
-  int thread_id = currentThread->space->AddThreadInList();
+  int thread_id = currentThread->space->Find();
   
   if (thread_id == -1)
   {
@@ -58,9 +52,16 @@ int do_UserThreadCreate(int f, int arg)
     return -1;
   }
 
-  Thread *newThread = new Thread("new_user_thread" + thread_id);
-  newThread->setTid(thread_id);
-  newThread->Fork(StartUserThread, (int)fArgs);
+  Thread *newThread = new Thread("new_user_thread");
+  newThread->setIndex(thread_id);     //met a jour index
+  newThread->waitThread();            //prend le semaphore
+
+  newThread->setFunction(f);
+  newThread->setArgs(arg);
+  newThread->setReturnAddr(machine->ReadRegister(6));
+
+  newThread->Fork(StartUserThread, 0);
+
   DEBUG('x',"Number of the next free thread_id: %d\n" , thread_id);
 
   if (newThread == NULL)

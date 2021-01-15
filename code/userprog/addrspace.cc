@@ -279,6 +279,7 @@ int AddrSpace::AddThreadInList()
  * Search in list of threads, those who is corresponding to the id
  * if none thread corresponding, return null
  */
+/*
 Thread* AddrSpace::getThreadAtId(int id)
 {
     int tid;
@@ -291,4 +292,4 @@ Thread* AddrSpace::getThreadAtId(int id)
         }
     }
     return ptr_thread;
-}
+}*/
