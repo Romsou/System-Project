@@ -443,6 +443,7 @@ int Thread::getIndex()
 
 void Thread::setIndex(int i)
 {
+    ASSERT(i <= NB_MAX_THREADS);
     index = i;
 }
 
