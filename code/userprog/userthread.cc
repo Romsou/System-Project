@@ -60,6 +60,8 @@ int do_UserThreadCreate(int f, int arg)
 
   newThread->setFunction(f);
   newThread->setArgs(arg);
+
+  // Potentiellement setter à PCReg
   newThread->setReturnAddr(machine->ReadRegister(6));
 
   newThread->Fork(StartUserThread, 0);
