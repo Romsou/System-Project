@@ -255,12 +255,12 @@ void AddrSpace::DeleteThreadFromArray(int index)
 }
 
 /**
- * Add the currentThread at the first free spot in userThreads.
+ * Find the first free spot in userThreads.
  * 
  * @param index, index of a free space in table
  * @return index of free space found in user thread table, -1 table in full. 
  */
-int AddrSpace::AddThreadInArray()
+int AddrSpace::GetFreeSpotInUserThreadArray()
 {
 	for (int i = 0; i < NB_MAX_THREADS; i++)
 		if (userThreads[i] == NULL)
@@ -293,7 +293,7 @@ Thread *AddrSpace::getThreadAtId(int id)
  * @param thread: The thread we want to place in our array.
  * @param index: The index at which we want to put this thread.
  */
-void AddrSpace::setThreadAtIndex(Thread* thread, int index)
+void AddrSpace::putThreadAtIndex(Thread* thread, int index)
 {
 	ASSERT(index >= 0 && index < NB_MAX_THREADS);
 	userThreads[index] = thread;
