@@ -16,6 +16,9 @@
 #include "stats.h"
 #include "timer.h"
 
+#define MAX_STRING_SIZE 512
+#define MAX_LEN_INT 11
+
 // Initialization and cleanup routines
 extern void Initialize (int argc, char **argv);	// Initialization,
 						// called before anything else

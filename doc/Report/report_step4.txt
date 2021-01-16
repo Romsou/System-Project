@@ -1,0 +1,73 @@
+
+#######Partie 1
+Sur la fonction ReadAt
+appel type : executable->ReadAt(char *into, int numBytes, int position)
+lit le fichier executable et place les numBytes à partir de position dans into
+cette fonction lit tout le fichier executable
+la lecture s'effectue par secteur defini dans disk.h avec SectorSize
+le buffer defini est donc rempli en entier avant qu'on copie
+uniquement la partie voulu dans into
+la valeur de retour est numBytes au cas ou elle a changé l.125 de openfile.cc
+change si on atteind la fin du fichier
+
+Sur constructeur AddSpace
+Pour rappel : un segment est composé de {int virtualAddr, int inFileAddr, int size;} et un noffHeader de {int noffMagic; Segment code; Segment initData; Segment uninitData;}
+On lit l'executable passer en argument avec ReadAt, les donnees sont ecrites dans noffH
+la taille du processus est defini a partir des tailles des 3 segments de noffH + la taille de la pile utilisateur 
+puis calcul de nombre de page nécessaire pour cette taille
+puis on arrondit la taille au multiple superieur
+
+puis creation tableau de TranslationEntry def dans translate.h
+composé de int virtualPage, physicalPage, et 4 bool : valid, readOnly, use, dirty
+chaque entrée initialisé, mise à 0 d'une partie de la memoire du main
+ensuite on copie les segment code et initData dans la memoire du main
+et on initialise semaphore
+
+Fonction utility.h
+divRoundDown(n,s) = n/s
+divRoundUp(n,s) = n/s + 1 si n%s > 0 et n/s sinon
+
+
+On doit coder la fonction suivante
+static void ReadAtVirtual(OpenFile *executable, int virtualaddr,int numBytes, int position,TranslationEntry *pageTable,unsigned numPages);
+
+//----------------------------------------------------------------------
+// OpenFile::ReatAtVirtual
+// Fait la meme chose que ReadAt (ie lit un executable et le stock dans into)
+// Mais stockage en memoire virtuelle def par pageTabe, numPages
+// possible de remplir un tampon temporaire avec readAt
+// recopier ce tampon en memoire avec WriteMem
+//---------------------------------------------------------------------
+
+on lit le fichier executable dans un tampon, on retient numBytes a partir de position (comme dans ReadAt)
+pageTable et numPages donnent l'addresse virtuelle ou ecrire ce qui est lu
+pageTable fait la traduction physique/virtuelle (il faut qu'on puisse ecrire dedans), pageSize * numPages donnent la taille du segment à lire (pageSize dans machine.h)
+donc numBytes doit etre inferieur ou egal à cette taille
+** est-ce que virtualaddr donné doit ou va correspondre avec pageTable->virtualaddr ? ====> virtualaddr contiendra à la fin l'adresse logique ou est enregistré la lecture
+on ecrit dans les pages données avec Machine::WriteMem(int addr, int size, int value) def dans translate.cc
+addr = virtualaddr, size = 1,2 ou 4, value = contenu de numPages pages à partie du tampon de lecture -> il faudra passer par une boucle pour remplir petit a petit les pages
+
+Constructeur Addrspace
+c'est ici qu'a lieu la strategie 1 pour 1 ou une page physique correspond a une page logique. On veut passer à i+1 pour les pages physiques, faire attention aux bornes
+
+creer fichier userprog/frameprovider.cc s'appuie sur bitmap pour gérer frame/page physique. cette classe contient au moins 3 methodes publiques : int GetEmptyFrame() recupere frame libre (par son adr en int si possible), bool ReleaseFrame(int physicaladdr) libere la frame donnee si c'est possible, int NumAvailFrame() dit combient de frame libres
+La politique d'allocation des frame est local à cette classe, elle est encapsulée ici normalement
+
+#######Partie 2 : multi-processus
+
+qu'est-ce que doit faire la methode int ForkExec(char *s) ou s est le nom d'un ficher executable ?
+- doit être un appel systeme 
+- lance l'execution de s en parallele via un thread noyau (pas utilisateur)
+- ce thread va demander de la memoire pour stocker code et donnee ainsi que sa memoire ; peut-on definir une liste d'addrspace ? comment les faire dialoguer ?
+- est-ce que addSpace donne toute la memoire disponible à un processus ? est-ce qu'il faut changer ça au prealable ou dynamiquement cad quand un nouveau thread est crée, on réalloue de la memoir ?
+- la memoire alloué doit être suffisante pour faire tourner des threads utilisateur
+
+chaque processus doit s'executer entierement il faut donc attendre les autres avant d'effectuer le Halt(), un processus qui termine doit relacher toutes ses ressources
+
+comment un executable est executé ? exemple dans progtes.c method StartProess
+le fichie est ouvert avec la methode Open de filesystem, on peut alors créé un addrspace à partir du fichier ouvert, on associe cet addrspace au thread courant (qui a donc du être créé auparavant), le fichier est fermé
+on initialise les registre de l'espace d'adressage : tous les registres sont mis à 0 sauf NextPCReg à 4 et StackReg en fin de pile.
+on restore l'etat de l'espace d'adressage : on donne a la page la translationEntry pageTable et le nombre d page pour que le programme puisse s'executer. Executer avec machine->Run()
+
+!attention un test de 12 processus avec 12 threads chacun est demandé et il faut bien vérifier que les ressources sont relachés (cela peut impliquer redefinition de new ou delete)
+

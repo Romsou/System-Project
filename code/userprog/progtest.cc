@@ -80,7 +80,8 @@ void
 ConsoleTest (char *in, char *out)
 {
     char ch;
-
+    
+    delete synchconsole;
     console = new Console (in, out, ReadAvail, WriteDone, 0);
     readAvail = new Semaphore ("read avail", 0);
     writeDone = new Semaphore ("write done", 0);
@@ -99,43 +100,41 @@ ConsoleTest (char *in, char *out)
 
 #ifdef CHANGED
 
-//----------------------------------------------------------------------
-// TestChar
-//      Test if SynchGetChar correctly read char from a given file and if 
-//      SynchPutChar correctly write char into a given file.
-//----------------------------------------------------------------------
-void TestChar (SynchConsole *sc) {
+/**
+ * TestChar
+ *      Test if SynchGetChar correctly read char from a given file and if 
+ *      SynchPutChar correctly write char into a given file (default file
+ *      standard input and output).
+ */
+void TestChar () {
     char ch;
-    while ((ch = sc->SynchGetChar()) != EOF)
-        sc->SynchPutChar(ch);
+    while ((ch = synchconsole->SynchGetChar()) != EOF)
+        synchconsole->SynchPutChar(ch);
     ASSERT(ch == EOF);
     fprintf(stderr, "Solaris: EOF detected in SynchConsole!\n");
 }
 
-//----------------------------------------------------------------------
-// TestChar
-//      Test if SynchGetString correctly read string from a given file and if 
-//      SynchPutChar correctly write string into a given file.
-//----------------------------------------------------------------------
-void TestString(SynchConsole *sc, int size) {
-    char* s = (char*)malloc(sizeof(char) * size);
-    sc->SynchGetString(s, size);
-    sc->SynchPutString(s);
-    free(s);
+/**
+ * TestChar
+ *      Test if SynchGetString correctly read string from a given file and if 
+ *      SynchPutChar correctly write string into a given file.
+ * @param size, number of character to read
+ */
+void TestString(int size) {
+    char s[size];
+    synchconsole->SynchGetString(s, size);
+    synchconsole->SynchPutString(s);
 }
 
-//----------------------------------------------------------------------
-// SynchConsoleTest
-//      Test the synchconsole by echoing characters typed at the input onto
-//      the output.
-//----------------------------------------------------------------------
-void SynchConsoleTest (char *in, char *out)
-{
-    SynchConsole *synchconsole = new SynchConsole(in, out);
-  
-    TestString(synchconsole, 3);
-    
-    TestChar(synchconsole);
+/**
+ * SynchConsoleTest
+ *      Test the synchconsole by echoing characters typed at the input onto
+ *      the output.
+ */
+void SynchConsoleTest ()
+{  
+    //TestString(3);
+    TestChar();
 }
 
 #endif //CHANGED
