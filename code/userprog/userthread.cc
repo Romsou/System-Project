@@ -43,7 +43,7 @@ static void StartUserThread(int f)
  */
 int do_UserThreadCreate(int f, int arg)
 {
-  int threadIndex = currentThread->space->AddThreadInArray();
+  int threadIndex = currentThread->space->GetFreeSpotInUserThreadArray();
 
   if (threadIndex == -1)
   {
@@ -55,13 +55,12 @@ int do_UserThreadCreate(int f, int arg)
   if (newThread == NULL)
     return -1;
 
-  currentThread->space->setThreadAtIndex(newThread, threadIndex);
+  currentThread->space->putThreadAtIndex(newThread, threadIndex);
   newThread->setIndex(threadIndex); //met a jour index
 
   newThread->setFunction(f);
   newThread->setArgs(arg);
-  // Potentiellement setter à PCReg
-  newThread->setReturnAddr(machine->ReadRegister(6));
+  newThread->setReturnAddr(machine->ReadRegister(6)); // Set potentiellement à PCReg
 
   newThread->Fork(StartUserThread, 0);
 
