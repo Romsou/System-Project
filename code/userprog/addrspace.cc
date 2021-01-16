@@ -32,17 +32,19 @@
  * @param numPages
  * 
  */
-/*
 static void ReadAtVirtual(OpenFile *executable, int virtualaddr,
 													int numBytes, int position, TranslationEntry *pageTable, unsigned numPages)
 {
+	machine->pageTable = pageTable;
+	machine->pageTableSize = numPages;
+
 	char buffer[numBytes];
 	executable->ReadAt(buffer, numBytes, position);
 
 	int i;
 	for (i = 0; i < numBytes && machine->WriteMem(virtualaddr + i, 1, buffer[i]); i++)
 		;
-}*/
+}
 
 //----------------------------------------------------------------------
 // SwapHeader
@@ -112,7 +114,7 @@ AddrSpace::AddrSpace(OpenFile *executable)
 	for (i = 0; i < numPages; i++)
 	{
 		pageTable[i].virtualPage = i; // for now, virtual page # = phys page #
-		pageTable[i].physicalPage = i;
+		pageTable[i].physicalPage = i+1;
 		pageTable[i].valid = TRUE;
 		pageTable[i].use = FALSE;
 		pageTable[i].dirty = FALSE;
@@ -130,21 +132,21 @@ AddrSpace::AddrSpace(OpenFile *executable)
 	{
 		DEBUG('a', "Initializing code segment, at 0x%x, size %d\n",
 			  noffH.code.virtualAddr, noffH.code.size);
-		// ReadAtVirtual(executable, noffH.code.virtualAddr, noffH.code.size, noffH.code.inFileAddr, pageTable, 0); //les zero sont a changer mais par quoi?
+		ReadAtVirtual(executable, noffH.code.virtualAddr, noffH.code.size, noffH.code.inFileAddr, pageTable, numPages);
 
-		executable->ReadAt(&(machine->mainMemory[noffH.code.virtualAddr]),
-						   noffH.code.size, noffH.code.inFileAddr);
+		// executable->ReadAt(&(machine->mainMemory[noffH.code.virtualAddr]),
+		// 				   noffH.code.size, noffH.code.inFileAddr);
 	}
 	if (noffH.initData.size > 0)
 	{
 		DEBUG('a', "Initializing data segment, at 0x%x, size %d\n",
 			  noffH.initData.virtualAddr, noffH.initData.size);
 
-		//ReadAtVirtual(executable, noffH.initData.virtualAddr, noffH.initData.size, noffH.initData.inFileAddr, pageTable, 1); //les zero sont a changer mais par quoi?
+		ReadAtVirtual(executable, noffH.initData.virtualAddr, noffH.initData.size, noffH.initData.inFileAddr, pageTable, numPages);
 
-		executable->ReadAt(&(machine->mainMemory
-								 [noffH.initData.virtualAddr]),
-						   noffH.initData.size, noffH.initData.inFileAddr);
+		// executable->ReadAt(&(machine->mainMemory
+		// 						 [noffH.initData.virtualAddr]),
+		// 				   noffH.initData.size, noffH.initData.inFileAddr);
 	}
 	sem = new Semaphore("sem", 0);
 
