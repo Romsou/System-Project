@@ -19,7 +19,6 @@
 #include "system.h"
 #include "addrspace.h"
 #include "noff.h"
-
 #include <strings.h> /* for bzero */
 
 /**
@@ -33,7 +32,7 @@
  * 
  */
 static void ReadAtVirtual(OpenFile *executable, int virtualaddr,
-													int numBytes, int position, TranslationEntry *pageTable, unsigned numPages)
+						  int numBytes, int position, TranslationEntry *pageTable, unsigned numPages)
 {
 	machine->pageTable = pageTable;
 	machine->pageTableSize = numPages;
@@ -88,6 +87,7 @@ AddrSpace::AddrSpace(OpenFile *executable)
 {
 	NoffHeader noffH;
 	unsigned int i, size;
+	frameProvider = new FrameProvider();
 
 	executable->ReadAt((char *)&noffH, sizeof(noffH), 0);
 	if ((noffH.noffMagic != NOFFMAGIC) &&
@@ -114,7 +114,7 @@ AddrSpace::AddrSpace(OpenFile *executable)
 	for (i = 0; i < numPages; i++)
 	{
 		pageTable[i].virtualPage = i; // for now, virtual page # = phys page #
-		pageTable[i].physicalPage = i+1;
+		pageTable[i].physicalPage = frameProvider->GetEmptyFrame();
 		pageTable[i].valid = TRUE;
 		pageTable[i].use = FALSE;
 		pageTable[i].dirty = FALSE;
@@ -125,7 +125,7 @@ AddrSpace::AddrSpace(OpenFile *executable)
 
 	// zero out the entire address space, to zero the unitialized data segment
 	// and the stack segment
-	bzero(machine->mainMemory, size);
+	//bzero(machine->mainMemory, size);
 
 	// then, copy in the code and data segments into memory
 	if (noffH.code.size > 0)
@@ -284,8 +284,8 @@ int AddrSpace::GetFreeSpotInUserThreadArray()
 Thread *AddrSpace::getThreadAtId(int id)
 {
 	for (int i = 0; i < NB_MAX_THREADS; i++)
-			if (userThreads[i] != NULL && userThreads[i]->getTid() == id)
-					return userThreads[i];
+		if (userThreads[i] != NULL && userThreads[i]->getTid() == id)
+			return userThreads[i];
 	return NULL;
 }
 
@@ -295,7 +295,7 @@ Thread *AddrSpace::getThreadAtId(int id)
  * @param thread: The thread we want to place in our array.
  * @param index: The index at which we want to put this thread.
  */
-void AddrSpace::putThreadAtIndex(Thread* thread, int index)
+void AddrSpace::putThreadAtIndex(Thread *thread, int index)
 {
 	ASSERT(index >= 0 && index < NB_MAX_THREADS);
 	userThreads[index] = thread;
