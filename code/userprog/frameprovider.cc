@@ -3,12 +3,14 @@
 
 #include "frameprovider.h"
 #include "system.h"
+#include "machine.h"
 
 /**
  * Create a frame provider. 
  * 
  * Internally uses bitmap to handle page allocation.
  */
+
 FrameProvider::FrameProvider()
 {
   bm = new BitMap(NumPhysPages); //nbFrame = nb physique page
@@ -17,6 +19,7 @@ FrameProvider::FrameProvider()
 /**
  * Properly De-allocate a frameProvider.
  */
+
 FrameProvider::~FrameProvider()
 {
   delete bm;
@@ -29,6 +32,7 @@ FrameProvider::~FrameProvider()
  * 
  * @return free physical page number.
  */
+
 int FrameProvider::GetEmptyFrame()
 {
   int frameIndex = bm->Find();
@@ -41,6 +45,7 @@ int FrameProvider::GetEmptyFrame()
  * 
  * @param frameIndex the physical page's number to free.
  */
+
 bool FrameProvider::ReleaseFrame(int frameIndex)
 {
   bm->Clear(frameIndex);

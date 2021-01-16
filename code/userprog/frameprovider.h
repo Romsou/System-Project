@@ -27,7 +27,7 @@ class FrameProvider
 	 * 
 	 * @param frameIndex the physical page's number to free.
 	 */
-	bool ReleaseFrame(int frameIndex);
+	void ReleaseFrame(int frameIndex);
 
 	/**
 	 * Count and return number of free page in physical memory.
@@ -37,8 +37,7 @@ class FrameProvider
 	int NumAvailFrame();
 
 private:
-	BitMap* bm;
-
+	BitMap* physMemBitMap;
 };
 
 #endif //FRAMEPROVIDER_H
