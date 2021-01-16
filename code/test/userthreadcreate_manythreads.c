@@ -10,6 +10,7 @@ static void print(void *arg)
     PutString(phrase);
     
     if(phrase[0] != 'b') {
+      //PutString("aaaaaaaaaaaaaaaa");
       UserThreadJoin(t1);
     }
 }
@@ -17,9 +18,9 @@ static void print(void *arg)
 int main()
 {
     char* phrase = "Un thread\n";
-    
+    char* phrase2 = "bb";
     int i, nbThreads=1, nbThreadsError=0;
-    t1 = UserThreadCreate(print, "bb");
+    t1 = UserThreadCreate(print, phrase2);
     for (i=0; i<NB_THREADS; i++) {
       if (UserThreadCreate(print, phrase) != -1) {
         nbThreads++;
