@@ -79,7 +79,8 @@ int do_UserThreadCreate(int f, int arg)
  */
 void do_UserThreadExit()
 {
-  currentThread->clearWaitingThreads();
+  for(int i = 0; i < currentThread->getNumberOfWaitingThreads(); i++)
+    currentThread->clearWaitingThreads();
   currentThread->Finish();
 }
 
@@ -94,7 +95,7 @@ int do_UserThreadJoin(int tid)
 
   if (t != NULL) {
     t->waitThread();
-    t->clearWaitingThreads(); 
+    //t->clearWaitingThreads(); 
   }
   return 0;
 }
