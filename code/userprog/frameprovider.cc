@@ -3,6 +3,7 @@
 
 #include "frameprovider.h"
 #include "system.h"
+#include "machine.h"
 
 /**
  * Create a frame provider. Intialize bitMap for handle a given number of 
@@ -12,7 +13,7 @@
  * @return FrameProvider created.
  */
 FrameProvider::FrameProvider(int nbFrame) {
-  bm = new BitMap(nbFrame); //nbFrame = nb physique page
+  physMemBitMap = new BitMap(nbFrame); //nbFrame = nb physical pages
   bzero(machine->mainMemory, PageSize*NumPhysPages);
 }
 
@@ -20,7 +21,7 @@ FrameProvider::FrameProvider(int nbFrame) {
  * Properly De-allocate a frameProvider.
  */
 FrameProvider::~FrameProvider() {
-  delete bm;
+  delete physMemBitMap;
 }
 
 
@@ -31,7 +32,10 @@ FrameProvider::~FrameProvider() {
  * @return free physical page number.
  */
 int FrameProvider::GetEmptyFrame(){
-  int frameIndex = bm->Find();
+  int frameIndex = physMemBitMap->Find();
+  if (frameIndex == -1)
+    return frameIndex;
+
   bzero(machine->mainMemory + PageSize*frameIndex, PageSize);
   return frameIndex;
 }
@@ -41,9 +45,11 @@ int FrameProvider::GetEmptyFrame(){
  * 
  * @param frameIndex the physical page's number to free.
  */
-bool FrameProvider::ReleaseFrame(int frameIndex){
-  bm->Clear(frameIndex);
-  return true;  //Dans quelle ca peut pas libérer? A part si frameIndex est > ou < à nbFrame?
+void FrameProvider::ReleaseFrame(int frameIndex){
+  ASSERT(frameIndex>0);
+  ASSERT(frameIndex<physMemBitMap->NumBits());
+
+  physMemBitMap->Clear(frameIndex);
 }
 
 /**
@@ -52,5 +58,5 @@ bool FrameProvider::ReleaseFrame(int frameIndex){
  * @return number of free physical page. 
  */
 int FrameProvider::NumAvailFrame(){
-  return bm->NumClear();
+  return physMemBitMap->NumClear();
 }
