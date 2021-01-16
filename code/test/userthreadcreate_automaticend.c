@@ -10,7 +10,7 @@ int main()
 {
     char* phrase = "hello coco\n";
     UserThreadCreate(print, phrase);
-  
+    End();
     //Not reached
     return 0;
 }

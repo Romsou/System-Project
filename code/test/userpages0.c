@@ -21,6 +21,7 @@ int main(){
 	UserThreadJoin(t2);
 	UserThreadJoin(t3);
 
+	End();
 	return 0;
 
 
