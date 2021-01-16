@@ -37,7 +37,7 @@ class FrameProvider
 	int NumAvailFrame();
 
 private:
-	BitMap* physMemBitMap;
+	BitMap* frameTable;
 };
 
 #endif //FRAMEPROVIDER_H
