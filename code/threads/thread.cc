@@ -437,11 +437,22 @@ void Thread::setIndex(int i)
     index = i;
 }
 
+/**
+ * Subscribe to this thread waiting queue
+ * 
+ * This function is used to wait for this thread to end.
+ */
 void Thread::waitThread()
 {
     waitQueue->P();
 }
 
+/**
+ * Free the first element in the thread waitingQueue.
+ * 
+ * We use this function to free in cascade all the 
+ * waiting threads which are at userThreadJoin.
+ */
 void Thread::clearWaitingThreads()
 {
     waitQueue->V();
