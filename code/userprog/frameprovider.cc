@@ -10,54 +10,53 @@
  * 
  * Internally uses bitmap to handle page allocation.
  */
-
 FrameProvider::FrameProvider()
 {
-  bm = new BitMap(NumPhysPages); //nbFrame = nb physique page
+  frameTable = new BitMap(NumPhysPages); //nbFrame = nb physique page
 }
 
 /**
  * Properly De-allocate a frameProvider.
  */
-
 FrameProvider::~FrameProvider()
 {
-  delete bm;
+  delete frameTable;
 }
 
 /**
- * Provide an empty frame
+ * Provides an empty frame
  * 
  * Find a free frame and return his index.
  * 
  * @return free physical page number.
  */
-
 int FrameProvider::GetEmptyFrame()
 {
-  int frameIndex = bm->Find();
-  bzero(machine->mainMemory + PageSize * frameIndex, PageSize);
+
+  int frameIndex = frameTable->Find();
+  if (frameIndex == -1)
+    return -1;
+  bzero(machine->mainMemory + frameIndex * PageSize, PageSize);
   return frameIndex;
 }
 
 /**
- * Free a given physical page.
+ * Free a given frame.
  * 
- * @param frameIndex the physical page's number to free.
+ * @param frameIndex The index of the frame to free.
  */
-
-bool FrameProvider::ReleaseFrame(int frameIndex)
+void FrameProvider::ReleaseFrame(int frameIndex)
 {
-  bm->Clear(frameIndex);
-  return true; //Dans quelle ca peut pas libérer? A part si frameIndex est > ou < à nbFrame?
+  ASSERT(frameIndex > 0 && frameIndex < NumPhysPages);
+  frameTable->Clear(frameIndex);
 }
 
 /**
- * Count and return number of free page in physical memory.
+ * Count and return number of free frames.
  * 
- * @return number of free physical page. 
+ * @return number of free frames. 
  */
 int FrameProvider::NumAvailFrame()
 {
-  return bm->NumClear();
+  return frameTable->NumClear();
 }
