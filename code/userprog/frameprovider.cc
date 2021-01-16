@@ -5,34 +5,34 @@
 #include "system.h"
 
 /**
- * Create a frame provider. Intialize bitMap for handle a given number of 
- * physical pages.
+ * Create a frame provider. 
  * 
- * @param nbFrame number of physical page in memory.
- * @return FrameProvider created.
+ * Internally uses bitmap to handle page allocation.
  */
-FrameProvider::FrameProvider(int nbFrame) {
-  bm = new BitMap(nbFrame); //nbFrame = nb physique page
-  bzero(machine->mainMemory, PageSize*NumPhysPages);
+FrameProvider::FrameProvider()
+{
+  bm = new BitMap(NumPhysPages); //nbFrame = nb physique page
 }
 
 /**
  * Properly De-allocate a frameProvider.
  */
-FrameProvider::~FrameProvider() {
+FrameProvider::~FrameProvider()
+{
   delete bm;
 }
 
-
 /**
- * Find and return return a free physical page's number. If no physical page are
- * free, return -1.
+ * Provide an empty frame
+ * 
+ * Find a free frame and return his index.
  * 
  * @return free physical page number.
  */
-int FrameProvider::GetEmptyFrame(){
+int FrameProvider::GetEmptyFrame()
+{
   int frameIndex = bm->Find();
-  bzero(machine->mainMemory + PageSize*frameIndex, PageSize);
+  bzero(machine->mainMemory + PageSize * frameIndex, PageSize);
   return frameIndex;
 }
 
@@ -41,9 +41,10 @@ int FrameProvider::GetEmptyFrame(){
  * 
  * @param frameIndex the physical page's number to free.
  */
-bool FrameProvider::ReleaseFrame(int frameIndex){
+bool FrameProvider::ReleaseFrame(int frameIndex)
+{
   bm->Clear(frameIndex);
-  return true;  //Dans quelle ca peut pas libérer? A part si frameIndex est > ou < à nbFrame?
+  return true; //Dans quelle ca peut pas libérer? A part si frameIndex est > ou < à nbFrame?
 }
 
 /**
@@ -51,6 +52,7 @@ bool FrameProvider::ReleaseFrame(int frameIndex){
  * 
  * @return number of free physical page. 
  */
-int FrameProvider::NumAvailFrame(){
+int FrameProvider::NumAvailFrame()
+{
   return bm->NumClear();
 }

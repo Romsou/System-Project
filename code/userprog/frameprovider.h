@@ -6,11 +6,12 @@
 
 #include "copyright.h"
 #include "bitmap.h"
+#include "machine.h"
 
 class FrameProvider
 {
   public:
-	FrameProvider(int nbFrame);
+	FrameProvider();
 	~FrameProvider();
 
 	/**
