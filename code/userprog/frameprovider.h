@@ -5,22 +5,35 @@
 #define FRAMEPROVIDER_H
 
 #include "copyright.h"
-#include "machine.h"
 #include "bitmap.h"
 
 class FrameProvider
 {
   public:
-	FrameProvider();
+	FrameProvider(int nbFrame);
 	~FrameProvider();
 
-	int GetEmptyFrame();	//renvoie adresse une frame libre
-				// le mapping se passe ici
+	/**
+	 * Find and return return a free physical page's number. If no physical page are
+	 * free, return -1.
+	 * 
+	 * @return free physical page number.
+	 */
+	int GetEmptyFrame();
 
-	bool ReleaseFrame(int virtualAddr); //T si on peut libérer le frame
-				// F si ce n'est pas possible
+	/**
+	 * Free a given physical page.
+	 * 
+	 * @param frameIndex the physical page's number to free.
+	 */
+	bool ReleaseFrame(int frameIndex);
 
-	int NumAvailFrame(); //return nb de frame libre
+	/**
+	 * Count and return number of free page in physical memory.
+	 * 
+	 * @return number of free physical page. 
+	 */
+	int NumAvailFrame();
 
 private:
 	BitMap* bm;
