@@ -2,34 +2,38 @@
 
 #define NB_THREADS 100
 
+int t1;
+
 static void print(void *arg)
 {
     char* phrase = (char*) arg;
     PutString(phrase);
-    UserThreadExit();
+    
+    if(phrase[0] != 'b') {
+      UserThreadJoin(t1);
+    }
 }
 
 int main()
 {
     char* phrase = "Un thread\n";
     
-    int i, nbThreads=0, nbThreadsError=0, ret;
+    int i, nbThreads=1, nbThreadsError=0;
+    t1 = UserThreadCreate(print, "bb");
     for (i=0; i<NB_THREADS; i++) {
-      if ((ret = UserThreadCreate(print, phrase)) != -1) {
+      if (UserThreadCreate(print, phrase) != -1) {
         nbThreads++;
       } else {
         nbThreadsError++;
       }
 
       //Only in order to slow down main thread
-      int a =1 + 6 * 8 - 2 / 7 + 6 / 7 - 9;
-      int b = 9 * 7 / 2 - 6 + 3 + 8 + 5;
-      b = a * 8 - 999 + 6 / 3;
-      a = b + a - 88 / 2 * 3;
-      a = 999 * b - 88 / 7;
-      b = a / 7;
-
-      //PutInt(ret);
+      // int a =1 + 6 * 8 - 2 / 7 + 6 / 7 - 9;
+      // int b = 9 * 7 / 2 - 6 + 3 + 8 + 5;
+      // b = a * 8 - 999 + 6 / 3;
+      // a = b + a - 88 / 2 * 3;
+      // a = 999 * b - 88 / 7;
+      // b = a / 7;
     }
 
     PutString("NbThreads : "); 
