@@ -1,8 +1,16 @@
+// frameprovider.h
+//
+
+#ifndef FRAMEPROVIDER_H
+#define FRAMEPROVIDER_H
+
 #include "copyright.h"
 #include "machine.h"
+#include "bitmap.h"
 
-class FrameProvider{
-public:
+class FrameProvider
+{
+  public:
 	FrameProvider();
 	~FrameProvider();
 
@@ -15,6 +23,8 @@ public:
 	int NumAvailFrame(); //return nb de frame libre
 
 private:
-	BitMap bm;
+	BitMap* bm;
 
-}
+};
+
+#endif //FRAMEPROVIDER_H
