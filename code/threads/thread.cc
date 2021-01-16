@@ -53,7 +53,10 @@ Thread::Thread(const char *threadName)
     userThreadCount++;
 
     index = -1;
-    waitQueue = new Semaphore("Thread wait Queue", 1);
+    
+    waitQueue = new Semaphore("Thread wait Queue", 0);
+    numOfWaitingThreads = 0;
+
     functionAndArgs = new FunctionAndArgs();
 
 #endif
@@ -444,6 +447,7 @@ void Thread::setIndex(int i)
  */
 void Thread::waitThread()
 {
+    numOfWaitingThreads++;
     waitQueue->P();
 }
 
@@ -455,7 +459,15 @@ void Thread::waitThread()
  */
 void Thread::clearWaitingThreads()
 {
+    DEBUG('t', 'number of waiting threads: %d', numOfWaitingThreads);
+    ASSERT(numOfWaitingThreads >= 1);
     waitQueue->V();
+    numOfWaitingThreads--;
+}
+
+int Thread::getNumberOfWaitingThreads()
+{
+    return numOfWaitingThreads;
 }
 
 int Thread::getFunction()
