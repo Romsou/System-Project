@@ -225,10 +225,13 @@ void AddrSpace::RestoreState()
 }
 
 /**
- * Return true if all users threads are properly ends,with an 
- * UserThreadExit() call. Else, return false.
+ * Checks whether the array of user thread is empty.
  * 
- * @return a boolean, true if lsit of userThreads is empty.
+ * This works by checking for each box in our array
+ * whether it is NULL. If we find a userThreads, we exit
+ * early.
+ * 
+ * @return a bool, true if userThreads is empty, false otherwise.
  */
 bool AddrSpace::isEmptyUserThread()
 {
@@ -241,7 +244,10 @@ bool AddrSpace::isEmptyUserThread()
 }
 
 /**
- * Properly removes the current thread from userThreads.
+ * Removes the userThread at the given index in userThreads.
+ * 
+ * @param index: The index of the thread we want to delete in
+ * 				 the array of userThreads.
  */
 void AddrSpace::DeleteThreadFromArray(int index)
 {
@@ -249,7 +255,8 @@ void AddrSpace::DeleteThreadFromArray(int index)
 }
 
 /**
- * Put the current thread at in table of userThreads if find a free space.
+ * Add the currentThread at the first free spot in userThreads.
+ * 
  * @param index, index of a free space in table
  * @return index of free space found in user thread table, -1 table in full. 
  */
@@ -264,10 +271,13 @@ int AddrSpace::AddThreadInArray()
 }
 
 /**
- * @param id an index between 0 and MAX_NB_THREAD
- * @return the thread pointer corresponding to id
- * Search in list of threads, those who is corresponding to the id
- * if none thread corresponding, return null
+ * Search for a thread with the specified id in the array of user threads
+ * 
+ * We iterate over all of the array and checks whether the thread at this
+ * spot has the given id.
+ * 
+ * @param id The unique id of the thread we're looking for.
+ * @return A pointer to the user thread correspondin to id.
  */
 Thread *AddrSpace::getThreadAtId(int id)
 {
@@ -277,6 +287,12 @@ Thread *AddrSpace::getThreadAtId(int id)
 	return NULL;
 }
 
+/**
+ * Put the given thread at index in the array of user threads
+ * 
+ * @param thread: The thread we want to place in our array.
+ * @param index: The index at which we want to put this thread.
+ */
 void AddrSpace::setThreadAtIndex(Thread* thread, int index)
 {
 	ASSERT(index >= 0 && index < NB_MAX_THREADS);
