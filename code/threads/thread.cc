@@ -459,7 +459,7 @@ void Thread::waitThread()
  */
 void Thread::clearWaitingThreads()
 {
-    DEBUG('t', 'number of waiting threads: %d', numOfWaitingThreads);
+    DEBUG('t', "number of waiting threads: %d", numOfWaitingThreads);
     ASSERT(numOfWaitingThreads >= 1);
     waitQueue->V();
     numOfWaitingThreads--;
