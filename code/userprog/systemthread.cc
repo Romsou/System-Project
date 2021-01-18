@@ -1,6 +1,6 @@
 #include "copyright.h"
 #include "system.h"
-#include "console.h"
+#include "thread.h"
 #include "addrspace.h"
 #include "systemthread.h"
 
