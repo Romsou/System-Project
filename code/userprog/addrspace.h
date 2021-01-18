@@ -84,15 +84,16 @@ private:
   Thread **userThreads;
 
   unsigned int estimateAddressSpaceSize(NoffHeader noffh);
-  unsigned int calculateAdressSpaceSize(unsigned int size);
+  unsigned int roundUpAdressSpaceSize(unsigned int size);
 
-  void AllocatePages();
-  void AllocatePage(unsigned int index);
+  void allocatePages();
+  void initializePage(unsigned int index);
 
   // Add pageTable and numPages as parameters and make static if there's a problem
   void copyFromExecToMemory(OpenFile *executable, Segment segment);
 
   void createUserThreads();
+  void initializeUserThreads();
 };
 
 #endif // ADDRSPACE_H

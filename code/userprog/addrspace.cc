@@ -96,14 +96,13 @@ AddrSpace::AddrSpace(OpenFile *executable)
 
 	size = estimateAddressSpaceSize(noffH);
 	numPages = divRoundUp(size, PageSize);
-	size = calculateAdressSpaceSize(size);
+	size = roundUpAdressSpaceSize(size);
 
-	// check we're not trying to run anything too big at least until we have
-	// virtual memory
+	// check we're not trying to run anything too big at least until we have virtual memory
 	ASSERT(numPages <= NumPhysPages);
 
 	DEBUG('a', "Initializing address space, num pages %d, size %d\n", numPages, size);
-	this->AllocatePages();
+	this->allocatePages();
 
 	DEBUG('a', "Initializing code segment, at 0x%x, size %d\n", noffH.code.virtualAddr, noffH.code.size);
 	copyFromExecToMemory(executable, noffH.code);
@@ -135,60 +134,80 @@ unsigned int AddrSpace::estimateAddressSpaceSize(NoffHeader noffH)
 }
 
 /**
- * Calculate the size of the address space
- * 
- * Used to round up size to a multiple of page size.
+ * Round up the size of the address space to a multiple of page size.
  * 
  * @param size: The size of this process' address space in bytes.
  * @return the size of this process' address space as a multiple of page size.
  */
-unsigned int AddrSpace::calculateAdressSpaceSize(unsigned int size)
+unsigned int AddrSpace::roundUpAdressSpaceSize(unsigned int size)
 {
 	return numPages * PageSize;
 }
 
 /**
- * Allocate pages for this process.
+ * Allocates pages for this process.
  * 
  * Create a new page table of size <numpages>
  * and initialize each of them.
  */
-void AddrSpace::AllocatePages()
+void AddrSpace::allocatePages()
 {
 	// first, set up the translation
 	pageTable = new TranslationEntry[numPages];
 	for (unsigned int index = 0; index < numPages; index++)
-		AllocatePage(index);
+		initializePage(index);
 }
 
-void AddrSpace::AllocatePage(unsigned int index)
+/**
+ * Initialize the page at index in the page table
+ * 
+ * @param index: The index of the page we want to initialize
+ */
+void AddrSpace::initializePage(unsigned int index)
 {
-	pageTable[index].virtualPage = index; // for now, virtual page # = phys page #
+	pageTable[index].virtualPage = index;
 	pageTable[index].physicalPage = frameProvider->GetEmptyFrame();
 	pageTable[index].valid = TRUE;
 	pageTable[index].use = FALSE;
 	pageTable[index].dirty = FALSE;
-	pageTable[index].readOnly = FALSE; // if the code segment was entirely on
-									   // a separate page, we could set its
-									   // pages to be read-only
+
+	// if the code segment was entirely on a separate page, we could set its
+	// pages to be read-only
+	pageTable[index].readOnly = FALSE;
 }
 
+/**
+ * Copy data from executable to virtual memory
+ * 
+ * First checks if there is something to copy from the segment given as an argument
+ * and the use readAtVirtual to copy data from file to virtual memory.
+ * 
+ * @param executable: The executable from which we copy the data
+ * @param segment: The segment of the executable from which we copy the data
+ */
 void AddrSpace::copyFromExecToMemory(OpenFile *executable, Segment segment)
 {
 	if (segment.size > 0)
 		ReadAtVirtual(executable, segment.virtualAddr, segment.size, segment.inFileAddr, pageTable, numPages);
-	// executable->ReadAt(&(machine->mainMemory[noffH.code.virtualAddr]),
-	// 				   noffH.code.size, noffH.code.inFileAddr);
+	// executable->ReadAt(&(machine->mainMemory[noffH.code.virtualAddr]), noffH.code.size, noffH.code.inFileAddr);
 }
 
 /**
  * Create an array of userThreads.
- * 
- * Initialize them all to NULL to avoid bad surprises.
  */
 void AddrSpace::createUserThreads()
 {
 	userThreads = new Thread *[NB_MAX_THREADS];
+	initializeUserThreads();
+}
+
+/**
+ * Initialize user threads.
+ * 
+ * We initialize them to NULL to avoid bad surprises.
+ */
+void AddrSpace::initializeUserThreads()
+{
 	for (int i = 0; i < NB_MAX_THREADS; i++)
 		userThreads[i] = NULL;
 }
