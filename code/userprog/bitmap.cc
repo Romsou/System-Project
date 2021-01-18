@@ -50,8 +50,11 @@ BitMap::~BitMap()
 void BitMap::Mark(int which)
 {
     ASSERT(which >= 0 && which < numBits);
-    map[which / BitsInWord] |= 1 << (which % BitsInWord);
-    numOfSetBits++; //!!! added to simplify set bit counts
+    if(!Test(which))
+    {
+        map[which / BitsInWord] |= 1 << (which % BitsInWord);
+        numOfSetBits++; //!!! added to simplify set bit counts
+    }
     DEBUG('t', "number of bit sets: %d", numOfSetBits);
 }
 
@@ -65,8 +68,11 @@ void BitMap::Mark(int which)
 void BitMap::Clear(int which)
 {
     ASSERT(which >= 0 && which < numBits);
-    map[which / BitsInWord] &= ~(1 << (which % BitsInWord));
-    numOfSetBits--;
+    if(Test(which))
+    {
+        map[which / BitsInWord] &= ~(1 << (which % BitsInWord));
+        numOfSetBits--;
+    }
     DEBUG('t', "number of bit sets: %d", numOfSetBits);
 }
 
