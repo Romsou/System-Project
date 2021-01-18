@@ -55,19 +55,29 @@ La politique d'allocation des frame est local à cette classe, elle est encapsul
 
 #######Partie 2 : multi-processus
 
-qu'est-ce que doit faire la methode int ForkExec(char *s) ou s est le nom d'un ficher executable ?
+qu'est-ce qu'on doit faire : la methode int ForkExec(char *s) ou s est le nom d'un ficher executable 
 - doit être un appel systeme 
-- lance l'execution de s en parallele via un thread noyau (pas utilisateur)
+- lance l'execution de s en parallele en partageant la memoire (plusieurs processus cohabitent)
 - ce thread va demander de la memoire pour stocker code et donnee ainsi que sa memoire ; peut-on definir une liste d'addrspace ? comment les faire dialoguer ?
-- est-ce que addSpace donne toute la memoire disponible à un processus ? est-ce qu'il faut changer ça au prealable ou dynamiquement cad quand un nouveau thread est crée, on réalloue de la memoir ?
-- la memoire alloué doit être suffisante pour faire tourner des threads utilisateur
+- est-ce que addSpace donne toute la memoire disponible à un processus ? est-ce qu'il faut changer ça au prealable ou dynamiquement cad quand un nouveau thread est crée, on réalloue de la memoire ?
+  ===> addrspace ne donne qu'une partie de la memoire, frameprovider devrait être un singleton (memoire physique est la meme pour tous),
+  ===> la class addrspace peut contenir un tableau d'addrspace correspondant à chaque processus à executer, le changement peut être fait par un changement de contexte du currentThread. Nécessite un Yield spécial ?
+- la memoire alloué doit être suffisante pour faire tourner des threads utilisateur ===> de fait, pas de limite mise
 
 chaque processus doit s'executer entierement il faut donc attendre les autres avant d'effectuer le Halt(), un processus qui termine doit relacher toutes ses ressources
 
-comment un executable est executé ? exemple dans progtes.c method StartProess
-le fichie est ouvert avec la methode Open de filesystem, on peut alors créé un addrspace à partir du fichier ouvert, on associe cet addrspace au thread courant (qui a donc du être créé auparavant), le fichier est fermé
-on initialise les registre de l'espace d'adressage : tous les registres sont mis à 0 sauf NextPCReg à 4 et StackReg en fin de pile.
-on restore l'etat de l'espace d'adressage : on donne a la page la translationEntry pageTable et le nombre d page pour que le programme puisse s'executer. Executer avec machine->Run()
+comment un executable est executé ? exemple dans progtest.cc method StartProess
+le fichier est ouvert avec la methode Open de filesystem, on peut alors créé un addrspace à partir du fichier ouvert, on associe cet addrspace au thread courant (qui a donc du être créé auparavant), le fichier est fermé
+on initialise les registres de l'espace d'adressage : tous les registres sont mis à 0 sauf NextPCReg à 4 et StackReg en fin de pile.
+on restore l'etat de l'espace d'adressage : on donne a la page la translationEntry pageTable et le nombre de pages pour que le programme puisse s'executer. Executer avec machine->Run()
 
 !attention un test de 12 processus avec 12 threads chacun est demandé et il faut bien vérifier que les ressources sont relachés (cela peut impliquer redefinition de new ou delete)
 
+###implementation proposée
+##dans addrspace.cc
+un tableau d'addrspace de taille NB_MAX_PROCESSES 12 nommé spaces, 
+un int NB_PROCESSES de 0 à 12
+la methode switch qui donne la main à un autre espace pour le thread
+la methode delete qui supprime l'espace de spaces, decremente NB_PROCESSES (quand un thread termine, il faut vérifier que tous les processus se sont executés)
+##dans frameprovider.cc
+une methode getter de l'objet de classe (singleton) frameprovider qui donne une vue d'ensemble de la memoire physique
