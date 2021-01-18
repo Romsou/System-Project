@@ -15,7 +15,7 @@
 #include "interrupt.h"
 #include "stats.h"
 #include "timer.h"
-#include "frameprovider.h"
+
 
 #define MAX_STRING_SIZE 512
 #define MAX_LEN_INT 11
@@ -38,8 +38,10 @@ extern Timer *timer;		// the hardware alarm clock
 #include "synchconsole.h"
 extern Machine *machine;	// user program memory and registers
 extern SynchConsole *synchconsole;
+#ifdef FRAMEPROVIDER
+#include "frameprovider.h"
 extern FrameProvider *frameProvider;
-
+#endif //end of FRAMEPROVIDER
 #endif
 
 #ifdef FILESYS_NEEDED		// FILESYS or FILESYS_STUB
@@ -56,5 +58,6 @@ extern SynchDisk *synchDisk;
 #include "post.h"
 extern PostOffice *postOffice;
 #endif
+
 
 #endif // SYSTEM_H
