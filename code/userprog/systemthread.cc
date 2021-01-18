@@ -4,27 +4,35 @@
 #include "addrspace.h"
 #include "systemthread.h"
 
-
-int do_SystemThreadCreate(char  *s){
-	OpenFile *executable = fileSystem->Open (s);
+void StartProcess (char *filename)
+{
+    OpenFile *executable = fileSystem->Open (filename);
     AddrSpace *space;
 
     if (executable == NULL)
       {
-	  printf ("Unable to open file %s\n", s);
-	  return -1;
+	  printf ("Unable to open file %s\n", filename);
+	  return;
       }
-
     space = new AddrSpace (executable);
     currentThread->space = space;
 
-    delete executable;		
+    delete executable;		// close file
 
-    space->InitRegisters ();	
-    space->RestoreState ();	
+    space->InitRegisters ();	// set the initial register values
+    space->RestoreState ();	// load page table register
 
+    machine->Run ();		// jump to the user progam
+    ASSERT (FALSE);		// machine->Run never returns;
+    // the address space exits
+    // by doing the syscall "exit"
+}
 
-
-    machine->Run ();
-    return 0; //TODO
+/**
+ * 
+ */
+int do_SystemThreadCreate(char  *s){
+  Thread *t = new Thread("ForkThread");
+  t->Fork((VoidFunctionPtr)StartProcess, s);
+  return 0;
 }
