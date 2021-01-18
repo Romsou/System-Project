@@ -18,6 +18,7 @@
 #include "translate.h"
 #include "synch.h"
 #include "bitmap.h"
+#include "noff.h"
 #include "frameprovider.h"
 
 #define UserStackSize 3072 //2 * NB_MAX_THREADS * PageSize + 16	// increase this as necessary!
@@ -75,12 +76,23 @@ public:
 
 private:
   TranslationEntry *pageTable; // Assume linear page table translation
-  // for now!
-  unsigned int numPages; // Number of pages in the virtual
-  // address space
+  unsigned int numPages;       // Number of pages in the virtual
+                               // for now!
+                               // address space
 
   //This array will be used to identify and track the different threads
   Thread **userThreads;
+
+  unsigned int estimateAddressSpaceSize(NoffHeader noffh);
+  unsigned int calculateAdressSpaceSize(unsigned int size);
+
+  void AllocatePages();
+  void AllocatePage(unsigned int index);
+
+  // Add pageTable and numPages as parameters and make static if there's a problem
+  void copyFromExecToMemory(OpenFile *executable, Segment segment);
+
+  void createUserThreads();
 };
 
 #endif // ADDRSPACE_H
