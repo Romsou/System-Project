@@ -81,9 +81,6 @@ private:
 
   //This array will be used to identify and track the different threads
   Thread **userThreads;
-
-  // Physical frame provider
-  FrameProvider *frameProvider;
 };
 
 #endif // ADDRSPACE_H
