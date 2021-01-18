@@ -40,9 +40,11 @@ int do_SystemThreadCreate(char *s){
   if(t->space ==NULL)
     return -1;
   //t->Fork(launcher, 0);
+
+  t->space->InitRegisters();
+  t->space->RestoreState();
   IntStatus oldLevel = interrupt->SetLevel(IntOff);
-  scheduler->ReadyToRun(t); // ReadyToRun assumes that interrupts
-  // are disabled!
+  scheduler->ReadyToRun(t); 
 
   (void)interrupt->SetLevel(oldLevel); 
 
