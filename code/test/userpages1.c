@@ -9,7 +9,7 @@ void puts(char *s)
 {
 	char *p;
 	for(p=s ; *p != '\0' ; p++){
-		PutChar(p);
+		PutChar(*p);
 	}
 }
 

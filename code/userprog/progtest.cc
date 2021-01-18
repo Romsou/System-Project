@@ -26,6 +26,7 @@
 void
 StartProcess (char *filename)
 {
+    DEBUG('x',"Ouverture fichier %s\n",filename);
     OpenFile *executable = fileSystem->Open (filename);
     AddrSpace *space;
 
