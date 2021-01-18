@@ -19,7 +19,6 @@
 #include "system.h"
 #include "addrspace.h"
 #include "noff.h"
-
 #include <strings.h> /* for bzero */
 
 /**
@@ -32,17 +31,19 @@
  * @param numPages
  * 
  */
-/*
 static void ReadAtVirtual(OpenFile *executable, int virtualaddr,
-													int numBytes, int position, TranslationEntry *pageTable, unsigned numPages)
+						  int numBytes, int position, TranslationEntry *pageTable, unsigned numPages)
 {
+	machine->pageTable = pageTable;
+	machine->pageTableSize = numPages;
+
 	char buffer[numBytes];
 	executable->ReadAt(buffer, numBytes, position);
 
 	int i;
 	for (i = 0; i < numBytes && machine->WriteMem(virtualaddr + i, 1, buffer[i]); i++)
 		;
-}*/
+}
 
 //----------------------------------------------------------------------
 // SwapHeader
@@ -86,6 +87,7 @@ AddrSpace::AddrSpace(OpenFile *executable)
 {
 	NoffHeader noffH;
 	unsigned int i, size;
+	frameProvider = new FrameProvider();
 
 	executable->ReadAt((char *)&noffH, sizeof(noffH), 0);
 	if ((noffH.noffMagic != NOFFMAGIC) &&
@@ -112,7 +114,7 @@ AddrSpace::AddrSpace(OpenFile *executable)
 	for (i = 0; i < numPages; i++)
 	{
 		pageTable[i].virtualPage = i; // for now, virtual page # = phys page #
-		pageTable[i].physicalPage = i;
+		pageTable[i].physicalPage = frameProvider->GetEmptyFrame();
 		pageTable[i].valid = TRUE;
 		pageTable[i].use = FALSE;
 		pageTable[i].dirty = FALSE;
@@ -123,28 +125,28 @@ AddrSpace::AddrSpace(OpenFile *executable)
 
 	// zero out the entire address space, to zero the unitialized data segment
 	// and the stack segment
-	bzero(machine->mainMemory, size);
+	//bzero(machine->mainMemory, size);
 
 	// then, copy in the code and data segments into memory
 	if (noffH.code.size > 0)
 	{
 		DEBUG('a', "Initializing code segment, at 0x%x, size %d\n",
 			  noffH.code.virtualAddr, noffH.code.size);
-		// ReadAtVirtual(executable, noffH.code.virtualAddr, noffH.code.size, noffH.code.inFileAddr, pageTable, 0); //les zero sont a changer mais par quoi?
+		ReadAtVirtual(executable, noffH.code.virtualAddr, noffH.code.size, noffH.code.inFileAddr, pageTable, numPages);
 
-		executable->ReadAt(&(machine->mainMemory[noffH.code.virtualAddr]),
-						   noffH.code.size, noffH.code.inFileAddr);
+		// executable->ReadAt(&(machine->mainMemory[noffH.code.virtualAddr]),
+		// 				   noffH.code.size, noffH.code.inFileAddr);
 	}
 	if (noffH.initData.size > 0)
 	{
 		DEBUG('a', "Initializing data segment, at 0x%x, size %d\n",
 			  noffH.initData.virtualAddr, noffH.initData.size);
 
-		//ReadAtVirtual(executable, noffH.initData.virtualAddr, noffH.initData.size, noffH.initData.inFileAddr, pageTable, 1); //les zero sont a changer mais par quoi?
+		ReadAtVirtual(executable, noffH.initData.virtualAddr, noffH.initData.size, noffH.initData.inFileAddr, pageTable, numPages);
 
-		executable->ReadAt(&(machine->mainMemory
-								 [noffH.initData.virtualAddr]),
-						   noffH.initData.size, noffH.initData.inFileAddr);
+		// executable->ReadAt(&(machine->mainMemory
+		// 						 [noffH.initData.virtualAddr]),
+		// 				   noffH.initData.size, noffH.initData.inFileAddr);
 	}
 	sem = new Semaphore("sem", 0);
 
@@ -225,10 +227,13 @@ void AddrSpace::RestoreState()
 }
 
 /**
- * Return true if all users threads are properly ends,with an 
- * UserThreadExit() call. Else, return false.
+ * Checks whether the array of user thread is empty.
  * 
- * @return a boolean, true if lsit of userThreads is empty.
+ * This works by checking for each box in our array
+ * whether it is NULL. If we find a userThreads, we exit
+ * early.
+ * 
+ * @return a bool, true if userThreads is empty, false otherwise.
  */
 bool AddrSpace::isEmptyUserThread()
 {
@@ -241,7 +246,10 @@ bool AddrSpace::isEmptyUserThread()
 }
 
 /**
- * Properly removes the current thread from userThreads.
+ * Removes the userThread at the given index in userThreads.
+ * 
+ * @param index: The index of the thread we want to delete in
+ * 				 the array of userThreads.
  */
 void AddrSpace::DeleteThreadFromArray(int index)
 {
@@ -249,11 +257,12 @@ void AddrSpace::DeleteThreadFromArray(int index)
 }
 
 /**
- * Put the current thread at in table of userThreads if find a free space.
+ * Find the first free spot in userThreads.
+ * 
  * @param index, index of a free space in table
  * @return index of free space found in user thread table, -1 table in full. 
  */
-int AddrSpace::AddThreadInArray()
+int AddrSpace::GetFreeSpotInUserThreadArray()
 {
 	for (int i = 0; i < NB_MAX_THREADS; i++)
 		if (userThreads[i] == NULL)
@@ -264,20 +273,29 @@ int AddrSpace::AddThreadInArray()
 }
 
 /**
- * @param id an index between 0 and MAX_NB_THREAD
- * @return the thread pointer corresponding to id
- * Search in list of threads, those who is corresponding to the id
- * if none thread corresponding, return null
+ * Search for a thread with the specified id in the array of user threads
+ * 
+ * We iterate over all of the array and checks whether the thread at this
+ * spot has the given id.
+ * 
+ * @param id The unique id of the thread we're looking for.
+ * @return A pointer to the user thread correspondin to id.
  */
 Thread *AddrSpace::getThreadAtId(int id)
 {
 	for (int i = 0; i < NB_MAX_THREADS; i++)
-			if (userThreads[i] != NULL && userThreads[i]->getTid() == id)
-					return userThreads[i];
+		if (userThreads[i] != NULL && userThreads[i]->getTid() == id)
+			return userThreads[i];
 	return NULL;
 }
 
-void AddrSpace::setThreadAtIndex(Thread* thread, int index)
+/**
+ * Put the given thread at index in the array of user threads
+ * 
+ * @param thread: The thread we want to place in our array.
+ * @param index: The index at which we want to put this thread.
+ */
+void AddrSpace::putThreadAtIndex(Thread *thread, int index)
 {
 	ASSERT(index >= 0 && index < NB_MAX_THREADS);
 	userThreads[index] = thread;

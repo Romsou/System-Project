@@ -53,5 +53,6 @@ int main()
     else
         PutString("ALL TESTS PASSED\n");
 
+    End();
     return result != 0;
 }

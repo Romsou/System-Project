@@ -161,7 +161,10 @@ private:
 
   int id;                           // id of our UserThread
   int index;                       // index in the Thread array use in addrSpace 
+  
   Semaphore* waitQueue;
+  int numOfWaitingThreads;
+  
   struct FunctionAndArgs* functionAndArgs;
 
   int userRegisters[NumTotalRegs]; // user-level CPU register state
@@ -178,6 +181,8 @@ public:
 
   void waitThread();
   void clearWaitingThreads();  
+
+  int getNumberOfWaitingThreads();
 
   int getFunction();
   void setFunction(int f);

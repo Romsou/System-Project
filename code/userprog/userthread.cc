@@ -3,7 +3,6 @@
 #include "machine.h"
 #include "userthread.h"
 
-
 /**
  * Starts a new user thread with function f
  * 
@@ -44,32 +43,28 @@ static void StartUserThread(int f)
  */
 int do_UserThreadCreate(int f, int arg)
 {
+  int threadIndex = currentThread->space->GetFreeSpotInUserThreadArray();
 
-  int thread_id = currentThread->space->AddThreadInArray();
-  
-  if (thread_id == -1)
+  if (threadIndex == -1)
   {
     DEBUG('a', "Cannot create more user threads (currentThread->space->listOfUserThreads full)");
     return -1;
   }
 
   Thread *newThread = new Thread("new_user_thread");
-  currentThread->space->setThreadAtIndex(newThread,thread_id);
-  newThread->setIndex(thread_id);     //met a jour index
-  newThread->waitThread();            //prend le semaphore
+  if (newThread == NULL)
+    return -1;
+
+  currentThread->space->putThreadAtIndex(newThread, threadIndex);
+  newThread->setIndex(threadIndex); //met a jour index
 
   newThread->setFunction(f);
   newThread->setArgs(arg);
-
-  // Potentiellement setter à PCReg
-  newThread->setReturnAddr(machine->ReadRegister(6));
+  newThread->setReturnAddr(machine->ReadRegister(6)); // Set potentiellement à PCReg
 
   newThread->Fork(StartUserThread, 0);
 
-  DEBUG('x',"Number of the next free thread_id: %d\n" , thread_id);
-
-  if (newThread == NULL)
-    return -1;
+  DEBUG('x', "Number of the next free thread_id: %d\n", threadIndex);
 
   return newThread->getTid();
 }
@@ -79,7 +74,10 @@ int do_UserThreadCreate(int f, int arg)
  */
 void do_UserThreadExit()
 {
-  currentThread->clearWaitingThreads();
+  for (int i = 0; i < currentThread->getNumberOfWaitingThreads(); i++)
+    currentThread->clearWaitingThreads();
+
+  ASSERT(currentThread->getNumberOfWaitingThreads() == 0);
   currentThread->Finish();
 }
 
@@ -92,9 +90,8 @@ int do_UserThreadJoin(int tid)
 {
   Thread *t = currentThread->space->getThreadAtId(tid);
 
-  if (t != NULL) {
+  if (t != NULL)
     t->waitThread();
-    t->clearWaitingThreads(); 
-  }
+
   return 0;
 }

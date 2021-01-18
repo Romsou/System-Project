@@ -52,7 +52,10 @@ Thread::Thread(const char *threadName)
     id = userThreadCount;
     userThreadCount++;
     index = -1;
-    waitQueue = new Semaphore("Thread wait Queue", 1);
+    
+    waitQueue = new Semaphore("Thread wait Queue", 0);
+    numOfWaitingThreads = 0;
+
     functionAndArgs = new FunctionAndArgs();
 
 #endif
@@ -436,14 +439,34 @@ void Thread::setIndex(int i)
     index = i;
 }
 
+/**
+ * Subscribe to this thread waiting queue
+ * 
+ * This function is used to wait for this thread to end.
+ */
 void Thread::waitThread()
 {
+    numOfWaitingThreads++;
     waitQueue->P();
 }
 
+/**
+ * Free the first element in the thread waitingQueue.
+ * 
+ * We use this function to free in cascade all the 
+ * waiting threads which are at userThreadJoin.
+ */
 void Thread::clearWaitingThreads()
 {
+    DEBUG('t', "number of waiting threads: %d", numOfWaitingThreads);
+    ASSERT(numOfWaitingThreads >= 1);
     waitQueue->V();
+    numOfWaitingThreads--;
+}
+
+int Thread::getNumberOfWaitingThreads()
+{
+    return numOfWaitingThreads;
 }
 
 int Thread::getFunction()
