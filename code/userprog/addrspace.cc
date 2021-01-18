@@ -87,7 +87,6 @@ AddrSpace::AddrSpace(OpenFile *executable)
 {
 	NoffHeader noffH;
 	unsigned int i, size;
-	frameProvider = new FrameProvider();
 
 	executable->ReadAt((char *)&noffH, sizeof(noffH), 0);
 	if ((noffH.noffMagic != NOFFMAGIC) &&
