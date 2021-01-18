@@ -11,7 +11,7 @@ AddrSpace *getAddressSpace(char *filename){
 
     if (executable == NULL)
       {
-    printf ("Unable to open file %s\n", filename);
+    DEBUG ('t',"Unable to open file %s\n", filename);
     return NULL;
       }
     DEBUG('x',"Ouverture fichier %s\n",filename);
@@ -21,8 +21,8 @@ AddrSpace *getAddressSpace(char *filename){
     return space;
 }
 
-void launcher(){
-  DEBUG('x',"Launching of system thread by %d\n",currentThread->getTid());
+void launcher(int i){
+  DEBUG('x',"Launching of system thread by %s\n",currentThread->getTid());
   currentThread->space->InitRegisters ();  // set the initial register values
   currentThread->space->RestoreState (); // load page table register
 
@@ -33,14 +33,18 @@ void launcher(){
  * 
  */
 int do_SystemThreadCreate(char *s){
-  Thread *t = new Thread("ForkThread");
+  Thread *t = new Thread(s);
   DEBUG('x',"Creating of system thread by %d\n",t->getTid());
 
   t->space = getAddressSpace(s);
   if(t->space ==NULL)
     return -1;
-  //t->Fork(ext_StartProcess, 5);
-  launcher();
+  //t->Fork(launcher, 0);
+  IntStatus oldLevel = interrupt->SetLevel(IntOff);
+  scheduler->ReadyToRun(t); // ReadyToRun assumes that interrupts
+  // are disabled!
+
+  (void)interrupt->SetLevel(oldLevel); 
 
   return 0;
 }
