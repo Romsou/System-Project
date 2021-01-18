@@ -253,6 +253,14 @@ void handleUserThreadJoin()
   machine->WriteRegister(2, retval);
 }
 
+void handleForkExec()
+{
+  Thread *systhread = new Thread("system thread");
+  int s_int = machine->ReadRegister(4);
+  systhread->Fork(StartProcess,s_int);
+
+}
+
 
 //----------------------------------------------------------------------
 // ExceptionHandler
@@ -330,6 +338,9 @@ void ExceptionHandler(ExceptionType which)
       break;
     case SC_UserThreadJoin:
       handleUserThreadJoin();
+      break;
+    case SC_ForkExec:
+      handleForkExec();
       break;
     default:
       handleError(which, type);

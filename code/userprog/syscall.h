@@ -39,6 +39,7 @@
 #define SC_UserThreadCreate 18
 #define SC_UserThreadExit 19
 #define SC_UserThreadJoin 20
+#define SC_ForkExec	21
 
 
 #ifdef IN_USER_MODE
@@ -203,6 +204,12 @@ void UserThreadExit();
 * UserThreadJoin waits for the termination of another user thread.
 */
 int UserThreadJoin(int tid);
+
+/**
+* create and launch a system thread created by a file
+* @param s the executable file
+*/
+int ForkExec(char *s);
 
 #endif // IN_USER_MODE
 
