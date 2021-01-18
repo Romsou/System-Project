@@ -255,10 +255,6 @@ void handleUserThreadJoin()
 
 void handleForkExec()
 {
-  Thread *systhread = new Thread("system thread");
-  int s_int = machine->ReadRegister(4);
-  systhread->Fork(StartProcess,s_int);
-
 }
 
 

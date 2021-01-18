@@ -6,6 +6,7 @@
 
 void StartProcess (char *filename)
 {
+    
     OpenFile *executable = fileSystem->Open (filename);
     AddrSpace *space;
 
@@ -31,7 +32,7 @@ void StartProcess (char *filename)
 /**
  * 
  */
-int do_SystemThreadCreate(char  *s){
+int do_SystemThreadCreate(char *s){
   Thread *t = new Thread("ForkThread");
   t->Fork((VoidFunctionPtr)StartProcess, s);
   return 0;
