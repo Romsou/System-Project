@@ -21,8 +21,8 @@
 #include "noff.h"
 #include "frameprovider.h"
 
-#define UserStackSize 3072 //2 * NB_MAX_THREADS * PageSize + 16	// increase this as necessary!
 #define NB_MAX_THREADS 10
+#define UserStackSize 2 * NB_MAX_THREADS * PageSize + 16	// increase this as necessary!
 
 class AddrSpace
 {
