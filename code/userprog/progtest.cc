@@ -15,13 +15,14 @@
 #include "addrspace.h"
 #include "synch.h"
 #include "synchconsole.h"
+#include "systemthread.h"
 
 //----------------------------------------------------------------------
 // StartProcess
 //      Run a user program.  Open the executable, load it into
 //      memory, and jump to it.
 //----------------------------------------------------------------------
-
+/*
 void
 StartProcess (char *filename)
 {
@@ -45,7 +46,7 @@ StartProcess (char *filename)
     ASSERT (FALSE);		// machine->Run never returns;
     // the address space exits
     // by doing the syscall "exit"
-}
+}*/
 
 // Data structures needed for the console test.  Threads making
 // I/O requests wait on a Semaphore to delay until the I/O completes.
