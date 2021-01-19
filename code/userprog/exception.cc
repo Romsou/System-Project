@@ -141,13 +141,14 @@ void handleGetChar()
  */
 void handleEnd()
 {
-  if (!currentThread->space->isEmptyUserThread())
-  {
+
+  //if (!currentThread->space->isEmptyUserThread()) {
     currentThread->space->sem->P();
-  }
-  DEBUG('a', "Interruption for end of process %s\n", currentThread->getName());
+  //}
+  DEBUG('a', "Interruption for end of process %s\n",currentThread->getName());  
+
   machine->WriteRegister(2, currentThread->getTid());
-  handleHalt();
+  //handleHalt();
 }
 
 //----------------------------------------------------------------------
@@ -259,9 +260,11 @@ void handleUserThreadJoin()
 
 void handleForkExec()
 {
-  char s[MAX_STRING_SIZE];
+  // TODO: Trouver un moyen d'effectuer un passage par valeur d'une chaîne
+  char* s = (char*) malloc(sizeof(char) * MAX_STRING_SIZE);
   copyStringFromMachine(machine->ReadRegister(4), s, MAX_STRING_SIZE);
   int retval = do_SystemThreadCreate(s);
+  //free(s);
   machine->WriteRegister(2, retval);
 }
 
