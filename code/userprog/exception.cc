@@ -99,7 +99,7 @@ void copyStringToMachine(char *from, int to, unsigned size)
 void handleHalt()
 {
   DEBUG('a', "Shutdown, initiated by user program.\n");
-  interrupt->Halt();
+  // interrupt->Halt();
 }
 
 /**
