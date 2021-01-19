@@ -166,11 +166,7 @@ void AddrSpace::allocatePages()
 void AddrSpace::initializePage(unsigned int index)
 {
 	pageTable[index].virtualPage = index;
-	#ifdef FRAMEPROVIDER
 	pageTable[index].physicalPage = frameProvider->GetEmptyFrame();
-	#else
-	pageTable[index].physicalPage = index;
-	#endif
 	pageTable[index].valid = TRUE;
 	pageTable[index].use = FALSE;
 	pageTable[index].dirty = FALSE;

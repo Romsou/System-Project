@@ -3,6 +3,9 @@
 #include "thread.h"
 #include "systemthread.h"
 
+
+#define ONOFF 1
+
 extern void StartProcess(char *filename);
 
 AddrSpace *getAddressSpace(char *filename){
@@ -33,20 +36,40 @@ void launcher(int i){
  * 
  */
 int do_SystemThreadCreate(char *s){
-  Thread *t = new Thread(s);
-  DEBUG('x',"Creating of system thread by %d\n",t->getTid());
 
-  t->space = getAddressSpace(s);
-  if(t->space ==NULL)
-    return -1;
-  //t->Fork(launcher, 0);
+  if(ONOFF == 0){
+    Thread *t = new Thread(s);
+    if (t->getTid() == -1) 
+      return -1;
+    
+    DEBUG('t',"Creating of system thread by %d\n",currentThread->getTid());
+    t->Fork((VoidFunctionPtr)StartProcess, (int)s);
 
-  t->space->InitRegisters();
-  t->space->RestoreState();
-  IntStatus oldLevel = interrupt->SetLevel(IntOff);
-  scheduler->ReadyToRun(t); 
+    return t->getTid();
 
-  (void)interrupt->SetLevel(oldLevel); 
+  }else{
+    Thread *t = new Thread(s);
+    DEBUG('x',"Creating of system thread by %s\n",t->getName());
 
-  return 0;
+    t->space = getAddressSpace(s);
+    if(t->space ==NULL)
+      return -1;
+    
+    currentThread->SaveUserState();
+
+    t->space->InitRegisters();
+    t->SaveUserState();
+
+    IntStatus oldLevel = interrupt->SetLevel(IntOff);
+    scheduler->ReadyToRun(t); 
+    (void)interrupt->SetLevel(oldLevel); 
+    
+    scheduler->Print();
+    printf("\n"); 
+
+    currentThread->RestoreUserState();
+    currentThread->space->RestoreState();
+
+    return 0;
+  }
 }
