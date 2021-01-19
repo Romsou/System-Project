@@ -1,5 +1,6 @@
 #include "syscall.h"
 
+/*
 #define THIS "aaa"
 #define THAT "bbb"
 
@@ -19,9 +20,12 @@ void f(void *s){
 		puts(s);
 	}
 }
+*/
 
 int main(){
-	UserThreadCreate(f,(void *)THIS);
-	f((void *)THAT);
+	PutString("Hello\n");
+	//End();
+//	UserThreadCreate(f,(void *)THIS);
+//	f((void *)THAT);
 	return 0;
 }

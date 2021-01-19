@@ -105,7 +105,7 @@ public:
  
   // basic thread operations
   void Fork(VoidFunctionPtr func, int arg);   // Make thread run (*func)(arg)
-  void Fork(VoidFunctionPtr func, void *arg); // Make thread run (*func)(*args)
+  //void Fork(VoidFunctionPtr func, void *arg); // Make thread run (*func)(*args)
   void Yield();                               // Relinquish the CPU if any
   // other thread is runnable
   void Sleep(); // Put the thread to sleep and
