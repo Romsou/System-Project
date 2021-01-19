@@ -53,6 +53,13 @@ c'est ici qu'a lieu la strategie 1 pour 1 ou une page physique correspond a une 
 creer fichier userprog/frameprovider.cc s'appuie sur bitmap pour gérer frame/page physique. cette classe contient au moins 3 methodes publiques : int GetEmptyFrame() recupere frame libre (par son adr en int si possible), bool ReleaseFrame(int physicaladdr) libere la frame donnee si c'est possible, int NumAvailFrame() dit combient de frame libres
 La politique d'allocation des frame est local à cette classe, elle est encapsulée ici normalement
 
+##Remarque Romain
+u te souviens qu'on se demandait quoi faire avec la pageTable et Numpages dans readAtVirtual ?
+En fait, pour chaque processus, il faut calculer le nombre de page dont il a besoin, puis faire la liaison page virtuel -> frame physique grâce à frame provider
+Une fois qu'un processus est détruit, on appelle releaseFrame pour relâcher toute ses frames
+ça ne marche que sur une allocation de page statique en l'état par contre
+Pour créer le processus en lui-même il va falloir reprendre le même modèle que startProcess dans ForkExec je pense
+
 #######Partie 2 : multi-processus
 
 qu'est-ce qu'on doit faire : la methode int ForkExec(char *s) ou s est le nom d'un ficher executable 

@@ -133,12 +133,6 @@ void Thread::Fork(VoidFunctionPtr func, int arg)
     (void)interrupt->SetLevel(oldLevel);
 }
 
-void Thread::Fork(VoidFunctionPtr func, void *arg)
-{
-    DEBUG('t', "Forking thread \"%s\" with func = Ox%x et a struct for arg", name, (int)func);
-    Fork(func, *((int *)arg));
-}
-
 //----------------------------------------------------------------------
 // Thread::CheckOverflow
 //      Check a thread's stack to see if it has overrun the space

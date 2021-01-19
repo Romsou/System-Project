@@ -1,6 +1,4 @@
 // frameprovider.h
-//
-
 #ifndef FRAMEPROVIDER_H
 #define FRAMEPROVIDER_H
 
@@ -40,4 +38,4 @@ private:
 	BitMap* frameTable;
 };
 
-#endif //FRAMEPROVIDER_H
+#endif

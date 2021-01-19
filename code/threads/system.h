@@ -32,14 +32,13 @@ extern Scheduler *scheduler;	// the ready list
 extern Interrupt *interrupt;	// interrupt status
 extern Statistics *stats;	// performance metrics
 extern Timer *timer;		// the hardware alarm clock
+extern FrameProvider *frameProvider;
 
 #ifdef USER_PROGRAM
 #include "machine.h"
 #include "synchconsole.h"
 extern Machine *machine;	// user program memory and registers
 extern SynchConsole *synchconsole;
-extern FrameProvider *frameProvider;
-
 #endif
 
 #ifdef FILESYS_NEEDED		// FILESYS or FILESYS_STUB
@@ -56,5 +55,6 @@ extern SynchDisk *synchDisk;
 #include "post.h"
 extern PostOffice *postOffice;
 #endif
+
 
 #endif // SYSTEM_H

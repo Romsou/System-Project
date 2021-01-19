@@ -25,6 +25,7 @@
 #include "system.h"
 #include "syscall.h"
 #include "userthread.h"
+#include "systemthread.h"
 
 Thread* savedThread;
 //----------------------------------------------------------------------
@@ -253,6 +254,14 @@ void handleUserThreadJoin()
   machine->WriteRegister(2, retval);
 }
 
+void handleForkExec()
+{
+  char s[MAX_STRING_SIZE];
+  copyStringFromMachine(machine->ReadRegister(4), s, MAX_STRING_SIZE);
+  int retval = do_SystemThreadCreate(s);
+  machine->WriteRegister(2, retval);
+}
+
 
 //----------------------------------------------------------------------
 // ExceptionHandler
@@ -330,6 +339,9 @@ void ExceptionHandler(ExceptionType which)
       break;
     case SC_UserThreadJoin:
       handleUserThreadJoin();
+      break;
+    case SC_ForkExec:
+      handleForkExec();
       break;
     default:
       handleError(which, type);
