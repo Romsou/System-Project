@@ -139,9 +139,13 @@ void handleGetChar()
  */
 void handleEnd()
 {
-  if (!currentThread->space->isEmptyUserThread()) {
+  //if (!currentThread->space->isEmptyUserThread()) {
     currentThread->space->sem->P();
-  }
+  //}else if(scheduler->getNumberOfReadyThreads()>1){
+  //  scheduler->sem->P();
+  //}else if(scheduler->getNumberOfReadyThreads()==0){
+    scheduler->sem->V();
+  //}
   DEBUG('a', "Interruption for end of process %s\n",currentThread->getName());  
   machine->WriteRegister(2, currentThread->getTid());
   handleHalt();

@@ -35,7 +35,6 @@ StartProcess (char *filename)
 	  printf ("Unable to open file %s\n", filename);
 	  return;
       }
-    DEBUG('x',"Ouverture fichier %s by thread %s\n",filename,currentThread->getName());
     space = new AddrSpace (executable);
     currentThread->space = space;
 
@@ -45,7 +44,7 @@ StartProcess (char *filename)
     space->RestoreState ();	// load page table register
 
 
-    //scheduler->ReadyToRun(currentThread); //ajout test
+    scheduler->ReadyToRun(currentThread); //ajout test
     machine->Run ();		// jump to the user progam
     ASSERT (FALSE);		// machine->Run never returns;
     // the address space exits

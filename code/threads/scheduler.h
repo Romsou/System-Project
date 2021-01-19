@@ -31,6 +31,8 @@ public:
 
   int getNumberOfReadyThreads(); // !!! Added to count the number of user threads
 
+  Semaphore *sem;   //  !!!! Added to block the End syscall by processus
+
 private:
   List *readyList; // queue of threads that are ready to run,
                    // but not running

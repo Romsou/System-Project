@@ -101,7 +101,7 @@ AddrSpace::AddrSpace(OpenFile *executable)
 	// check we're not trying to run anything too big at least until we have virtual memory
 	ASSERT(numPages <= NumPhysPages);
 
-	DEBUG('a', "Initializing address space, num pages %d, size %d\n", numPages, size);
+	DEBUG('a', "Initializing address space, num pages = %d, size = %d\n", numPages, size);
 	this->allocatePages();
 
 	DEBUG('a', "Initializing code segment, at 0x%x, size %d\n", noffH.code.virtualAddr, noffH.code.size);

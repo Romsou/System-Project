@@ -30,6 +30,7 @@
 Scheduler::Scheduler()
 {
     readyList = new List;
+    sem = new Semaphore("Ending scheduler queue",0);
 }
 
 //----------------------------------------------------------------------
@@ -39,6 +40,7 @@ Scheduler::Scheduler()
 
 Scheduler::~Scheduler()
 {
+    delete sem;
     delete readyList;
 }
 
@@ -68,6 +70,9 @@ void Scheduler::ReadyToRun(Thread *thread)
 Thread *
 Scheduler::FindNextToRun()
 {
+    printf("\t");
+    Print();
+    printf("\n");
     return (Thread *)readyList->Remove();
 }
 

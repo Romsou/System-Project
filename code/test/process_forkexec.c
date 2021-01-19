@@ -2,8 +2,8 @@
 
 int main() {
   //char* file1 = "userpages0";
-  char* file2 = "userpages1";
-  ForkExec("userpages0");
+  char* file2 = "putchar";
+  ForkExec("putstring");
   ForkExec(file2);
 
   //End();
