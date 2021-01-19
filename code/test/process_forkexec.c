@@ -1,9 +1,9 @@
 #include "syscall.h"
 
 int main() {
-  //char* file1 = "userpages0";
+  char* file1 = "putstring";
   char* file2 = "putchar";
-  ForkExec("putstring");
+  ForkExec(file1);
   ForkExec(file2);
 
   //End();

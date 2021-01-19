@@ -70,9 +70,6 @@ void Scheduler::ReadyToRun(Thread *thread)
 Thread *
 Scheduler::FindNextToRun()
 {
-    printf("\t");
-    Print();
-    printf("\n");
     return (Thread *)readyList->Remove();
 }
 
