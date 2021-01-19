@@ -2,19 +2,33 @@
 #include "system.h"
 #include "thread.h"
 #include "systemthread.h"
+#include "addrspace.h"
+#include <string.h>
 
-extern void StartProcess(char *filename);
+void startNewProcess(int argAddr)
+{
+  char* filename = (char*) argAddr;
+  OpenFile *executable = fileSystem->Open(filename);
+  ASSERT(executable != NULL);
 
-/**
- * 
- */
-int do_SystemThreadCreate(char *s){
-  Thread *t = new Thread(s);
-  if (t->getTid() == -1) 
+  AddrSpace *space = new AddrSpace(executable);
+  delete executable;		// close file
+  ASSERT(space != NULL);
+
+  currentThread->space = space;
+  currentThread->space->InitRegisters();
+  currentThread->space->RestoreState();
+
+  machine->Run();
+  ASSERT (FALSE);		// machine->Run never returns;
+}
+
+int do_SystemThreadCreate(char *filename)
+{
+  Thread *process = new Thread(filename);
+  if (process == NULL)
     return -1;
-  
-  DEBUG('t',"Creating of system thread by %d\n",currentThread->getTid());
-  t->Fork((VoidFunctionPtr)StartProcess, (int)s);
-
-  return t->getTid();
+    
+  process->Fork(startNewProcess, (int) filename);
+  return process != NULL;
 }

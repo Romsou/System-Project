@@ -2,10 +2,11 @@
 
 int main() {
   char* file1 = "userpages0";
-  //char* file2 = "userpages1";
+  char* file2 = "userpages1";
+  
   ForkExec(file1);
-  //ForkExec(file2);
+  ForkExec(file2);
 
-  //End();
+  End();
   return 0;
 }

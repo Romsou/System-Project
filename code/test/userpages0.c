@@ -11,18 +11,14 @@ void print(void *arg){
 	}
 }
 
+
 int main(){
+	PutString("TEST0\n");
 	int a=1, b=2, c=3;
 	UserThreadCreate(print,&a);
 	UserThreadCreate(print,&b);
 	UserThreadCreate(print,&c);
 
-	// UserThreadJoin(t1);
-	// UserThreadJoin(t2);
-	// UserThreadJoin(t3);
-
 	End();
 	return 0;
-
-
 }

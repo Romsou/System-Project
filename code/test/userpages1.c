@@ -1,9 +1,9 @@
 #include "syscall.h"
 
-#define THIS "aaa"
-// #define THAT "bbb"
 
-// const int N = 10;
+#define THIS "abcdefghijklmnopqrstuvwxyz"
+
+const int N = 10;
 
 void puts(void *s)
 {
@@ -13,15 +13,9 @@ void puts(void *s)
 	}
 }
 
-/*void f(void *s){
-	int i;
-	for(i=0 ; i<N; i++){
-		puts(s);
-	}
-}*/
-
 int main(){
+	PutString("TEST1\n");
 	UserThreadCreate(puts,THIS);
-	// f((void *)THAT);
+	End();
 	return 0;
 }

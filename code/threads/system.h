@@ -17,7 +17,7 @@
 #include "timer.h"
 #include "frameprovider.h"
 
-#define MAX_STRING_SIZE 512
+#define MAX_STRING_SIZE 64
 #define MAX_LEN_INT 11
 
 // Initialization and cleanup routines
