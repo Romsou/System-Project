@@ -190,10 +190,10 @@ public:
   void setReturnAddr(int returnAddr);
 
   int getPid();
-  void setPid(int id);
+  void setPid(int ProcessId);
 
-  int getPPid();
-  void setPpid(int id);
+  int getPpid();
+  void setPpid(int ParentProcessId);
 
   AddrSpace *space; // User code this thread is running.
 #endif

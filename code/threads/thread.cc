@@ -58,8 +58,8 @@ Thread::Thread(const char *threadName)
 
     functionAndArgs = new FunctionAndArgs();
 
-    pid = NULL;
-    ppid = NULL;
+    pid = -1;
+    ppid = -1;
 
 #endif
 }
@@ -503,10 +503,10 @@ int Thread::getPid()
     return pid;
 }
 
-void Thread::setPid(int id)
+void Thread::setPid(int ProcessId)
 {
-    if(pid == NULL && ppid == NULL)
-        pid = id;
+    if(pid == -1 && ppid == -1)
+        pid = ProcessId;
 }
 
 int Thread::getPpid()
@@ -514,10 +514,10 @@ int Thread::getPpid()
     return ppid;
 }
 
-void Thread::setPpid(int id)
+void Thread::setPpid(int ParentProcessId)
 {
-    if(pid == NULL && ppid == NULL)
-        ppid = id;
+    if(pid == -1 && ppid == -1)
+        ppid = ParentProcessId;
 }
 
 #endif
