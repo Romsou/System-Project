@@ -129,9 +129,7 @@ public:
   
   
   /*
-  int getPid() { return pid; }
-  int getPPid() { return ppid; }
-  int getNbChild() { return childNb; }
+  
   */
 
 private:
@@ -143,11 +141,9 @@ private:
   ThreadStatus status; // ready, running or blocked
   Thread *parent;
   const char *name;
-  /*
+  
   int pid;
   int ppid;
-  int childNb;
-  */
 
   void StackAllocate(VoidFunctionPtr func, int arg);
   // Allocate a stack for thread.
@@ -192,6 +188,12 @@ public:
 
   int getReturnAddr();
   void setReturnAddr(int returnAddr);
+
+  int getPid();
+  void setPid(int id);
+
+  int getPPid();
+  void setPpid(int id);
 
   AddrSpace *space; // User code this thread is running.
 #endif

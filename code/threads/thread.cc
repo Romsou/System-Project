@@ -58,6 +58,9 @@ Thread::Thread(const char *threadName)
 
     functionAndArgs = new FunctionAndArgs();
 
+    pid = NULL;
+    ppid = NULL;
+
 #endif
 }
 
@@ -493,6 +496,28 @@ void Thread::setReturnAddr(int returnAddr)
 {
     ASSERT(returnAddr >= 0);
     functionAndArgs->returnAddr = returnAddr;
+}
+
+int Thread::getPid()
+{
+    return pid;
+}
+
+void Thread::setPid(int id)
+{
+    if(pid == NULL && ppid == NULL)
+        pid = id;
+}
+
+int Thread::getPpid()
+{
+    return ppid;
+}
+
+void Thread::setPpid(int id)
+{
+    if(pid == NULL && ppid == NULL)
+        ppid = id;
 }
 
 #endif
