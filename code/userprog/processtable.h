@@ -5,12 +5,10 @@
 #include "synch.h"
 #include "bitmap.h"
 
-#define NB_MAX_PROCESS 3 //TODO mv it
-
 class ProcessTable
 {
 public:
-    ProcessTable();
+    ProcessTable(int nbMaxProcess);
     ~ProcessTable();
     
     bool add(Thread *process);
@@ -24,6 +22,7 @@ public:
     // void allowHalt();
 
 private:
+    int nbProcess;
     Thread **processes;
     BitMap* processPresenceIndicator;
 

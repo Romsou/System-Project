@@ -1,12 +1,13 @@
 #include "processtable.h"
 
-ProcessTable::ProcessTable()
+ProcessTable::ProcessTable(int nbMaxProcess)
 {
-    processes = new Thread *[NB_MAX_PROCESS];
-    for (int i = 0; i < NB_MAX_PROCESS; i++)
+    nbProcess = nbMaxProcess;   //nbProcess = NB_MAX_PROCESS
+    processes = new Thread *[nbProcess];
+    for (int i = 0; i < nbProcess; i++)
         processes[i] = NULL;
 
-    processPresenceIndicator = new BitMap(NB_MAX_PROCESS);
+    processPresenceIndicator = new BitMap(nbProcess);
     // haltLock = new Semaphore("Halt lock", 0);
 }
 
@@ -24,7 +25,7 @@ ProcessTable::~ProcessTable()
  */
 bool ProcessTable::add(Thread *process)
 {
-    if (getNumberOfActiveProcesses() == NB_MAX_PROCESS)
+    if (getNumberOfActiveProcesses() == nbProcess)
        return false;
 
     int index = processPresenceIndicator->Find();
@@ -46,7 +47,7 @@ bool ProcessTable::add(Thread *process)
  */
 void ProcessTable::remove(int id)
 {
-    for (int i = 0; i < NB_MAX_PROCESS; i++)
+    for (int i = 0; i < nbProcess; i++)
         if (processes[i] != NULL && processes[i]->getPid() == id)
             removeAt(i);
 }
@@ -58,7 +59,7 @@ void ProcessTable::remove(int id)
  */
 void ProcessTable::removeAt(int index)
 {
-    ASSERT(index >= 0 && index < NB_MAX_PROCESS);
+    ASSERT(index >= 0 && index < nbProcess);
     processes[index] = NULL;
     processPresenceIndicator->Clear(index);
 }
