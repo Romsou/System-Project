@@ -100,8 +100,8 @@ public:
   // must not be running when delete
   // is called
  
-  static int threadCount;
   static int userThreadCount;
+  static int processCount;
  
   // basic thread operations
   void Fork(VoidFunctionPtr func, int arg);   // Make thread run (*func)(arg)
@@ -189,6 +189,7 @@ public:
   int getReturnAddr();
   void setReturnAddr(int returnAddr);
 
+  int givePid();
   int getPid();
   void setPid(int ProcessId);
 

@@ -28,7 +28,10 @@ int do_SystemThreadCreate(char *filename)
   Thread *process = new Thread(filename);
   if (process == NULL)
     return -1;
-    
+  
+  process->setPid(process->givePid());
+  processTable->add(process);
+
   process->Fork(startNewProcess, (int) filename);
   return process != NULL;
 }
