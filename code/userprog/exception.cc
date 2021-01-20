@@ -154,11 +154,10 @@ void handleEnd()
       delete currentThread->space;
     
     machine->WriteRegister(2, currentThread->getPid());
-    if (processTable->getNumberOfActiveProcesses() > 0) {
+    if (processTable->getNumberOfActiveProcesses() > 0)
       currentThread->Finish();
-    } else {
+    else
       handleHalt();
-    }
   }
 }
 
@@ -271,10 +270,10 @@ void handleUserThreadJoin()
 
 void handleForkExec()
 {
-  // TODO: Trouver un moyen d'effectuer un passage par valeur d'une chaĂŽne
-  char* s = (char*) malloc(sizeof(char) * MAX_STRING_SIZE);
-  copyStringFromMachine(machine->ReadRegister(4), s, MAX_STRING_SIZE);
-  int retval = do_SystemThreadCreate(s);
+  // TODO: Trouver un moyen d'effectuer un passage par valeur d'une chaîne
+  char* filename = (char*) malloc(sizeof(char) * MAX_STRING_SIZE);
+  copyStringFromMachine(machine->ReadRegister(4), filename, MAX_STRING_SIZE);
+  int retval = do_SystemThreadCreate(filename);
   //free(s);
   machine->WriteRegister(2, retval);
 }

@@ -29,7 +29,7 @@ int do_SystemThreadCreate(char *filename)
   if (process == NULL)
     return -1;
   
-  process->setPid(process->givePid());
+  process->setPid(process->generatePid());
   processTable->add(process);
 
   process->Fork(startNewProcess, (int) filename);

@@ -32,7 +32,7 @@
 //
 //      "threadName" is an arbitrary string, useful for debugging.
 //----------------------------------------------------------------------
-int Thread::userThreadCount = 0;
+int Thread::userThreadCount = 1;
 int Thread::processCount = 1; //Pid of main will be 1
 
 Thread::Thread(const char *threadName)
@@ -50,8 +50,7 @@ Thread::Thread(const char *threadName)
     for (int r = NumGPRegs; r < NumTotalRegs; r++)
         userRegisters[r] = 0;
 
-    id = userThreadCount;
-    userThreadCount++;
+    id = -1;
     index = -1;
     
     waitQueue = new Semaphore("Thread wait Queue", 0);
@@ -82,7 +81,6 @@ Thread::~Thread()
     DEBUG('t', "Deleting thread \"%s\"\n", name);
 
 #ifdef USER_PROGRAM
-    userThreadCount--;  //TODO : verify Why --?
     delete waitQueue;
     delete functionAndArgs;
 #endif
@@ -416,6 +414,12 @@ void Thread::RestoreUserState()
         machine->WriteRegister(i, userRegisters[i]);
 }
 
+int Thread::generateTid() {
+    int curTid = userThreadCount;
+    userThreadCount++;
+    return curTid;
+}
+
 int Thread::getTid()
 {
     return id;
@@ -423,7 +427,30 @@ int Thread::getTid()
 
 void Thread::setTid(int i)
 {
-    id = i;
+    if(i == -1)
+        id = i;
+}
+
+int Thread::generatePid() {
+    int curPid = processCount;
+    processCount++;
+    return curPid;
+}
+
+int Thread::getPid()
+{
+    return pid;
+}
+
+void Thread::setPid(int ProcessId)
+{
+    if(pid == -1 && ppid == -1)
+        pid = ProcessId;
+}
+
+int Thread::getPpid()
+{
+    return ppid;
 }
 
 int Thread::getIndex()
@@ -497,28 +524,6 @@ void Thread::setReturnAddr(int returnAddr)
 {
     ASSERT(returnAddr >= 0);
     functionAndArgs->returnAddr = returnAddr;
-}
-
-int Thread::getPid()
-{
-    return pid;
-}
-
-int Thread::givePid() {
-    int curPid = processCount;
-    processCount++;
-    return curPid;
-}
-
-void Thread::setPid(int ProcessId)
-{
-    if(pid == -1 && ppid == -1)
-        pid = ProcessId;
-}
-
-int Thread::getPpid()
-{
-    return ppid;
 }
 
 void Thread::setPpid(int ParentProcessId)

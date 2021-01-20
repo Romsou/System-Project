@@ -63,6 +63,8 @@ int do_UserThreadCreate(int f, int arg)
     return -1;
 
   currentThread->space->putThreadAtIndex(newThread, threadIndex);
+  newThread->setTid(newThread->generateTid());  //generate unique tid
+  newThread->setPpid(currentThread->getPid());  //retrieve parent process pid
   newThread->setIndex(threadIndex); //met a jour index
 
   newThread->setFunction(f);

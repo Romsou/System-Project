@@ -209,7 +209,7 @@ int UserThreadJoin(int tid);
 * create and launch a system thread created by a file
 * @param s the executable file
 */
-int ForkExec(char *s);
+int ForkExec(char *filename);
 
 #endif // IN_USER_MODE
 
