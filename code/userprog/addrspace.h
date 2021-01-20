@@ -21,7 +21,7 @@
 #include "noff.h"
 #include "frameprovider.h"
 
-#define NB_MAX_THREADS 3
+#define NB_MAX_THREADS 5
 #define UserStackSize 2 * NB_MAX_THREADS * PageSize	// increase this as necessary!
 
 class AddrSpace
@@ -42,36 +42,37 @@ public:
   Semaphore *sem;
 
   /**
-     * Indicates whether the list of user threads is empty
-     * 
-     * @return A boolean indicating whether the list of user thread is empty
-     */
+   * Indicates whether the list of user threads is empty
+   * 
+   * @return A boolean indicating whether the list of user thread is empty
+   */
   bool isEmptyUserThread();
 
   /**
-     * Properly removes the current thread from userThreads.
-     */
+   * Properly removes the current thread from userThreads.
+   * 
+   * @param index: The index of the thread we want to delete in
+   * 				 the array of userThreads.
+   */
   void DeleteThreadFromArray(int index);
 
   /**
-     * Put the current thread at in table of userThreads if find a free space.
-     * @param index, index of a free space in table
-     * @return index of free space found in user thread table, -1 table in full. 
-     */
+   * Put the current thread at in table of userThreads if find a free space.
+   */
   int GetFreeSpotInUserThreadArray();
 
   /**
-    * Search in list of threads, those who is corresponding to the id
-    * if none thread corresponding, return null
-    */
+   * Search in list of threads, those who is corresponding to the id
+   * if none thread corresponding, return null
+   */
   struct Thread *getThreadAtId(int id);
 
   /**
-  * Put the given thread at index in the array of user threads
-  * 
-  * @param thread: The thread we want to place in our array.
-  * @param index: The index at which we want to put this thread.
-  */
+   * Put the given thread at index in the array of user threads
+   * 
+   * @param thread: The thread we want to place in our array.
+   * @param index: The index at which we want to put this thread.
+   */
   void putThreadAtIndex(Thread *thread, int index);
 
 private:

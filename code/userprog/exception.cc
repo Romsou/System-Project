@@ -141,14 +141,25 @@ void handleGetChar()
  */
 void handleEnd()
 {
-
-  //if (!currentThread->space->isEmptyUserThread()) {
-    currentThread->space->sem->P();
-  //}
   DEBUG('a', "Interruption for end of process %s\n",currentThread->getName());  
+  //Ending a process (only process can End)
+  if (currentThread->getPid() != -1) {
+    
+    //Checking if No userThreads are running in this process
+    if (!currentThread->space->isEmptyUserThread())
+      currentThread->space->sem->P();
 
-  machine->WriteRegister(2, currentThread->getTid());
-  //handleHalt();
+    //Here free process and his space
+      processTable->remove(currentThread->getPid());
+      delete currentThread->space;
+    
+    machine->WriteRegister(2, currentThread->getPid());
+    if (processTable->getNumberOfActiveProcesses() > 0) {
+      currentThread->Finish();
+    } else {
+      handleHalt();
+    }
+  }
 }
 
 //----------------------------------------------------------------------

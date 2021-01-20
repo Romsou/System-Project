@@ -30,6 +30,7 @@ SynchDisk *synchDisk;
 #ifdef USER_PROGRAM // requires either FILESYS or FILESYS_STUB
 Machine *machine;   // user program memory and registers
 FrameProvider *frameProvider;
+ProcessTable * processTable;
 #endif
 
 #ifdef NETWORK
@@ -155,6 +156,7 @@ void Initialize(int argc, char **argv)
     stats = new Statistics();    // collect statistics
     interrupt = new Interrupt;   // start up interrupt handling
     scheduler = new Scheduler(); // initialize the ready queue
+    processTable = new ProcessTable();
     if (randomYield)             // start the timer (if needed)
         timer = new Timer(TimerInterruptHandler, 0, randomYield);
 
@@ -164,6 +166,9 @@ void Initialize(int argc, char **argv)
     // But if it ever tries to give up the CPU, we better have a Thread
     // object to save its state.
     currentThread = new Thread("main");
+    //Add main in process table
+    currentThread->setPid(currentThread->givePid());
+    processTable->add(currentThread);
     currentThread->setStatus(RUNNING);
 
     interrupt->Enable();

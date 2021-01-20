@@ -316,7 +316,6 @@ void AddrSpace::DeleteThreadFromArray(int index)
 /**
  * Find the first free spot in userThreads.
  * 
- * @param index, index of a free space in table
  * @return index of free space found in user thread table, -1 table in full. 
  */
 int AddrSpace::GetFreeSpotInUserThreadArray()

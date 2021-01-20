@@ -1,6 +1,5 @@
 #include "syscall.h"
 
-/*
 void print(void *arg){
 	int wich = *(int *)arg;
 	for(int i=0; i < 5 ;  i++){
@@ -11,21 +10,15 @@ void print(void *arg){
 		PutChar('\n');
 	}
 }
-*/
+
 
 int main(){
-	PutString("Test\n");
-	/*int a=1, b=2, c=3;
+	PutString("TEST0\n");
+	int a=1, b=2, c=3;
 	UserThreadCreate(print,&a);
 	UserThreadCreate(print,&b);
 	UserThreadCreate(print,&c);
 
-	// UserThreadJoin(t1);
-	// UserThreadJoin(t2);
-	// UserThreadJoin(t3);
-	*/
-	//End();
+	End();
 	return 0;
-
-
 }

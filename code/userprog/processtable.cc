@@ -7,13 +7,13 @@ ProcessTable::ProcessTable()
         processes[i] = NULL;
 
     processPresenceIndicator = new BitMap(NB_MAX_PROCESS);
-    HaltLock = new Semaphore("Halt lock", 0);
+    // haltLock = new Semaphore("Halt lock", 0);
 }
 
 ProcessTable::~ProcessTable()
 {
     delete processes;
-    delete HaltLock;
+    // delete haltLock;
 }
 
 /**
@@ -48,14 +48,14 @@ bool ProcessTable::addAt(Thread *process, int index)
 {
     ASSERT(index >= 0 && index < NB_MAX_PROCESS);
 
-    if (getNumberOfActiveProcesses() == NB_MAX_PROCESS)
-        return false;
+    //TODO : mb remove this function and put all following if in add, before     int index = processPresenceIndicator->Find();??
+    //if (getNumberOfActiveProcesses() == NB_MAX_PROCESS) //Same as below, Find already mark a bit
+    //    return false;
+    //if (process->getPpid() == -1)     //For now, no PPid
+    //    return false;
 
-    if (process->getPpid() == NULL)
-        return false;
-
-    if (processPresenceIndicator->Test(index))
-        return false;
+    //if (processPresenceIndicator->Test(index)) //Doesn't work if we came from add
+    //    return false; // because find already Mark a bit then this test return true
 
     processes[index] = process;
     processPresenceIndicator->Mark(index);
@@ -71,7 +71,7 @@ bool ProcessTable::addAt(Thread *process, int index)
 void ProcessTable::remove(int id)
 {
     for (int i = 0; i < NB_MAX_PROCESS; i++)
-        if (processes[i]->getPid() == id)
+        if (processes[i] != NULL && processes[i]->getPid() == id)
             removeAt(i);
 }
 
@@ -83,7 +83,7 @@ void ProcessTable::remove(int id)
 void ProcessTable::removeAt(int index)
 {
     ASSERT(index >= 0 && index < NB_MAX_PROCESS);
-    processes[index] == NULL;
+    processes[index] = NULL;
     processPresenceIndicator->Clear(index);
 }
 
@@ -101,18 +101,18 @@ int ProcessTable::getNumberOfActiveProcesses()
  * Prevents the program to shutdown the machine
  * as long as at least one process is still running.
  */
-void ProcessTable::preventsHalt()
+/*void ProcessTable::preventsHalt()
 {
     if (getNumberOfActiveProcesses() > 0)
         haltLock->P();
-}
+}*/
 
 /**
  * Allows the program to shut down the machine if there
  * are no processes left to run.
  */
-void ProcessTable::allowHalt()
+/*void ProcessTable::allowHalt()
 {
-    if (getNumberOfActiveProcesses == 0)
+    if (getNumberOfActiveProcesses() == 0)
         haltLock->V();
-}
+}*/
