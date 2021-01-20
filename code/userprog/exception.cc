@@ -154,11 +154,10 @@ void handleEnd()
       delete currentThread->space;
     
     machine->WriteRegister(2, currentThread->getPid());
-    if (processTable->getNumberOfActiveProcesses() > 0) {
+    if (processTable->getNumberOfActiveProcesses() > 0)
       currentThread->Finish();
-    } else {
+    else
       handleHalt();
-    }
   }
 }
 
