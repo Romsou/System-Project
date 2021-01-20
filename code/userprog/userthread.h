@@ -8,38 +8,37 @@
 #include "utility.h"
 #include "thread.h"
 
-/**
- * @struct FunctionAndArgs
- * 
- * A structure used to pass the address of our function
- * and its arguments to StartUserThread in userthread.cc
- * 
- * @field func The address of the function we want to pass as a parameter
- * @field args The address of the first argument to the function we want to
- *             make a thread for.
- * @field end Address of UserThreadExit function, to allow us to automatically
- *            exit the thread once it's done.
- */
 
 /**
- * Creates a new user thread and puts it in the ready list.
+ * Create a new user thread and puts it in the ready list.
+ * 
+ * Create a new user thread and sets its function and arg attributes
+ * so that we can jump to the code of this function later.
+ * Also set ReturnAddrReg on the address of UserThreadExit() to 
+ * automatically end the function f properly.
  * 
  * @param f: The function we want to create a user thread for.
  * @param arg: The argument we want to pass to f
- * @return: thread id or -1 if the creation of the thread fails 
+ * @return: The id of the newly created user thread or -1 if the creation of the thread fails 
  */
 extern int do_UserThreadCreate(int f, int arg);
 
 /**
- * do_UserThreadExit erases and properly ends the current thread
+ * Erases and properly ends the current thread
+ * 
+ * As a side effect, this function frees all the threads
+ * waiting for the current thread to end.
  */
 extern void do_UserThreadExit();
 
+
 /**
- * Indicate to the current thread to wait for the thread
- * identified by "tid"
+ * Allows a user thread to wait for the termination of another user thread.
  * 
- * @param tid: The id of the thread we want to wait;
+ * This works by making the current thread take the semaphore of the one we want to wait for.
+ * 
+ * @param tid: The tid of the thread
+ * @return: 0 on success
  */
 extern int do_UserThreadJoin(int tid);
 

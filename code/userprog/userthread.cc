@@ -9,7 +9,9 @@
  * This function works by initializing the machine environment
  * for the f function to work properly. It then proceeds to 
  * initialize the PC register with the address of f so that we can
- * jump to the user code once it is called.
+ * jump to the user code once it is called. We also put the adress
+ * of UserThreadExit() in the RetAddrReg register so that we can
+ * automatically properly end the thread.
  * 
  * @param f: The address of a structure containing the function and the args
  *           we want to jump to.
@@ -37,9 +39,14 @@ static void StartUserThread(int f)
 /**
  * Create a new user thread and puts it in the ready list.
  * 
+ * Create a new user thread and sets its function and arg attributes
+ * so that we can jump to the code of this function later.
+ * Also set ReturnAddrReg on the address of UserThreadExit() to 
+ * automatically end the function f properly.
+ * 
  * @param f: The function we want to create a user thread for.
  * @param arg: The argument we want to pass to f
- * @return: 0 or -1 if the creation of the thread fails 
+ * @return: The id of the newly created user thread or -1 if the creation of the thread fails 
  */
 int do_UserThreadCreate(int f, int arg)
 {
@@ -70,7 +77,10 @@ int do_UserThreadCreate(int f, int arg)
 }
 
 /**
- * do_UserThreadExit erases and properly ends the current thread
+ * Erases and properly ends the current thread
+ * 
+ * As a side effect, this function frees all the threads
+ * waiting for the current thread to end.
  */
 void do_UserThreadExit()
 {
@@ -81,17 +91,21 @@ void do_UserThreadExit()
   currentThread->Finish();
 }
 
+//TODO: Modify this return type to void
 /**
  * Allows a user thread to wait for the termination of another user thread.
+ * 
+ * This works by making the current thread take the semaphore of the one we want to wait for.
+ * 
  * @param tid: The tid of the thread
  * @return: 0 on success
  */
 int do_UserThreadJoin(int tid)
 {
-  Thread *t = currentThread->space->getThreadAtId(tid);
+  Thread *threadToJoin = currentThread->space->getThreadAtId(tid);
 
-  if (t != NULL)
-    t->waitThread();
+  if (threadToJoin != NULL)
+    threadToJoin->waitThread();
 
   return 0;
 }
