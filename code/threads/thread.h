@@ -67,6 +67,25 @@ enum ThreadStatus
 // external function, dummy routine whose sole job is to call Thread::Print
 extern void ThreadPrint(int arg);
 
+/**
+ * @struct FunctionAndArgs
+ * 
+ * A structure used to pass the address of our function
+ * and its arguments to StartUserThread in userthread.cc
+ * 
+ * @field func The address of the function we want to pass as a parameter
+ * @field args The address of the first argument to the function we want to
+ *             make a thread for.
+ * @field end Address of UserThreadExit function, to allow us to automatically
+ *            exit the thread once it's done.
+ */
+struct FunctionAndArgs
+{
+  int func;
+  int args;
+  int returnAddr;
+};
+
 // The following class defines a "thread control block" -- which
 // represents a single thread of execution.
 //
@@ -77,14 +96,6 @@ extern void ThreadPrint(int arg);
 //
 //  Some threads also belong to a user address space; threads
 //  that only run in the kernel have a NULL address space.
-
-struct FunctionAndArgs
-{
-  int func;
-  int args;
-  int returnAddr;
-};
-
 class Thread
 {
 private:
@@ -99,14 +110,14 @@ public:
   // NOTE -- thread being deleted
   // must not be running when delete
   // is called
- 
+
   static int threadCount;
   static int userThreadCount;
- 
+
   // basic thread operations
-  void Fork(VoidFunctionPtr func, int arg);   // Make thread run (*func)(arg)
+  void Fork(VoidFunctionPtr func, int arg); // Make thread run (*func)(arg)
   //void Fork(VoidFunctionPtr func, void *arg); // Make thread run (*func)(*args)
-  void Yield();                               // Relinquish the CPU if any
+  void Yield(); // Relinquish the CPU if any
   // other thread is runnable
   void Sleep(); // Put the thread to sleep and
   // relinquish the processor
@@ -126,11 +137,6 @@ public:
   {
     printf("%s, ", name);
   }
-  
-  
-  /*
-  
-  */
 
 private:
   // some of the private data for this class is listed above
@@ -141,7 +147,7 @@ private:
   ThreadStatus status; // ready, running or blocked
   Thread *parent;
   const char *name;
-  
+
   int pid;
   int ppid;
 
@@ -155,13 +161,13 @@ private:
   // one for its state while executing user code, one for its state
   // while executing kernel code.
 
-  int id;                           // id of our UserThread
-  int index;                       // index in the Thread array use in addrSpace 
-  
-  Semaphore* waitQueue;
+  int id;    // id of our UserThread
+  int index; // index in the Thread array use in addrSpace
+
+  Semaphore *waitQueue;
   int numOfWaitingThreads;
-  
-  struct FunctionAndArgs* functionAndArgs;
+
+  struct FunctionAndArgs *functionAndArgs;
 
   int userRegisters[NumTotalRegs]; // user-level CPU register state
 
@@ -175,8 +181,20 @@ public:
   int getIndex();
   void setIndex(int i);
 
+  /**
+ * Subscribe to this thread waiting queue
+ * 
+ * This function is used to wait for this thread to end.
+ */
   void waitThread();
-  void clearWaitingThreads();  
+  
+  /**
+ * Free the first element in the thread waitingQueue.
+ * 
+ * We use this function to free in cascade all the 
+ * waiting threads which are at userThreadJoin.
+ */
+  void clearWaitingThreads();
 
   int getNumberOfWaitingThreads();
 
@@ -199,8 +217,8 @@ public:
 #endif
 };
 
-// Magical machine-dependent routines, defined in switch.s
 
+// Magical machine-dependent routines, defined in switch.s
 extern "C"
 {
   // First frame on thread execution stack;
