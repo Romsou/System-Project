@@ -39,7 +39,7 @@ public:
   void RestoreState(); // info on a context switch
 
   //Semaphore for synch Halt/Exit
-  Semaphore *sem;
+  Semaphore *HaltAndExitLock;
 
   /**
    * Indicates whether the list of user threads is empty
