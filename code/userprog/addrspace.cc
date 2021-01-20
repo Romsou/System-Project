@@ -41,8 +41,7 @@ static void ReadAtVirtual(OpenFile *executable, int virtualaddr,
 	executable->ReadAt(buffer, numBytes, position);
 
 	int i;
-	for (i = 0; i < numBytes && machine->WriteMem(virtualaddr + i, 1, buffer[i]); i++)
-		;
+	for (i = 0; i < numBytes && machine->WriteMem(virtualaddr + i, 1, buffer[i]); i++);
 }
 
 //----------------------------------------------------------------------
@@ -63,8 +62,7 @@ SwapHeader(NoffHeader *noffH)
 	noffH->initData.virtualAddr = WordToHost(noffH->initData.virtualAddr);
 	noffH->initData.inFileAddr = WordToHost(noffH->initData.inFileAddr);
 	noffH->uninitData.size = WordToHost(noffH->uninitData.size);
-	noffH->uninitData.virtualAddr =
-		WordToHost(noffH->uninitData.virtualAddr);
+	noffH->uninitData.virtualAddr = WordToHost(noffH->uninitData.virtualAddr);
 	noffH->uninitData.inFileAddr = WordToHost(noffH->uninitData.inFileAddr);
 }
 
@@ -110,7 +108,7 @@ AddrSpace::AddrSpace(OpenFile *executable)
 	DEBUG('a', "Initializing data segment, at 0x%x, size %d\n", noffH.initData.virtualAddr, noffH.initData.size);
 	copyFromExecToMemory(executable, noffH.initData);
 
-	sem = new Semaphore("sem", 0);
+	HaltAndExitLock = new Semaphore("HaltAndExitLock", 0);
 
 	createUserThreads();
 }
@@ -225,7 +223,7 @@ AddrSpace::~AddrSpace()
 	}
 	delete[] userThreads;
 	delete[] pageTable;
-	delete sem;
+	delete HaltAndExitLock;
 }
 
 //----------------------------------------------------------------------
