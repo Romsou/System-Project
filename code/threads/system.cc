@@ -156,7 +156,7 @@ void Initialize(int argc, char **argv)
     stats = new Statistics();    // collect statistics
     interrupt = new Interrupt;   // start up interrupt handling
     scheduler = new Scheduler(); // initialize the ready queue
-    processTable = new ProcessTable();
+    processTable = new ProcessTable(NB_MAX_PROCESS);
     if (randomYield)             // start the timer (if needed)
         timer = new Timer(TimerInterruptHandler, 0, randomYield);
 
@@ -167,7 +167,7 @@ void Initialize(int argc, char **argv)
     // object to save its state.
     currentThread = new Thread("main");
     //Add main in process table
-    currentThread->setPid(currentThread->givePid());
+    currentThread->setPid(currentThread->generatePid());
     processTable->add(currentThread);
     currentThread->setStatus(RUNNING);
 
@@ -221,6 +221,7 @@ void Cleanup()
     delete timer;
     delete scheduler;
     delete interrupt;
+    delete processTable;
 
     Exit(0);
 }

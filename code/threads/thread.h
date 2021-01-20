@@ -148,9 +148,6 @@ private:
   Thread *parent;
   const char *name;
 
-  int pid;
-  int ppid;
-
   void StackAllocate(VoidFunctionPtr func, int arg);
   // Allocate a stack for thread.
   // Used internally by Fork()
@@ -161,10 +158,13 @@ private:
   // one for its state while executing user code, one for its state
   // while executing kernel code.
 
-  int id;    // id of our UserThread
-  int index; // index in the Thread array use in addrSpace
+  int id;                           // id of our UserThread  
+  int pid;
+  int ppid;
 
-  Semaphore *waitQueue;
+  int index;                       // index in the Thread array use in addrSpace 
+  
+  Semaphore* waitQueue;
   int numOfWaitingThreads;
 
   struct FunctionAndArgs *functionAndArgs;
@@ -175,6 +175,7 @@ public:
   void SaveUserState();    // save user-level register state
   void RestoreUserState(); // restore user-level register state
 
+  int generateTid();
   int getTid();
   void setTid(int i);
 
@@ -207,7 +208,7 @@ public:
   int getReturnAddr();
   void setReturnAddr(int returnAddr);
 
-  int givePid();
+  int generatePid();
   int getPid();
   void setPid(int ProcessId);
 

@@ -19,6 +19,7 @@
 
 #define MAX_STRING_SIZE 64
 #define MAX_LEN_INT 11
+#define NB_MAX_PROCESS 12
 
 // Initialization and cleanup routines
 extern void Initialize (int argc, char **argv);	// Initialization,
