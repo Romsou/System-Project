@@ -1,31 +1,21 @@
 #include "syscall.h"
 
-/*
-#define THIS "aaa"
-#define THAT "bbb"
+
+#define THIS "abcdefghijklmnopqrstuvwxyz"
 
 const int N = 10;
 
-void puts(char *s)
+void puts(void *s)
 {
 	char *p;
-	for(p=s ; *p != '\0' ; p++){
+	for(p=(char*)s ; *p != '\0' ; p++){
 		PutChar(*p);
 	}
 }
 
-void f(void *s){
-	int i;
-	for(i=0 ; i<N; i++){
-		puts(s);
-	}
-}
-*/
-
 int main(){
-	PutString("Hello\n");
-	//End();
-//	UserThreadCreate(f,(void *)THIS);
-//	f((void *)THAT);
+	PutString("TEST1\n");
+	UserThreadCreate(puts,THIS);
+	End();
 	return 0;
 }

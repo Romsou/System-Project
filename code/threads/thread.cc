@@ -33,6 +33,7 @@
 //      "threadName" is an arbitrary string, useful for debugging.
 //----------------------------------------------------------------------
 int Thread::userThreadCount = 0;
+int Thread::processCount = 1; //Pid of main will be 1
 
 Thread::Thread(const char *threadName)
 {
@@ -58,6 +59,9 @@ Thread::Thread(const char *threadName)
 
     functionAndArgs = new FunctionAndArgs();
 
+    pid = -1;
+    ppid = -1;
+
 #endif
 }
 
@@ -78,7 +82,7 @@ Thread::~Thread()
     DEBUG('t', "Deleting thread \"%s\"\n", name);
 
 #ifdef USER_PROGRAM
-    userThreadCount--;
+    userThreadCount--;  //TODO : verify Why --?
     delete waitQueue;
     delete functionAndArgs;
 #endif
@@ -493,6 +497,34 @@ void Thread::setReturnAddr(int returnAddr)
 {
     ASSERT(returnAddr >= 0);
     functionAndArgs->returnAddr = returnAddr;
+}
+
+int Thread::getPid()
+{
+    return pid;
+}
+
+int Thread::givePid() {
+    int curPid = processCount;
+    processCount++;
+    return curPid;
+}
+
+void Thread::setPid(int ProcessId)
+{
+    if(pid == -1 && ppid == -1)
+        pid = ProcessId;
+}
+
+int Thread::getPpid()
+{
+    return ppid;
+}
+
+void Thread::setPpid(int ParentProcessId)
+{
+    if(pid == -1 && ppid == -1)
+        ppid = ParentProcessId;
 }
 
 #endif

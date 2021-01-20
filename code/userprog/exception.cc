@@ -27,7 +27,9 @@
 #include "userthread.h"
 #include "systemthread.h"
 
-Thread* savedThread;
+#include <unistd.h> // TEMPORAIRE, A ENLEVER PLUS TARD
+
+Thread *savedThread;
 //----------------------------------------------------------------------
 // UpdatePC : Increments the Program Counter register in order to resume
 // the user program immediately after the "syscall" instruction.
@@ -139,12 +141,25 @@ void handleGetChar()
  */
 void handleEnd()
 {
-  //if (!currentThread->space->isEmptyUserThread()) {
-    currentThread->space->sem->P();
-  //}
   DEBUG('a', "Interruption for end of process %s\n",currentThread->getName());  
-  machine->WriteRegister(2, currentThread->getTid());
-  //handleHalt();
+  //Ending a process (only process can End)
+  if (currentThread->getPid() != -1) {
+    
+    //Checking if No userThreads are running in this process
+    if (!currentThread->space->isEmptyUserThread())
+      currentThread->space->sem->P();
+
+    //Here free process and his space
+      processTable->remove(currentThread->getPid());
+      delete currentThread->space;
+    
+    machine->WriteRegister(2, currentThread->getPid());
+    if (processTable->getNumberOfActiveProcesses() > 0) {
+      currentThread->Finish();
+    } else {
+      handleHalt();
+    }
+  }
 }
 
 //----------------------------------------------------------------------
@@ -219,7 +234,7 @@ void handleGetInt()
  * and its arguments.
  */
 void handleUserThreadCreate()
-{  
+{
   DEBUG('t', "Call for creating user thread\n");
   //Retrieve f and arg here and pass them to DoUserThreadCreate
   int f = machine->ReadRegister(4);
@@ -228,7 +243,6 @@ void handleUserThreadCreate()
   int retval = do_UserThreadCreate(f, arg);
 
   machine->WriteRegister(2, retval);
-  
 }
 
 /**
@@ -238,7 +252,8 @@ void handleUserThreadCreate()
 void handleUserThreadExit()
 {
   currentThread->space->DeleteThreadFromArray(currentThread->getIndex());
-  if(currentThread->space->isEmptyUserThread()) {
+  if (currentThread->space->isEmptyUserThread())
+  {
     currentThread->space->sem->V();
   }
   do_UserThreadExit();
@@ -264,6 +279,33 @@ void handleForkExec()
   machine->WriteRegister(2, retval);
 }
 
+void handleWrite()
+{
+
+  //TODO: Là on utilise la bibliothèque unistd temporairement
+  //Peut être faut il utiliser Write et Read de coff2noff.c ??
+
+  int arg1 = machine->ReadRegister(4);
+  int arg2 = machine->ReadRegister(5);
+  int arg3 = machine->ReadRegister(6);
+
+  char * array = (char *)arg2;
+  write(arg1, array, arg3);
+}
+
+void handleRead()
+{
+
+  //TODO: Là on utilise la bibliothèque unistd temporairement
+  //Peut être faut il utiliser Write et Read de coff2noff.c ??
+
+  int arg1 = machine->ReadRegister(4);
+  int arg2 = machine->ReadRegister(5);
+  int arg3 = machine->ReadRegister(6);
+
+  char * array = (char *)arg2;
+  read(arg1, array, arg3);
+}
 
 //----------------------------------------------------------------------
 // ExceptionHandler
@@ -344,6 +386,12 @@ void ExceptionHandler(ExceptionType which)
       break;
     case SC_ForkExec:
       handleForkExec();
+      break;
+    case SC_Write:
+      handleWrite();
+      break;
+    case SC_Read:
+      handleRead();
       break;
     default:
       handleError(which, type);
