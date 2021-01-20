@@ -167,7 +167,7 @@ void Initialize(int argc, char **argv)
     // object to save its state.
     currentThread = new Thread("main");
     //Add main in process table
-    currentThread->setPid(currentThread->givePid());
+    currentThread->setPid(currentThread->generatePid());
     processTable->add(currentThread);
     currentThread->setStatus(RUNNING);
 
@@ -221,6 +221,7 @@ void Cleanup()
     delete timer;
     delete scheduler;
     delete interrupt;
+    delete processTable;
 
     Exit(0);
 }

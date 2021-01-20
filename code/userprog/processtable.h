@@ -5,7 +5,7 @@
 #include "synch.h"
 #include "bitmap.h"
 
-#define NB_MAX_PROCESS 3  //TODO:MB move it into system.h?
+#define NB_MAX_PROCESS 3 //TODO mv it
 
 class ProcessTable
 {
@@ -14,7 +14,6 @@ public:
     ~ProcessTable();
     
     bool add(Thread *process);
-    bool addAt(Thread *process, int index);
 
     void remove(int id);
     void removeAt(int index);
@@ -28,7 +27,7 @@ private:
     Thread **processes;
     BitMap* processPresenceIndicator;
 
-    // Semaphore* haltLock; //TODO remove semaphore?
+    // Semaphore* haltLock;
 };
 
 #endif

@@ -141,9 +141,6 @@ private:
   ThreadStatus status; // ready, running or blocked
   Thread *parent;
   const char *name;
-  
-  int pid;
-  int ppid;
 
   void StackAllocate(VoidFunctionPtr func, int arg);
   // Allocate a stack for thread.
@@ -155,7 +152,10 @@ private:
   // one for its state while executing user code, one for its state
   // while executing kernel code.
 
-  int id;                           // id of our UserThread
+  int id;                           // id of our UserThread  
+  int pid;
+  int ppid;
+
   int index;                       // index in the Thread array use in addrSpace 
   
   Semaphore* waitQueue;
@@ -169,6 +169,7 @@ public:
   void SaveUserState();    // save user-level register state
   void RestoreUserState(); // restore user-level register state
 
+  int generateTid();
   int getTid();
   void setTid(int i);
 
@@ -189,7 +190,7 @@ public:
   int getReturnAddr();
   void setReturnAddr(int returnAddr);
 
-  int givePid();
+  int generatePid();
   int getPid();
   void setPid(int ProcessId);
 

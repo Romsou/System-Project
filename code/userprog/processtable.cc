@@ -24,38 +24,14 @@ ProcessTable::~ProcessTable()
  */
 bool ProcessTable::add(Thread *process)
 {
+    if (getNumberOfActiveProcesses() == NB_MAX_PROCESS)
+       return false;
+
     int index = processPresenceIndicator->Find();
 
     if (index == -1)
         return false;
 
-    return addAt(process, index);
-}
-
-/**
- * Adds a process to the given index.
- * 
- * Performs some security checks along the way.
- * Checks if the table is not yet full, if the process
- * is indeed a process and not a user thread, and
- * checks if a process is already there or not. If it is
- * we do not overwrite it.
- * 
- * @param process: The process to add to the table.
- * @param index: The index at which to put process.
- */
-bool ProcessTable::addAt(Thread *process, int index)
-{
-    ASSERT(index >= 0 && index < NB_MAX_PROCESS);
-
-    //TODO : mb remove this function and put all following if in add, before     int index = processPresenceIndicator->Find();??
-    //if (getNumberOfActiveProcesses() == NB_MAX_PROCESS) //Same as below, Find already mark a bit
-    //    return false;
-    //if (process->getPpid() == -1)     //For now, no PPid
-    //    return false;
-
-    //if (processPresenceIndicator->Test(index)) //Doesn't work if we came from add
-    //    return false; // because find already Mark a bit then this test return true
 
     processes[index] = process;
     processPresenceIndicator->Mark(index);
