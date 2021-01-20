@@ -1,7 +1,7 @@
 #include "syscall.h"
 
 
-#define THIS "abcdefghijklmnopqrstuvwxyz"
+#define THIS "abcdefghijklmnopqrstuvwxyz\n"
 
 const int N = 10;
 
