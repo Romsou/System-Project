@@ -219,10 +219,13 @@ void AddrSpace::initializeUserThreads()
 
 AddrSpace::~AddrSpace()
 {
-	// LB: Missing [] for delete
-	// delete pageTable;
+	unsigned int i;
+	for(i=0; i<numPages; i++) {
+		frameProvider->ReleaseFrame(pageTable[i].physicalPage);
+	}
+	delete[] userThreads;
 	delete[] pageTable;
-	// End of modification
+	delete sem;
 }
 
 //----------------------------------------------------------------------

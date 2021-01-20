@@ -47,7 +47,7 @@ int FrameProvider::GetEmptyFrame()
  */
 void FrameProvider::ReleaseFrame(int frameIndex)
 {
-  ASSERT(frameIndex > 0 && frameIndex < NumPhysPages);
+  ASSERT(frameIndex >= 0 && frameIndex < NumPhysPages);
   frameTable->Clear(frameIndex);
 }
 
