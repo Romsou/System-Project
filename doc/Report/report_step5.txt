@@ -18,7 +18,7 @@ Sous Unix : on a une table des inodes, un table des fichiers ouverts par process
 Sous NachOS = pas de tampon I/O, manque de robustesse
 Répertoire contient au plus 10 entrées chacune contient info = (booleen inUse, filename, pointeur vers l'entete du fichier)
 
-
+filehdr = UNIX inode
 
 ##Du cours de Danjean
 - stockage péren même en cas de coupure de courant
