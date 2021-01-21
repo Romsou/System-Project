@@ -1,11 +1,9 @@
 #!/bin/bash
 
-# Quick integration test (not automated) for user threads
-
 nachos=nachos-step4
 
 execute_programs() {
-    for program in $(ls | grep -i ^userthread | cut -d "." -f1 | sort | uniq); do
+    for program in $(ls | grep -i ^process | cut -d "." -f1 | sort | uniq); do
         echo
         echo -e "==== \e[32mExecuting $program\e[0m ====\n"
         ./${nachos} -x ${program}
