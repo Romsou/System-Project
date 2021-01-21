@@ -19,8 +19,8 @@ static void startNewProcess(int argAddr)
   currentThread->space->InitRegisters();
   currentThread->space->RestoreState();
 
-  free(filename);
-  filename = NULL;
+  //free(filename);
+  //filename = NULL;
 
   machine->Run();
   ASSERT (FALSE);		// machine->Run never returns;

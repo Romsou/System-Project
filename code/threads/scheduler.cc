@@ -30,7 +30,6 @@
 Scheduler::Scheduler()
 {
     readyList = new List;
-    sem = new Semaphore("Ending scheduler queue",0);
 }
 
 //----------------------------------------------------------------------
@@ -40,7 +39,6 @@ Scheduler::Scheduler()
 
 Scheduler::~Scheduler()
 {
-    delete sem;
     delete readyList;
 }
 

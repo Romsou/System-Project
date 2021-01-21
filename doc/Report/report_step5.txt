@@ -1,0 +1,7 @@
+#Step 5 : File System 
+##Du cours de Danjean
+- stockage péren même en cas de coupure de courant
+- fichier : série d'octet non structuré, a un nom, son contenu est une collection de blocs disque
+- le SF doit transformer le nom du fichier en un numéro de bloc et une position associée (offset), toute manipulation se fait à partir de la position courante dans le fichier
+- écriture d'un secteur est atomique (un secteur est garanti d'être écrit en entier ou pas du tout) mais il est possible qu'il existe un tampon et donc le SE n'écrit pas de suite le secteur 
+- à la fin d'un processus, on ferme proprement les fichiers qu'il utilisait

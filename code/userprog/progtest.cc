@@ -26,7 +26,6 @@
 void
 StartProcess (char *filename)
 {
-    DEBUG('x',"Tentative d'ouverture par %s\n",currentThread->getName());
     OpenFile *executable = fileSystem->Open (filename);
     AddrSpace *space;
 
@@ -44,7 +43,7 @@ StartProcess (char *filename)
     space->RestoreState ();	// load page table register
 
 
-    scheduler->ReadyToRun(currentThread); //ajout test
+    //scheduler->ReadyToRun(currentThread); //ajout test
     machine->Run ();		// jump to the user progam
     ASSERT (FALSE);		// machine->Run never returns;
     // the address space exits
