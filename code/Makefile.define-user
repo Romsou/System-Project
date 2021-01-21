@@ -99,7 +99,7 @@ $(eval $(call define-flavor,step4,userprog filesys-stub,synchconsole.cc userthre
 	frameprovider.cc systemthread.cc processtable.cc))
 
 ######## step6
-$(eval $(call define-flavor,step6,userprog filesys-stub network,synchconsole.cc userthread.cc \
+$(eval $(call define-flavor,step6, threads userprog filesys-stub network,synchconsole.cc userthread.cc \
 	frameprovider.cc systemthread.cc processtable.cc))
 
 

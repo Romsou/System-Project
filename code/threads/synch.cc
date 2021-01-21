@@ -1,6 +1,6 @@
-// synch.cc 
+// synch.cc
 //      Routines for synchronizing threads.  Three kinds of
-//      synchronization routines are defined here: semaphores, locks 
+//      synchronization routines are defined here: semaphores, locks
 //      and condition variables (the implementation of the last two
 //      are left to the reader).
 //
@@ -18,7 +18,7 @@
 // that be disabled or enabled).
 //
 // Copyright (c) 1992-1993 The Regents of the University of California.
-// All rights reserved.  See copyright.h for copyright notice and limitation 
+// All rights reserved.  See copyright.h for copyright notice and limitation
 // of liability and disclaimer of warranty provisions.
 
 #include "copyright.h"
@@ -33,7 +33,7 @@
 //      "initialValue" is the initial value of the semaphore.
 //----------------------------------------------------------------------
 
-Semaphore::Semaphore (const char *debugName, int initialValue)
+Semaphore::Semaphore(const char *debugName, int initialValue)
 {
     name = debugName;
     value = initialValue;
@@ -46,7 +46,7 @@ Semaphore::Semaphore (const char *debugName, int initialValue)
 //      is still waiting on the semaphore!
 //----------------------------------------------------------------------
 
-Semaphore::~Semaphore ()
+Semaphore::~Semaphore()
 {
     delete queue;
 }
@@ -61,20 +61,19 @@ Semaphore::~Semaphore ()
 //      when it is called.
 //----------------------------------------------------------------------
 
-void
-Semaphore::P ()
+void Semaphore::P()
 {
-    IntStatus oldLevel = interrupt->SetLevel (IntOff);	// disable interrupts
+    IntStatus oldLevel = interrupt->SetLevel(IntOff); // disable interrupts
 
     while (value == 0)
-      {				// semaphore not available
-	  queue->Append ((void *) currentThread);	// so go to sleep
-	  currentThread->Sleep ();
-      }
-    value--;			// semaphore available, 
+    {                                         // semaphore not available
+        queue->Append((void *)currentThread); // so go to sleep
+        currentThread->Sleep();
+    }
+    value--; // semaphore available,
     // consume its value
 
-    (void) interrupt->SetLevel (oldLevel);	// re-enable interrupts
+    (void)interrupt->SetLevel(oldLevel); // re-enable interrupts
 }
 
 //----------------------------------------------------------------------
@@ -85,56 +84,102 @@ Semaphore::P ()
 //      are disabled when it is called.
 //----------------------------------------------------------------------
 
-void
-Semaphore::V ()
+void Semaphore::V()
 {
     Thread *thread;
-    IntStatus oldLevel = interrupt->SetLevel (IntOff);
+    IntStatus oldLevel = interrupt->SetLevel(IntOff);
 
-    thread = (Thread *) queue->Remove ();
-    if (thread != NULL)		// make thread ready, consuming the V immediately
-	scheduler->ReadyToRun (thread);
+    thread = (Thread *)queue->Remove();
+    if (thread != NULL) // make thread ready, consuming the V immediately
+        scheduler->ReadyToRun(thread);
     value++;
-    (void) interrupt->SetLevel (oldLevel);
+    (void)interrupt->SetLevel(oldLevel);
 }
 
-// Dummy functions -- so we can compile our later assignments 
-// Note -- without a correct implementation of Condition::Wait(), 
+// Dummy functions -- so we can compile our later assignments
+// Note -- without a correct implementation of Condition::Wait(),
 // the test case in the network assignment won't work!
-Lock::Lock (const char *debugName)
+Lock::Lock(const char *debugName)
 {
+    name = debugName;
+    internalLock = new Semaphore(debugName, 1);
+    state = FREE;
+    ownerId = -1;
 }
 
-Lock::~Lock ()
+Lock::~Lock()
 {
-}
-void
-Lock::Acquire ()
-{
-}
-void
-Lock::Release ()
-{
+    delete internalLock;
 }
 
-Condition::Condition (const char *debugName)
+void Lock::Acquire()
 {
+    internalLock->P();
+    state = BUSY;
+    ownerId = currentThread->getTid();
+    DEBUG('d', "Lock %s was acquired\n", getName());
 }
 
-Condition::~Condition ()
+void Lock::Release()
 {
-}
-void
-Condition::Wait (Lock * conditionLock)
-{
-    ASSERT (FALSE);
+    internalLock->V();
+    state = FREE;
+    ownerId = -1;
+    DEBUG('d', "Lock %s was freed\n", getName());
+
 }
 
-void
-Condition::Signal (Lock * conditionLock)
+bool Lock::isHeldByCurrentThread()
 {
+    return currentThread->getTid() == ownerId;
 }
-void
-Condition::Broadcast (Lock * conditionLock)
+
+Condition::Condition(const char *debugName)
 {
+    queue = new List();
+}
+
+Condition::~Condition()
+{
+    delete queue;
+}
+void Condition::Wait(Lock *conditionLock)
+{
+    // Releases the lock so that another thread can enter its critic section
+    conditionLock->Release();
+    IntStatus oldLevel = interrupt->SetLevel(IntOff); // disable interrupts
+
+    queue->Append((void *)currentThread);
+    currentThread->Sleep();
+    // Attempt to reacquire it once awoken.
+   
+    conditionLock->Acquire();
+    (void)interrupt->SetLevel(oldLevel);
+}
+
+void Condition::Signal(Lock *conditionLock)
+{
+    Thread* thread;
+    // Must check it the current thread owns the lock to avoid
+    // undefined behaviors.
+    IntStatus oldLevel = interrupt->SetLevel(IntOff); // disable interrupts
+   
+    if (conditionLock->isHeldByCurrentThread())
+    {
+        thread = (Thread *)queue->Remove();
+        if(thread != NULL)
+            scheduler->ReadyToRun(thread);
+    }
+    (void)interrupt->SetLevel(oldLevel);
+
+}
+void Condition::Broadcast(Lock *conditionLock)
+{
+    Thread* thread;
+    IntStatus oldLevel = interrupt->SetLevel(IntOff); // disable interrupts
+
+    while((thread = (Thread*) queue->Remove()) != NULL)
+        scheduler->ReadyToRun(thread);
+    (void)interrupt->SetLevel(oldLevel);
+
 }
