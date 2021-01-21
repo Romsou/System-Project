@@ -1,4 +1,10 @@
 #Step 5 : File System 
+##Qu'est-ce qu'on doit faire ?
+
+
+##Quel est le SF de NachOS ?
+Sous Unix : on a une table des inodes, un table des fichiers ouverts par processus, et une table système des fichiers ouverts, recours à des algo parfois complexe pour lecture/ecriture sur disque
+
 ##Du cours de Danjean
 - stockage péren même en cas de coupure de courant
 - fichier : série d'octet non structuré, a un nom, son contenu est une collection de blocs disque
