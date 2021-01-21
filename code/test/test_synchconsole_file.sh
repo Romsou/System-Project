@@ -5,13 +5,14 @@
 # This simple script creates two files and
 # test whether synchconsole may write in it
 
+exec=nachos-step4
 
 main() {
     echo "Test synchConsole.cc" > ../build/in.txt
     touch ../build/out.txt
-    [ ! -f ../build/nachos-step2 ] && make clean && make
+    [ ! -f ../build/${exec} ] && make clean && make
     cd ../build
-    ./nachos-step2 -sc in.txt out.txt
+    ./${exec} -sc in.txt out.txt
     
     result=$(diff in.txt out.txt)
     echo $result
