@@ -427,7 +427,7 @@ int Thread::getTid()
 
 void Thread::setTid(int i)
 {
-    if(i == -1)
+    if(id == -1)
         id = i;
 }
 

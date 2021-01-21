@@ -5,7 +5,7 @@
 #include "addrspace.h"
 #include <string.h>
 
-void startNewProcess(int argAddr)
+static void startNewProcess(int argAddr)
 {
   char* filename = (char*) argAddr;
   OpenFile *executable = fileSystem->Open(filename);
@@ -18,6 +18,9 @@ void startNewProcess(int argAddr)
   currentThread->space = space;
   currentThread->space->InitRegisters();
   currentThread->space->RestoreState();
+
+  free(filename);
+  filename = NULL;
 
   machine->Run();
   ASSERT (FALSE);		// machine->Run never returns;
