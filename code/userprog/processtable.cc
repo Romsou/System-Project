@@ -13,7 +13,8 @@ ProcessTable::ProcessTable(int nbMaxProcess)
 
 ProcessTable::~ProcessTable()
 {
-    delete processes;
+    delete[] processes;
+    delete processPresenceIndicator;
     // delete haltLock;
 }
 
