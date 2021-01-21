@@ -15,9 +15,11 @@
 #include "interrupt.h"
 #include "stats.h"
 #include "timer.h"
+#include "processtable.h"
 
-#define MAX_STRING_SIZE 512
+#define MAX_STRING_SIZE 64
 #define MAX_LEN_INT 11
+#define NB_MAX_PROCESS 12
 
 // Initialization and cleanup routines
 extern void Initialize (int argc, char **argv);	// Initialization,
@@ -31,12 +33,15 @@ extern Scheduler *scheduler;	// the ready list
 extern Interrupt *interrupt;	// interrupt status
 extern Statistics *stats;	// performance metrics
 extern Timer *timer;		// the hardware alarm clock
+extern ProcessTable * processTable;
 
 #ifdef USER_PROGRAM
 #include "machine.h"
 #include "synchconsole.h"
+#include "frameprovider.h"
 extern Machine *machine;	// user program memory and registers
 extern SynchConsole *synchconsole;
+extern FrameProvider *frameProvider;
 #endif
 
 #ifdef FILESYS_NEEDED		// FILESYS or FILESYS_STUB
@@ -53,5 +58,6 @@ extern SynchDisk *synchDisk;
 #include "post.h"
 extern PostOffice *postOffice;
 #endif
+
 
 #endif // SYSTEM_H

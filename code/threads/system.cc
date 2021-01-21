@@ -29,6 +29,8 @@ SynchDisk *synchDisk;
 
 #ifdef USER_PROGRAM // requires either FILESYS or FILESYS_STUB
 Machine *machine;   // user program memory and registers
+FrameProvider *frameProvider;
+ProcessTable *processTable;
 #endif
 
 #ifdef NETWORK
@@ -85,8 +87,8 @@ void Initialize(int argc, char **argv)
     bool randomYield = FALSE;
 #ifdef USER_PROGRAM
     bool debugUserProg = FALSE; // single step user program
-    char* inputFile = NULL;
-    char* outputFile = NULL;
+    char *inputFile = NULL;
+    char *outputFile = NULL;
 #endif
 #ifdef FILESYS_NEEDED
     bool format = FALSE; // format disk
@@ -121,12 +123,26 @@ void Initialize(int argc, char **argv)
         if (!strcmp(*argv, "-s"))
             debugUserProg = TRUE;
         if (!strcmp(*argv, "-sc"))
-        { // test the synchconsole            
-            if (argc > 2) 
+        { // test the synchconsole
+            if (argc > 2)
             {
-            inputFile = *(argv + 1);
-            outputFile = * (argv + 2);
-            argCount = 3;
+                inputFile = *(argv + 1);
+                outputFile = *(argv + 2);
+                argCount = 3;
+            }
+        }
+        if (!strcmp(*argv, "-x"))
+        {
+            if (argc == 3)
+            {
+                outputFile = *(argv + 2);
+                argCount = 3;
+            }
+            if (argc == 4)
+            {
+                inputFile = *(argv + 2);
+                outputFile = *(argv + 3);
+                argCount = 4;
             }
         }
 #endif
@@ -154,6 +170,8 @@ void Initialize(int argc, char **argv)
     stats = new Statistics();    // collect statistics
     interrupt = new Interrupt;   // start up interrupt handling
     scheduler = new Scheduler(); // initialize the ready queue
+
+    processTable = new ProcessTable(NB_MAX_PROCESS);
     if (randomYield)             // start the timer (if needed)
         timer = new Timer(TimerInterruptHandler, 0, randomYield);
 
@@ -163,6 +181,9 @@ void Initialize(int argc, char **argv)
     // But if it ever tries to give up the CPU, we better have a Thread
     // object to save its state.
     currentThread = new Thread("main");
+    //Add main in process table
+    currentThread->setPid(currentThread->generatePid());
+    processTable->add(currentThread);
     currentThread->setStatus(RUNNING);
 
     interrupt->Enable();
@@ -170,6 +191,7 @@ void Initialize(int argc, char **argv)
 
 #ifdef USER_PROGRAM
     machine = new Machine(debugUserProg); // this must come first
+    frameProvider = new FrameProvider();
     synchconsole = new SynchConsole(inputFile, outputFile);
 #endif
 
@@ -200,6 +222,7 @@ void Cleanup()
 #ifdef USER_PROGRAM
     delete machine;
     delete synchconsole;
+    delete frameProvider;
 #endif
 
 #ifdef FILESYS_NEEDED
@@ -213,6 +236,7 @@ void Cleanup()
     delete timer;
     delete scheduler;
     delete interrupt;
+    delete processTable;
 
     Exit(0);
 }

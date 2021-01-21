@@ -18,7 +18,6 @@
 #include "copyright.h"
 #include "system.h"
 #include "addrspace.h"
-#include "noff.h"
 
 #include <strings.h> /* for bzero */
 
@@ -32,17 +31,18 @@
  * @param numPages
  * 
  */
-/*
 static void ReadAtVirtual(OpenFile *executable, int virtualaddr,
-													int numBytes, int position, TranslationEntry *pageTable, unsigned numPages)
+						  int numBytes, int position, TranslationEntry *pageTable, unsigned numPages)
 {
+	machine->pageTable = pageTable;
+	machine->pageTableSize = numPages;
+
 	char buffer[numBytes];
 	executable->ReadAt(buffer, numBytes, position);
 
 	int i;
-	for (i = 0; i < numBytes && machine->WriteMem(virtualaddr + i, 1, buffer[i]); i++)
-		;
-}*/
+	for (i = 0; i < numBytes && machine->WriteMem(virtualaddr + i, 1, buffer[i]); i++);
+}
 
 //----------------------------------------------------------------------
 // SwapHeader
@@ -62,8 +62,7 @@ SwapHeader(NoffHeader *noffH)
 	noffH->initData.virtualAddr = WordToHost(noffH->initData.virtualAddr);
 	noffH->initData.inFileAddr = WordToHost(noffH->initData.inFileAddr);
 	noffH->uninitData.size = WordToHost(noffH->uninitData.size);
-	noffH->uninitData.virtualAddr =
-		WordToHost(noffH->uninitData.virtualAddr);
+	noffH->uninitData.virtualAddr = WordToHost(noffH->uninitData.virtualAddr);
 	noffH->uninitData.inFileAddr = WordToHost(noffH->uninitData.inFileAddr);
 }
 
@@ -85,71 +84,129 @@ SwapHeader(NoffHeader *noffH)
 AddrSpace::AddrSpace(OpenFile *executable)
 {
 	NoffHeader noffH;
-	unsigned int i, size;
+	unsigned int size;
 
 	executable->ReadAt((char *)&noffH, sizeof(noffH), 0);
-	if ((noffH.noffMagic != NOFFMAGIC) &&
-		(WordToHost(noffH.noffMagic) == NOFFMAGIC))
+
+	if ((noffH.noffMagic != NOFFMAGIC) && (WordToHost(noffH.noffMagic) == NOFFMAGIC))
 		SwapHeader(&noffH);
 	ASSERT(noffH.noffMagic == NOFFMAGIC);
 
-	// how big is address space?
-	size = noffH.code.size + noffH.initData.size + noffH.uninitData.size + UserStackSize; // we need to increase the size
-	// to leave room for the stack
+	size = estimateAddressSpaceSize(noffH);
 	numPages = divRoundUp(size, PageSize);
-	size = numPages * PageSize;
+	size = roundUpAdressSpaceSize(size);
 
-	ASSERT(numPages <= NumPhysPages); // check we're not trying
-	// to run anything too big --
-	// at least until we have
-	// virtual memory
+	// check we're not trying to run anything too big at least until we have virtual memory
+	ASSERT(numPages <= NumPhysPages);
 
-	DEBUG('a', "Initializing address space, num pages %d, size %d\n",
-		  numPages, size);
+	DEBUG('a', "Initializing address space, num pages %d, size %d\n", numPages, size);
+	this->allocatePages();
+
+	DEBUG('a', "Initializing code segment, at 0x%x, size %d\n", noffH.code.virtualAddr, noffH.code.size);
+	copyFromExecToMemory(executable, noffH.code);
+
+	DEBUG('a', "Initializing data segment, at 0x%x, size %d\n", noffH.initData.virtualAddr, noffH.initData.size);
+	copyFromExecToMemory(executable, noffH.initData);
+
+	HaltAndExitLock = new Semaphore("HaltAndExitLock", 0);
+
+	createUserThreads();
+}
+
+/**
+ * Estimate the size of the adress space thanks to its executable size
+ * 
+ * Add the size of the code, initData, uninitData and UserStack segment to give
+ * the total size of this process's address space. This is an estimate
+ * because we then use this to calculate the real size of the address space by rounding up
+ * the result up to get the size as a multiple of page size.
+ * 
+ * @param noffH: A data structure that divides our executable in its segments for easier
+ * 				 estimation of its size.
+ * @return The size of the adress space in bytes.
+ */
+unsigned int AddrSpace::estimateAddressSpaceSize(NoffHeader noffH)
+{
+	// Increase UserStackSize if you need a bigger user stack
+	return noffH.code.size + noffH.initData.size + noffH.uninitData.size + UserStackSize;
+}
+
+/**
+ * Round up the size of the address space to a multiple of page size.
+ * 
+ * @param size: The size of this process' address space in bytes.
+ * @return the size of this process' address space as a multiple of page size.
+ */
+unsigned int AddrSpace::roundUpAdressSpaceSize(unsigned int size)
+{
+	return numPages * PageSize;
+}
+
+/**
+ * Allocates pages for this process.
+ * 
+ * Create a new page table of size <numpages>
+ * and initialize each of them.
+ */
+void AddrSpace::allocatePages()
+{
 	// first, set up the translation
 	pageTable = new TranslationEntry[numPages];
+	for (unsigned int index = 0; index < numPages; index++)
+		initializePage(index);
+}
 
-	for (i = 0; i < numPages; i++)
-	{
-		pageTable[i].virtualPage = i; // for now, virtual page # = phys page #
-		pageTable[i].physicalPage = i;
-		pageTable[i].valid = TRUE;
-		pageTable[i].use = FALSE;
-		pageTable[i].dirty = FALSE;
-		pageTable[i].readOnly = FALSE; // if the code segment was entirely on
-									   // a separate page, we could set its
-									   // pages to be read-only
-	}
+/**
+ * Initialize the page at index in the page table
+ * 
+ * @param index: The index of the page we want to initialize
+ */
+void AddrSpace::initializePage(unsigned int index)
+{
+	pageTable[index].virtualPage = index;
+	pageTable[index].physicalPage = frameProvider->GetEmptyFrame();
+	pageTable[index].valid = TRUE;
+	pageTable[index].use = FALSE;
+	pageTable[index].dirty = FALSE;
 
-	// zero out the entire address space, to zero the unitialized data segment
-	// and the stack segment
-	bzero(machine->mainMemory, size);
+	// if the code segment was entirely on a separate page, we could set its
+	// pages to be read-only
+	pageTable[index].readOnly = FALSE;
+}
 
-	// then, copy in the code and data segments into memory
-	if (noffH.code.size > 0)
-	{
-		DEBUG('a', "Initializing code segment, at 0x%x, size %d\n",
-			  noffH.code.virtualAddr, noffH.code.size);
-		// ReadAtVirtual(executable, noffH.code.virtualAddr, noffH.code.size, noffH.code.inFileAddr, pageTable, 0); //les zero sont a changer mais par quoi?
+/**
+ * Copy data from executable to virtual memory
+ * 
+ * First checks if there is something to copy from the segment given as an argument
+ * and the use readAtVirtual to copy data from file to virtual memory.
+ * 
+ * @param executable: The executable from which we copy the data
+ * @param segment: The segment of the executable from which we copy the data
+ */
+void AddrSpace::copyFromExecToMemory(OpenFile *executable, Segment segment)
+{
+	if (segment.size > 0)
+		ReadAtVirtual(executable, segment.virtualAddr, segment.size, segment.inFileAddr, pageTable, numPages);
+	// executable->ReadAt(&(machine->mainMemory[noffH.code.virtualAddr]), noffH.code.size, noffH.code.inFileAddr);
+}
 
-		executable->ReadAt(&(machine->mainMemory[noffH.code.virtualAddr]),
-						   noffH.code.size, noffH.code.inFileAddr);
-	}
-	if (noffH.initData.size > 0)
-	{
-		DEBUG('a', "Initializing data segment, at 0x%x, size %d\n",
-			  noffH.initData.virtualAddr, noffH.initData.size);
-
-		//ReadAtVirtual(executable, noffH.initData.virtualAddr, noffH.initData.size, noffH.initData.inFileAddr, pageTable, 1); //les zero sont a changer mais par quoi?
-
-		executable->ReadAt(&(machine->mainMemory
-								 [noffH.initData.virtualAddr]),
-						   noffH.initData.size, noffH.initData.inFileAddr);
-	}
-	sem = new Semaphore("sem", 0);
-
+/**
+ * Create an array of userThreads.
+ */
+void AddrSpace::createUserThreads()
+{
 	userThreads = new Thread *[NB_MAX_THREADS];
-	for (int k = 0; k < NB_MAX_THREADS; k++)
+	initializeUserThreads();
+}
+
+/**
+ * Initialize user threads.
+ * 
+ * We initialize them to NULL to avoid bad surprises.
+ */
+void AddrSpace::initializeUserThreads()
+{
+	for (int i = 0; i < NB_MAX_THREADS; i++)
 		userThreads[i] = NULL;
 }
 
@@ -160,10 +217,13 @@ AddrSpace::AddrSpace(OpenFile *executable)
 
 AddrSpace::~AddrSpace()
 {
-	// LB: Missing [] for delete
-	// delete pageTable;
+	unsigned int i;
+	for(i=0; i<numPages; i++) {
+		frameProvider->ReleaseFrame(pageTable[i].physicalPage);
+	}
+	delete[] userThreads;
 	delete[] pageTable;
-	// End of modification
+	delete HaltAndExitLock;
 }
 
 //----------------------------------------------------------------------
@@ -255,12 +315,11 @@ void AddrSpace::DeleteThreadFromArray(int index)
 }
 
 /**
- * Add the currentThread at the first free spot in userThreads.
+ * Find the first free spot in userThreads.
  * 
- * @param index, index of a free space in table
  * @return index of free space found in user thread table, -1 table in full. 
  */
-int AddrSpace::AddThreadInArray()
+int AddrSpace::GetFreeSpotInUserThreadArray()
 {
 	for (int i = 0; i < NB_MAX_THREADS; i++)
 		if (userThreads[i] == NULL)
@@ -282,8 +341,8 @@ int AddrSpace::AddThreadInArray()
 Thread *AddrSpace::getThreadAtId(int id)
 {
 	for (int i = 0; i < NB_MAX_THREADS; i++)
-			if (userThreads[i] != NULL && userThreads[i]->getTid() == id)
-					return userThreads[i];
+		if (userThreads[i] != NULL && userThreads[i]->getTid() == id)
+			return userThreads[i];
 	return NULL;
 }
 
@@ -293,7 +352,7 @@ Thread *AddrSpace::getThreadAtId(int id)
  * @param thread: The thread we want to place in our array.
  * @param index: The index at which we want to put this thread.
  */
-void AddrSpace::setThreadAtIndex(Thread* thread, int index)
+void AddrSpace::putThreadAtIndex(Thread *thread, int index)
 {
 	ASSERT(index >= 0 && index < NB_MAX_THREADS);
 	userThreads[index] = thread;
