@@ -1,9 +1,24 @@
 #Step 5 : File System 
 ##Qu'est-ce qu'on doit faire ?
 
+###1. Hiérarchie de répertoire
+- un Repertoire peut contenir un fichier lambda ou un repertoire --> nvls fonctions pour creer, destruire, imprimer un repertoire ou changer de repertoire
+- methode pour memoriser repertoire courant et parent, repertoires speciaux pour parcourir la hierarchie, possibilité des chemins
+
+###2. Table systeme des fichiers ouverts
+- max = 10
+- doit maintenir plusieurs fichiers ouverts simultanément
+
+###3. Support acces simultanés
+- que faire si un thread demande acces à un fichier dj ouvert : interdire, 
+- table des fichiers ouverts par thread, limite = 10 fichiers
 
 ##Quel est le SF de NachOS ?
-Sous Unix : on a une table des inodes, un table des fichiers ouverts par processus, et une table système des fichiers ouverts, recours à des algo parfois complexe pour lecture/ecriture sur disque
+Sous Unix : on a une table des inodes, un table des fichiers ouverts par processus, et une table système des fichiers ouverts, recours à des algo parfois complexe pour lecture/ecriture sur disque, 
+Sous NachOS = pas de tampon I/O, manque de robustesse
+Répertoire contient au plus 10 entrées chacune contient info = (booleen inUse, filename, pointeur vers l'entete du fichier)
+
+
 
 ##Du cours de Danjean
 - stockage péren même en cas de coupure de courant
