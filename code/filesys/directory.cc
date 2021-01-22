@@ -111,9 +111,22 @@ Directory::Find(const char *name)
     int i = FindIndex(name);
 
     if (i != -1)
-	return table[i].sector;
+        if(!table[i].isDir)
+	       return table[i].sector;
     return -1;
 }
+
+int
+Directory::FindDir(const char *name)
+{
+    int i = FindIndex(name);
+
+    if (i != -1)
+        if(table[i].isDir)
+            return table[i].sector;
+    return -1;
+}
+
 
 //----------------------------------------------------------------------
 // Directory::Add
@@ -135,11 +148,29 @@ Directory::Add(const char *name, int newSector)
     for (int i = 0; i < tableSize; i++)
         if (!table[i].inUse) {
             table[i].inUse = TRUE;
+            table[i].isDir = FALSE;
             strncpy(table[i].name, name, FileNameMaxLen); 
             table[i].sector = newSector;
         return TRUE;
 	}
     return FALSE;	// no space.  Fix when we have extensible files.
+}
+
+bool
+Directory::AddDir(const char *name, int newSector)
+{ 
+    if (FindIndex(name) != -1)
+    return FALSE;
+
+    for (int i = 0; i < tableSize; i++)
+        if (!table[i].inUse) {
+            table[i].inUse = TRUE;
+            table[i].isDir = TRUE;
+            strncpy(table[i].name, name, FileNameMaxLen); 
+            table[i].sector = newSector;
+        return TRUE;
+    }
+    return FALSE;   // no space.  Fix when we have extensible files.
 }
 
 //----------------------------------------------------------------------
@@ -188,10 +219,22 @@ Directory::Print()
     printf("Directory contents:\n");
     for (int i = 0; i < tableSize; i++)
 	if (table[i].inUse) {
-	    printf("Name: %s, Sector: %d\n", table[i].name, table[i].sector);
+	    printf("Name: %s, Directory ? %c, Sector: %d\n", table[i].name,(table[i].isDir)?'T':'F',
+         table[i].sector);
 	    hdr->FetchFrom(table[i].sector);
 	    hdr->Print();
 	}
     printf("\n");
     delete hdr;
+}
+
+bool
+Directory::isEmpty()
+{
+    for(int i = 0; i < tableSize; i++){
+        if(table[i].inUse){
+            return FALSE;
+        }
+    }
+    return TRUE;
 }

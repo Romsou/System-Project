@@ -2,7 +2,7 @@
 ##Qu'est-ce qu'on doit faire ?
 
 ###1. Hiérarchie de répertoire
-- un Repertoire peut contenir un fichier lambda ou un repertoire --> nvls fonctions pour creer, destruire, imprimer un repertoire ou changer de repertoire
+- un Repertoire peut contenir un fichier lambda (liste secteurs contenant données) ou un repertoire (liste de duo nom-secteur) --> nvls fonctions pour creer, destruire (il faut que le repertoire soit vide), imprimer un repertoire (sector=-1 pour repertoire) ou changer de repertoire
 - methode pour memoriser repertoire courant et parent, repertoires speciaux pour parcourir la hierarchie, possibilité des chemins
 
 ###2. Table systeme des fichiers ouverts
@@ -58,7 +58,7 @@ filehdr = UNIX inode
 
 ##Repertoire
 - souvent répertoire racine stocké dans inode #2, ref dossier courant et dossier parent sont supportés par le SF
-- refcount =compte le nb d'entrée de répertoire qui pointe vers le fichier, si refcount = 0 le fichier est supprime, quand une application ouvre un fichier, elle incremente refcount et le decremente à sa fermeture), ne prend pas en compte les liens symboliques
+- refcount = compte le nb d'entrée de répertoire qui pointe vers le fichier, si refcount = 0 le fichier est supprime, quand une application ouvre un fichier, elle incremente refcount et le decremente à sa fermeture), ne prend pas en compte les liens symboliques
 - liens symboliques peuvent se référer à un répertoire contrairement au lien physique  ; chaque répertoire a plusieurs noms le classique, le nom courant, le nom parent pour ses enfants (refcount n'est jamais à 1)
 - lien physique : typiquement plusieurs noms pour le meme fichier pointé
 - permissions Unix : read-write-execute for owner, group and other users
