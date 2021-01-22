@@ -12,21 +12,7 @@
 
 #define SIZE 10
 
-void split(char* debut, char* fin){
-	const char delim = '\\';
-	char *ptr = strchr(debut, delim);
-	strcpy(fin,ptr);
-	printf("Effectué %s - %s\n",debut,fin);
 
-	int fin_len, debut_len;
-	fin_len = strlen(fin);
-	debut_len = strlen(debut);
-
-	printf("Fin de debut %d\n",debut_len-fin_len);
-
-	debut[debut_len-fin_len] = '\0';
-	printf("Debut = %s et fin = %s\n",debut, fin );
-}
 
 void usage(){
 	printf("Bienvenu dans console de test de systeme de fichier\n");
@@ -39,7 +25,6 @@ void usage(){
 void FS_console(){
 	char *command = (char *)malloc(sizeof(char)*SIZE);
 	char *name = (char *)malloc(sizeof(char)*SIZE);
-	char *fin = (char *)malloc(sizeof(char)*SIZE);
 
 
 	usage();
@@ -74,8 +59,7 @@ void FS_console(){
 			fileSystem->List();
 
 		}else if(strcmp (command, "path")==0){
-			scanf("%s",name);
-			split(name,fin);
+
 
 		}else if(strcmp (command, "quit")==0 || strcmp (command, "q")==0 ){
 			puts("Fin de la console");
@@ -89,7 +73,6 @@ void FS_console(){
 
 	free(name);
 	free(command);
-	free(fin);
 
 	return;
 

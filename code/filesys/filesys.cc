@@ -477,6 +477,51 @@ bool FileSystem::ChangeDir(const char* name)
     return true;
 }
 
+/*void
+FileSystem::ChangeDir(const char * name, const char *path)
+{
+        Directory *directory = new Directory(NumDirEntries);
+        directory->FetchFrom(currentDirFile);
+        int sector = directory->FindDir(name);
+
+        if(sector == -1)
+            return;
+
+        delete directory;
+        currentDirFile = new OpenFile(sector);
+        DEBUG('f',"We change for %s directory\n",name);
+       
+        if(path==NULL ){
+            DEBUG('f',"Aucun autre argument\n",name);
+            return;
+        }else{
+            char rep[FileNameMaxLen];
+            char chemin[20];
+
+            int i = 0;
+            char c = path[i];
+            while(c != '/' && c != '\n' && c != '\0') {
+                rep[i] = path[i];
+                i++;
+                c = path[i];
+            }
+            rep[i] = '\0'; //rep contient le premier repertoire
+            DEBUG('f',"Voici le prochain rep %s\n",rep);
+
+            if(c=='\n' || c=='\0')
+                ChangeDir(rep,NULL);
+            else
+                strcpy(chemin,(path+i+1));
+            
+            
+            DEBUG('f',"Voici suite du chemin %s\n",chemin);
+            ChangeDir(rep,chemin);
+        }
+
+
+    }
+    */
+
 bool
 FileSystem::RemoveDir(const char *name)
 {
