@@ -418,22 +418,63 @@ FileSystem::CreateDir(const char *name)
 }
 
 
-void
-FileSystem::ChangeDir(const char* name)
+bool FileSystem::ChangeDir(const char* name)
 {
+    OpenFile* currentDirFileSave = currentDirFile; 
+    char *rep = (char*)malloc(sizeof(char)*FileNameMaxLen);
+    char *rest = (char*)malloc(sizeof(char)*100);
+
+    //Retrieve first repertory in path (before the first /)
+    int i = 0;
+    char c = name[i];
+    while(c != '/' && c != '\n' && c != '\0' && i<FileNameMaxLen) {
+        rep[i] = name[i];
+        i++;
+        c = name[i];
+    }
+    rep[i] = '\0';
+    char saveC = c;
+
+    //Save the rest of the path (after the first /)
+    i++;
+    int j=0;
+    while(c != '\n' && c != '\0' && j<100) {
+        rest[j] = name[i];
+        i++;
+        j++;
+        c = name[i];
+    }
+    rest[j] = '\0';
+
+    //try to find the first directory in path
     Directory *directory = new Directory(NumDirEntries);
-
     directory->FetchFrom(currentDirFile);
-
-
-    int sector = directory->FindDir(name);
-    DEBUG('f',"Search a sector for change current dir\n");
-    if(sector == -1)
-        return;
-
+    int sector = directory->FindDir(rep);
     delete directory;
+    DEBUG('f',"Search a sector for change current dir\n");
+
+    //If first directory isn't found, return false
+    if(sector == -1){
+        free(rep);
+        free(rest);
+        return false;
+    }
+
+    //Move to first directory in path
     currentDirFile = new OpenFile(sector);
-    DEBUG('f',"We change for %s directory\n",name);
+    DEBUG('f',"We change for %s directory\n",rep);
+
+    //Recursive call fro the rest of path
+    if (saveC == '/')
+        if (!ChangeDir(rest)) {
+            currentDirFile = currentDirFileSave;
+            free(rep);
+            free(rest);
+            return false;
+        }
+    free(rep);
+    free(rest);
+    return true;
 }
 
 bool

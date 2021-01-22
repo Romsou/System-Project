@@ -87,7 +87,7 @@ class FileSystem {
 
     bool CreateDir(const char *name);
 
-    void ChangeDir(const char *name);
+    bool ChangeDir(const char *name);
     
     bool RemoveDir(const char *name);
 
