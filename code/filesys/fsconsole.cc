@@ -1,4 +1,12 @@
+
+#include "copyright.h"
+
+#include "utility.h"
+#include "filesys.h"
 #include "system.h"
+#include "thread.h"
+#include "disk.h"
+#include "stats.h"
 
 #define SIZE 10
 
