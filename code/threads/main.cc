@@ -61,6 +61,7 @@ extern void Print (char *file), PerformanceTest (void);
 extern void StartProcess (char *file), ConsoleTest (char *in, char *out);
 extern void SynchConsoleTest ();
 extern void MailTest (int networkID);
+extern void FS_console();
 
 //----------------------------------------------------------------------
 // main
@@ -136,6 +137,10 @@ main (int argc, char **argv)
 		ASSERT (argc > 2);
 		Copy (*(argv + 1), *(argv + 2));
 		argCount = 3;
+	    }
+	  else if (!strcmp (*argv, "-fc"))
+	    {			// run file console of NachOS		
+		FS_console();
 	    }
 	  else if (!strcmp (*argv, "-p"))
 	    {			// print a Nachos file
