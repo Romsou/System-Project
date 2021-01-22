@@ -417,24 +417,98 @@ FileSystem::CreateDir(const char *name)
     return success;
 }
 
-
 void
 FileSystem::ChangeDir(const char* name)
 {
+    //int FileNameMaxLen = 9;
+    char rep[FileNameMaxLen];
+    char *rest = (char *)malloc(sizeof(char)*100);
+
+    int i = 0;
+    char c = name[i];
+    while(c != '/' && c != '\n' && c != '\0' && i<FileNameMaxLen) {
+        rep[i] = name[i];
+        i++;
+        c = name[i];
+    }
+    rep[i] = '\0';
+    DEBUG('f',"rep = %s\n", rep);
+    char saveC = c;
+
+    i++;
+    int j=0;
+    while(c != '\n' && c != '\0' && j<100) {
+        rest[j] = name[i];
+        i++;
+        j++;
+        c = name[i];
+    }
+    DEBUG('f',"rest = %s\n", rest);
     Directory *directory = new Directory(NumDirEntries);
 
     directory->FetchFrom(currentDirFile);
 
-
-    int sector = directory->FindDir(name);
+    int sector = directory->FindDir(rep);
     DEBUG('f',"Search a sector for change current dir\n");
-    if(sector == -1)
+    if(sector == -1){
+        free(rest);
         return;
+    }
 
     delete directory;
     currentDirFile = new OpenFile(sector);
-    DEBUG('f',"We change for %s directory\n",name);
+
+    DEBUG('f',"We change for %s directory\n",rep);
+    if (saveC == '/') {
+        ChangeDir(rest);
+    }
+    free(rest);
 }
+
+/*void
+FileSystem::ChangeDir(const char * name, const char *path)
+{
+        Directory *directory = new Directory(NumDirEntries);
+        directory->FetchFrom(currentDirFile);
+        int sector = directory->FindDir(name);
+
+        if(sector == -1)
+            return;
+
+        delete directory;
+        currentDirFile = new OpenFile(sector);
+        DEBUG('f',"We change for %s directory\n",name);
+       
+        if(path==NULL ){
+            DEBUG('f',"Aucun autre argument\n",name);
+            return;
+        }else{
+            char rep[FileNameMaxLen];
+            char chemin[20];
+
+            int i = 0;
+            char c = path[i];
+            while(c != '/' && c != '\n' && c != '\0') {
+                rep[i] = path[i];
+                i++;
+                c = path[i];
+            }
+            rep[i] = '\0'; //rep contient le premier repertoire
+            DEBUG('f',"Voici le prochain rep %s\n",rep);
+
+            if(c=='\n' || c=='\0')
+                ChangeDir(rep,NULL);
+            else
+                strcpy(chemin,(path+i+1));
+            
+            
+            DEBUG('f',"Voici suite du chemin %s\n",chemin);
+            ChangeDir(rep,chemin);
+        }
+
+
+    }
+    */
 
 bool
 FileSystem::RemoveDir(const char *name)
