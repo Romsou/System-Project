@@ -126,7 +126,6 @@ void Lock::Release()
     state = FREE;
     ownerId = -1;
     DEBUG('d', "Lock %s was freed\n", getName());
-
 }
 
 bool Lock::isHeldByCurrentThread()
@@ -143,7 +142,7 @@ Condition::~Condition()
 {
     delete queue;
 }
-void Condition::Wait(Lock *conditionLock)
+void Condition::Wait(Lock *lock)
 {
     // Releases the lock so that another thread can enter its critic section
     conditionLock->Release();
@@ -152,34 +151,83 @@ void Condition::Wait(Lock *conditionLock)
     queue->Append((void *)currentThread);
     currentThread->Sleep();
     // Attempt to reacquire it once awoken.
-   
+
     conditionLock->Acquire();
     (void)interrupt->SetLevel(oldLevel);
 }
 
-void Condition::Signal(Lock *conditionLock)
+void Condition::Signal(Lock *lock)
 {
-    Thread* thread;
+    Thread *thread;
     // Must check it the current thread owns the lock to avoid
     // undefined behaviors.
     IntStatus oldLevel = interrupt->SetLevel(IntOff); // disable interrupts
-   
+
     if (conditionLock->isHeldByCurrentThread())
     {
         thread = (Thread *)queue->Remove();
-        if(thread != NULL)
+        if (thread != NULL)
             scheduler->ReadyToRun(thread);
     }
     (void)interrupt->SetLevel(oldLevel);
-
 }
-void Condition::Broadcast(Lock *conditionLock)
+
+void Condition::Broadcast(Lock *lock)
 {
-    Thread* thread;
+    Thread *thread;
     IntStatus oldLevel = interrupt->SetLevel(IntOff); // disable interrupts
 
-    while((thread = (Thread*) queue->Remove()) != NULL)
+    while ((thread = (Thread *)queue->Remove()) != NULL)
         scheduler->ReadyToRun(thread);
     (void)interrupt->SetLevel(oldLevel);
+}
 
+static void watchDog(int arg)
+{
+    Condition* cond = (Condition*) arg;
+    int time = cond->getTime();
+
+    for (int i = 0; i < time; i++)
+        ;
+
+    cond->setTimeout();
+    cond->Signal(cond->getLock());
+}
+
+int Condition::temporaryWait(int , Lock* lock)
+{
+    this->limitTime = limitTime;
+    this->conditionLock = lock;
+
+    Thread* watchDogThread = new Thread("Watch dog");
+    watchDogThread->Fork(watchDog, (int) this);
+    this->Wait(lock);
+   
+    if(timeout)
+    {
+        resetTimeout();
+        return -1;
+    }
+
+    return 0;
+}
+
+void Condition::setTimeout()
+{
+    timeout = true;
+}
+
+void Condition::resetTimeout()
+{
+    timeout = false;
+}
+
+Lock* Condition::getLock()
+{
+    return conditionLock;
+}
+
+int Condition::getTime()
+{
+    return limitTime;
 }
