@@ -343,12 +343,59 @@ FileSystem::Print()
     delete dirHdr;
     delete freeMap;
     delete directory;
-} 
+}
 
-bool
-FileSystem::CreateDir(const char *name)
+/**
+ * Try to move current directory on the last repertory before the last name
+ * (ie : ..../..../..../this one/.....) frome a given relative path name.
+ * Store in a given char* named rep the last part of the path.
+ * (ie: ..../..../..../...../this one). Be carefull, if return false, current
+ * directory could be anywhere in the path, we try to go as far as possible before the
+ * last part.
+ * 
+ * @param name relative path to the file/directory we should reach.
+ * @param rep a char* where we will store the last part of the path.
+ * @return true if we are now postionate on the last repertory before, otherwise
+ * return false.
+ */
+bool FileSystem::navigateToPath(const char* name, char* rep)
 {
-    Directory *directory;
+    int i = -1;
+    int j = 0;
+    char c = name[i];
+    do{
+        i++;
+        c = name[i];
+        j = 0;
+        //Retrieve first repertory in path (before the first /)
+        while(c != '/' && c != '\n' && c != '\0' && j<FileNameMaxLen) {
+            rep[j] = name[i];
+            i++;
+            j++;
+            c = name[i];
+        }
+        rep[j] = '\0';
+
+        if(c == '/')
+            if(!OpendDir(rep)) {
+                return false;
+            }
+    }while(c == '/');
+    return true;
+}
+
+bool FileSystem::CreateDir(const char *name)
+{   
+    OpenFile* currentDirFileSave = currentDirFile;
+
+    //Try to navigate to last repertory before repertory we want to create
+    char* rep = (char*)malloc(sizeof(char)*FileNameMaxLen);
+    if (!navigateToPath(name, rep)) {
+        currentDirFile = currentDirFileSave;
+        free(rep);
+        return FALSE;
+    }
+
     Directory *dir_child;
     
     BitMap *freeMap;
@@ -356,31 +403,36 @@ FileSystem::CreateDir(const char *name)
     OpenFile *childFile;
     
     int sector_parent;
-    int sector;
     bool success;
+    int sector;
 
-    DEBUG('f', "Creating directory %s\n", name);
 
+    Directory *directory;
     directory = new Directory(NumDirEntries);
     directory->FetchFrom(currentDirFile);
+    DEBUG('f', "Creating directory %s\n", rep);
 
-
-    dir_child = new Directory(NumDirEntries);
-
-    if (directory->Find(name) != -1)
+    if (directory->Find(rep) != -1)
       success = FALSE;          // file is already in directory
-  else {  
+    
+    else { 
     freeMap = new BitMap(NumSectors);
     freeMap->FetchFrom(freeMapFile);
-        sector = freeMap->Find();   // find a sector to hold the file header
+    sector = freeMap->Find();   // find a sector to hold the file header
+
         if (sector == -1)       
             success = FALSE;        // no free block for file header 
-        else if (!directory->AddDir(name, sector))
+        else if (!directory->AddDir(rep, sector))
             success = FALSE;    // no space in directory            
         
         else {
+            hdr = new FileHeader;
+
+            dir_child = new Directory(NumDirEntries);
             dir_child->AddDir(".",sector);
+
             sector_parent = directory->FindDir(".");
+
             if(sector_parent!=-1)
                 dir_child->AddDir("..",sector_parent);
 
@@ -389,7 +441,6 @@ FileSystem::CreateDir(const char *name)
                 dir_child->List();
             }
 
-            hdr = new FileHeader;
 
             if (!hdr->Allocate(freeMap, DirectoryFileSize)){
                 success = FALSE;    // no space on disk for data
@@ -409,130 +460,94 @@ FileSystem::CreateDir(const char *name)
                 delete childFile;
             }
             delete hdr;
+            delete dir_child;
         }
         delete freeMap;
     }
     delete directory;
-    delete dir_child;
     return success;
+    currentDirFile = currentDirFileSave;
+    free(rep);
 }
 
-
-bool FileSystem::ChangeDir(const char* name)
-{
-    OpenFile* currentDirFileSave = currentDirFile; 
-    char *rep = (char*)malloc(sizeof(char)*FileNameMaxLen);
-    char *rest = (char*)malloc(sizeof(char)*100);
-
-    //Retrieve first repertory in path (before the first /)
-    int i = 0;
-    char c = name[i];
-    while(c != '/' && c != '\n' && c != '\0' && i<FileNameMaxLen) {
-        rep[i] = name[i];
-        i++;
-        c = name[i];
-    }
-    rep[i] = '\0';
-    char saveC = c;
-
-    //Save the rest of the path (after the first /)
-    i++;
-    int j=0;
-    while(c != '\n' && c != '\0' && j<100) {
-        rest[j] = name[i];
-        i++;
-        j++;
-        c = name[i];
-    }
-    rest[j] = '\0';
-
+/**
+ * Try to move current directory to given dircetory name.
+ * 
+ * @param name directory to open.
+ */
+bool FileSystem::OpendDir(const char* name) {
     //try to find the first directory in path
     Directory *directory = new Directory(NumDirEntries);
     directory->FetchFrom(currentDirFile);
-    int sector = directory->FindDir(rep);
+    int sector = directory->FindDir(name);
     delete directory;
     DEBUG('f',"Search a sector for change current dir\n");
 
     //If first directory isn't found, return false
-    if(sector == -1){
-        free(rep);
-        free(rest);
+    if(sector == -1)
         return false;
-    }
 
     //Move to first directory in path
     currentDirFile = new OpenFile(sector);
-    DEBUG('f',"We change for %s directory\n",rep);
-
-    //Recursive call fro the rest of path
-    if (saveC == '/')
-        if (!ChangeDir(rest)) {
-            currentDirFile = currentDirFileSave;
-            free(rep);
-            free(rest);
-            return false;
-        }
-    free(rep);
-    free(rest);
+    DEBUG('f',"We change for %s directory\n",name);
     return true;
 }
 
-/*void
-FileSystem::ChangeDir(const char * name, const char *path)
+/**
+ * Create a new Directory from the current directory and in the current directory.
+ * 
+ * @param name, relative path of directory to create.
+ * @return true if directory has been created, false otherwise.
+ */
+bool FileSystem::ChangeDir(const char* name)
 {
-        Directory *directory = new Directory(NumDirEntries);
-        directory->FetchFrom(currentDirFile);
-        int sector = directory->FindDir(name);
+    OpenFile* currentDirFileSave = currentDirFile;
 
-        if(sector == -1)
-            return;
+    bool success = TRUE;
 
-        delete directory;
-        currentDirFile = new OpenFile(sector);
-        DEBUG('f',"We change for %s directory\n",name);
-       
-        if(path==NULL ){
-            DEBUG('f',"Aucun autre argument\n",name);
-            return;
-        }else{
-            char rep[FileNameMaxLen];
-            char chemin[20];
+    char* rep = (char*)malloc(sizeof(char)*FileNameMaxLen);
+    if (!navigateToPath(name, rep))
+        success = FALSE;
 
-            int i = 0;
-            char c = path[i];
-            while(c != '/' && c != '\n' && c != '\0') {
-                rep[i] = path[i];
-                i++;
-                c = path[i];
-            }
-            rep[i] = '\0'; //rep contient le premier repertoire
-            DEBUG('f',"Voici le prochain rep %s\n",rep);
+    if (success)
+        success = OpendDir(rep);
 
-            if(c=='\n' || c=='\0')
-                ChangeDir(rep,NULL);
-            else
-                strcpy(chemin,(path+i+1));
-            
-            
-            DEBUG('f',"Voici suite du chemin %s\n",chemin);
-            ChangeDir(rep,chemin);
-        }
+    free(rep);
+    if (!success)
+        currentDirFile = currentDirFileSave;
 
+    return success;
+}
 
+/**
+ * Remove, if exists, a given directory from the file system.
+ * 
+ * @param name relative path to the directory to remove.
+ * @return true if directory has been created, false otherwise.
+ */
+bool FileSystem::RemoveDir(const char *name)
+{
+    OpenFile* currentDirFileSave = currentDirFile;
+ 
+    //Try to navigate to last repertory before repertory we want to create
+    char* rep = (char*)malloc(sizeof(char)*FileNameMaxLen);
+    if (!navigateToPath(name, rep)) {
+        currentDirFile = currentDirFileSave;
+        free(rep);
+        return FALSE;
     }
-    */
 
-bool
-FileSystem::RemoveDir(const char *name)
-{
     Directory *directory = new Directory(NumDirEntries);
     Directory *dir_child = new Directory(NumDirEntries);
 
     directory->FetchFrom(currentDirFile);
 
-    int sector = directory->FindDir(name);
-    if(sector == -1)
+    int sector = directory->FindDir(rep);
+    if(sector == -1) {
+        currentDirFile = currentDirFileSave;
+        free(rep);
         return FALSE;
+    }
 
     OpenFile *dir_child_file = new OpenFile(sector);
     
@@ -544,14 +559,17 @@ FileSystem::RemoveDir(const char *name)
     delete dir_child_file;
 
     if(empty){
-        directory->Remove(name);
+        directory->Remove(rep);
         directory->WriteBack(currentDirFile);
+        DEBUG('f',"We remove %s directory\n",rep);
         delete directory;
-        DEBUG('f',"We remove %s directory\n",name);
+        currentDirFile = currentDirFileSave;
+        free(rep);
         return TRUE;
     }
     delete directory;
+    currentDirFile = currentDirFileSave;
+    free(rep);
     return FALSE;
-
 }
 

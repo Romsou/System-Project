@@ -85,10 +85,51 @@ class FileSystem {
 
     void Print();			// List all the files and their contents
 
+		/**
+		 * Create a new Directory from the current directory and in the current directory.
+		 * 
+		 * @param name, relative path of directory to create.
+		 * @return true if directory has been created, false otherwise.
+		 */
     bool CreateDir(const char *name);
 
+		/**
+		 * Try to move current directory on the last repertory before the last name
+		 * (ie : ..../..../..../this one/.....) frome a given relative path name.
+		 * Store in a given char* named rep the last part of the path.
+		 * (ie: ..../..../..../...../this one). Be carefull, if return false, current
+		 * directory could be anywhere in the path, we try to go as far as possible before the
+		 * last part.
+		 * 
+		 * @param name relative path to the file/directory we should reach.
+		 * @param rep a char* where we will store the last part of the path.
+		 * @return true if we are now postionate on the last repertory before, otherwise
+		 * return false.
+		 */
+		bool navigateToPath(const char* name, char* rep);
+
+		/**
+		 * Try to move current directory to a given directory name. 
+		 * (not handle any path)
+		 * 
+		 * @param name directory to open.
+		 */
+		bool OpendDir(const char* name);
+
+		/**
+		 * Move from current directory to name, which could be a relative path.
+		 * 
+		 * @param name relative path to the directory to reach.
+		 * @return true if directory has been created, false otherwise.
+		 */
     bool ChangeDir(const char *name);
     
+		/**
+		 * Remove, if exists, a given directory from the file system.
+		 * 
+		 * @param name relative path to the directory to remove.
+		 * @return true if directory has been created, false otherwise.
+		 */
     bool RemoveDir(const char *name);
 
   private:
