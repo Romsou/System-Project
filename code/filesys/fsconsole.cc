@@ -8,72 +8,74 @@
 #include "disk.h"
 #include "stats.h"
 
+#include <string.h>
+
 #define SIZE 10
 
-static split_string(char *command, char **split){
-	char delim = ' ';
-	char *cpy;
-
-	int debut = 0;
-	int index = 0;
-	int diff = 0;
-	
-	int size = strlen(command);
-	strcpy(cpy,command);
-	
-	for(int i = 0; i < size ; i++){
-		if(command[i]=='\n' || command[i]=='\0')
-			break;
-		if(command[i] == delim){
-			diff = i - debut;
-			strcpy(split[index],command+debut,diff);
-			debut = i+1;
-		}
-	}
-}
 
 void usage(){
-	PutString("Bienvenu dans console de test de systeme de fichier\n");
-	PutString("Voici les commandes\n");
-	PutString("Pour les fichiers : new name, del name, cat name\n");
-	PutString("Pour les repertoires : mkdir name, rmdir name, cd name, ls name\n");
-	PutString("Pour quitter : 'q' \n")
+	printf("Bienvenu dans console de test de systeme de fichier\n");
+	printf("Voici les commandes\n");
+	printf("Pour les fichiers : new name, del name, cat name\n");
+	printf("Pour les repertoires : mkdir name, rmdir name, cd name, ls name\n");
+	printf("Pour quitter : 'q' \n");
 }
 
 void FS_console(){
-	char *command;
-	char **split = malloc(sizeof(char)*SIZE*2);
+	char **split = (char **)malloc(sizeof(char)*SIZE*2);
+	split[0] = (char *)malloc(sizeof(char)*SIZE);
+	split[1] = (char *)malloc(sizeof(char)*SIZE);
 
 
 	usage();
 	while(TRUE){
-		PutChar(">");
+		printf(">");
 
-		command = GetString();
-		split_string(command,split);
+		scanf("%s", split[0]);
+		
+		
 
-		if(!strcmp (split[0], "new")){
+		if(strcmp (split[0], "new")==0){
+			scanf("%s", split[1]);
+			fileSystem->Create(split[1],10);
 
-		}else if(!strcmp (split[0], "new")){
+		}else if(strcmp (split[0], "del")==0){
+			scanf("%s", split[1]);
+			fileSystem->Remove(split[1]);
 
-		}else if(!strcmp (split[0], "del")){
+		}else if(strcmp (split[0], "cat")==0){
+			scanf("%s", split[1]);
 
-		}else if(!strcmp (split[0], "cat")){
 
-		}else if(!strcmp (split[0], "mkdir")){
+		}else if(strcmp (split[0], "mkdir")==0){
+			scanf("%s", split[1]);
+			fileSystem->CreateDir(split[1]);
 
-		}else if(!strcmp (split[0], "rmdir")){
+		}else if(strcmp (split[0], "rmdir")==0){
+			scanf("%s", split[1]);
+			fileSystem->RemoveDir(split[1]);
 
-		}else if(!strcmp (split[0], "cd")){
+		}else if(strcmp (split[0], "cd")==0){
+			scanf("%s", split[1]);
+			fileSystem->ChangeDir(split[1]);
 
-		}else if(!strcmp (split[0], "ls")){
+		}else if(strcmp (split[0], "ls")==0){
+			fileSystem->List();
 
-		}else if(!strcmp (split[0], "quit") || !strcmp (split[0], "q") ){
-			PutString("Fin de la console");
+		}else if(strcmp (split[0], "quit")==0 || strcmp (split[0], "q")==0 ){
+			puts("Fin de la console");
 			break;
-		}else{
+		}else if(strcmp (split[0], "help")==0 || strcmp (split[0], "h")==0 ){
 			usage();
+		}else{
+
 		}
 	}
+
+	free(split[1]);
+	free(split[0]);
+	free(split);
+
+	return;
 
 }

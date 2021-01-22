@@ -5,6 +5,8 @@
 - un Repertoire peut contenir un fichier lambda (liste secteurs contenant données) ou un repertoire (liste de duo nom-secteur) --> nvls fonctions pour creer, destruire (il faut que le repertoire soit vide), imprimer un repertoire (sector=-1 pour repertoire) ou changer de repertoire
 - methode pour memoriser repertoire courant et parent, repertoires speciaux pour parcourir la hierarchie, possibilité des chemins
 
+sous-repertoire : . et .. non presents
+
 ###2. Table systeme des fichiers ouverts
 - max = 10
 - doit maintenir plusieurs fichiers ouverts simultanément

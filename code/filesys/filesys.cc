@@ -256,14 +256,16 @@ FileSystem::CreateDir(const char *name)
                 dir_child->AddDir("..",hdr_dir);
 
             hdr = new FileHeader;
-            if (!hdr->Allocate(freeMap, NumDirEntries))
+            if (!hdr->Allocate(freeMap, DirectoryFileSize)){
                 success = FALSE;    // no space on disk for data
+            }
             else {  
                 success = TRUE;
         // everthing worked, flush all changes back to disk
                 hdr->WriteBack(sector);         
                 directory->WriteBack(directoryFile);
                 freeMap->WriteBack(freeMapFile);
+                DEBUG('f',"New directory created : success\n");
             }
             delete hdr;
         }
@@ -357,7 +359,7 @@ FileSystem::List()
 {
     Directory *directory = new Directory(NumDirEntries);
 
-    directory->FetchFrom(directoryFile);
+    directory->FetchFrom(currentDirFile);
     directory->List();
     delete directory;
 }
@@ -409,6 +411,7 @@ FileSystem::ChangeDir(const char* name)
 
 
     int sector = directory->FindDir(name);
+    DEBUG('f',"Search a sector for change current dir\n");
     if(sector == -1)
         return;
 
@@ -441,9 +444,11 @@ FileSystem::RemoveDir(const char *name)
     if(empty){
         directory->Remove(name);
         delete directory;
+        DEBUG('f',"We remove %d directory\n",name);
         return TRUE;
     }
     delete directory;
     return FALSE;
 
 }
+
