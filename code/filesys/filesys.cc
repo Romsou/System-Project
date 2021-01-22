@@ -459,6 +459,7 @@ FileSystem::RemoveDir(const char *name)
 
     if(empty){
         directory->Remove(name);
+        directory->WriteBack(currentDirFile);
         delete directory;
         DEBUG('f',"We remove %s directory\n",name);
         return TRUE;
