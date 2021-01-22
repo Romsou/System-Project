@@ -1,0 +1,67 @@
+#Step 5 : File System 
+##Qu'est-ce qu'on doit faire ?
+
+###1. Hiérarchie de répertoire
+- un Repertoire peut contenir un fichier lambda ou un repertoire --> nvls fonctions pour creer, destruire, imprimer un repertoire ou changer de repertoire
+- methode pour memoriser repertoire courant et parent, repertoires speciaux pour parcourir la hierarchie, possibilité des chemins
+
+###2. Table systeme des fichiers ouverts
+- max = 10
+- doit maintenir plusieurs fichiers ouverts simultanément
+
+###3. Support acces simultanés
+- que faire si un thread demande acces à un fichier dj ouvert : interdire, 
+- table des fichiers ouverts par thread, limite = 10 fichiers
+
+##Quel est le SF de NachOS ?
+Sous Unix : on a une table des inodes, un table des fichiers ouverts par processus, et une table système des fichiers ouverts, recours à des algo parfois complexe pour lecture/ecriture sur disque, 
+Sous NachOS = pas de tampon I/O, manque de robustesse
+Répertoire contient au plus 10 entrées chacune contient info = (booleen inUse, filename, pointeur vers l'entete du fichier)
+
+filehdr = UNIX inode
+
+##Du cours de Danjean
+- stockage péren même en cas de coupure de courant
+- fichier : série d'octet non structuré, a un nom, son contenu est une collection de blocs disque
+- le SF doit transformer le nom du fichier en un numéro de bloc et une position associée (offset), toute manipulation se fait à partir de la position courante dans le fichier
+- écriture d'un secteur est atomique (un secteur est garanti d'être écrit en entier ou pas du tout) mais il est possible qu'il existe un tampon et donc le SE n'écrit pas de suite le secteur 
+- à la fin d'un processus, on (le SE) ferme proprement les fichiers qu'il utilisait (implique que les écritures en attente sont correctement effectuées)
+- le SF gère les meta-données : taille, date time-stamp, notion de propriété, droit d'accès...
+- objectif : un minimum d'accès disque (le plus long donc couteux) et un maximum d'espace mémoire du disqu dédié aux données utilisateur.
+
+- chaque fichier a un inode qui l'identifie, l'inode gere les meta-info dont la localisation physique mais pas le nom. La localisation est caché à l'utilisateur
+- acces au meta-données = acces disque, attention
+- taille des fichiers très variables : bcp de mois de 10Kb, quelques uns de l'ordre de Gb voire Tb.
+- performance du SF directement lié au nb d'accès disque. Acces à un fichier prend du temps (contraint par temps de positionnement) ; si on veut accéder à 1 ou 50 fichiers, différence est de 3% ==> accès groupé intéressant
+- garder l'information d'où sont les données utilisateur
+- transformer position linéaire dans un fichier en une position sur le disque
+- inodes = structures à stocker sur disque
+- possible de grouper les fichiers (les mettre les uns à la suite des autres de maniere contigues) ==> acces sequentiel rapide MAIS compliqué en cas de redimmensionnement et fragmentation externe
+- différence bloc et secteur : bloc = taille élémentaire manipulé par le SF, secteur = unité physique du disque
+- stratégie : liste chainee ==> plus de fragmentation externe et facile de faire grandir les fichiers mais très mauvaise performance (pas d'acces séquentiel, une partie de chaque bloc dédié au meta-données, si un pointeur corrompu, SF devient rapidement incohérent)
+
+###File Allocation Table
+- stratégie par File Allocation Table : une structure (dupliquée) en debut de SF. C'est un tableau de bloc qui indique si le bloc est libre (free), s'il est une fin de fichier (eof) ou une partie de fichier (n = indice du prochain bloc)
+- FAT 16bit = chaque entrée fait 16 bits donc le prochain bloc est stocké sur 2^16 adresses, max 32Mb ; si les bloc sont trop gros on perd de l'espace utile, meta-données occupent 2 octets (perd globalement 0.4%)
+- généralement répertoire racine stocké dans le 1er bloc après la FAT de sauvegarde
+- de nos jours FAT32 utilisée
+
+###Fichiers indexés
+- fonctionne comme une page des tables mais attention, structure hiérarchique implique temps d'acces plus long (plusieurs acces disque)
+- taille maximum d'un fichier dépend directement de la taille de la FAT exemple avec 2 indirection max : 30 emplacements directs (pour les petits fichiers sur 1-5 bloc), 10 indirect, 5 double indirect
+- existe une quantité d'inode maximal fixe
+- inode contient 64 champs dont 13 sont des blocs d'addresse (pointeurs vers d'autres blocs) et/ou blocs de données (données du fichier), si les 10 premiers blocs sont suffisant pour contenir le fichier, les blocs 11, 12, et 13 ne sont pas utilisés
+- quand ils le sont c'est pour profiter des indirections. le bloc 11 pointe vers 1 bloc d'adresse qui contient les 256 pointeurs vers les blocs de données
+- le bloc 12 pointe vers 1 bloc d'adresse, qui pointe vers 256 blocs d'adresse, qui pointe chacun 256 blocs de données (256^2 adresses atteintes)
+- idem pour 13 (triple indirection)
+- inodes stocké dans un tableau de taille fixe, à l'ouverture d'un fichier, inode est chargé en mémoire (comme blocs d'indirection) ; toute modification doit être écrite sur disque pour permanence des informations
+
+##Repertoire
+- souvent répertoire racine stocké dans inode #2, ref dossier courant et dossier parent sont supportés par le SF
+- refcount =compte le nb d'entrée de répertoire qui pointe vers le fichier, si refcount = 0 le fichier est supprime, quand une application ouvre un fichier, elle incremente refcount et le decremente à sa fermeture), ne prend pas en compte les liens symboliques
+- liens symboliques peuvent se référer à un répertoire contrairement au lien physique  ; chaque répertoire a plusieurs noms le classique, le nom courant, le nom parent pour ses enfants (refcount n'est jamais à 1)
+- lien physique : typiquement plusieurs noms pour le meme fichier pointé
+- permissions Unix : read-write-execute for owner, group and other users
+- fonction de checking fsck
+- sécurité : créer l'inode avant d'écrire l'entrée dans le répertoire, pour supprimer d'abord l'entrée de répertoire puis l'inode, on marque l'inode vide avant de mettre à jour la table des blocs libres
+- possible d'avoir un seul pointer associé à une taille pour les blocs contigus

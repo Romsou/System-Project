@@ -26,7 +26,6 @@
 void
 StartProcess (char *filename)
 {
-    DEBUG('x',"Tentative d'ouverture par %s\n",currentThread->getName());
     OpenFile *executable = fileSystem->Open (filename);
     AddrSpace *space;
 
@@ -35,7 +34,6 @@ StartProcess (char *filename)
 	  printf ("Unable to open file %s\n", filename);
 	  return;
       }
-    DEBUG('x',"Ouverture fichier %s by thread %s\n",filename,currentThread->getName());
     space = new AddrSpace (executable);
     currentThread->space = space;
 
