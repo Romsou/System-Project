@@ -17,7 +17,7 @@ void usage(){
 	printf("Bienvenu dans console de test de systeme de fichier\n");
 	printf("Voici les commandes\n");
 	printf("Pour les fichiers : new name, del name, cat name\n");
-	printf("Pour les repertoires : mkdir name, rmdir name, cd name, ls name\n");
+	printf("Pour les repertoires : mkdir name, rmdir name, cd name, ls\n");
 	printf("Pour quitter : 'q' \n");
 }
 

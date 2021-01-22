@@ -188,7 +188,7 @@ FileSystem::Create(const char *name, int initialSize)
     DEBUG('f', "Creating file %s, size %d\n", name, initialSize);
 
     directory = new Directory(NumDirEntries);
-    directory->FetchFrom(directoryFile);
+    directory->FetchFrom(currentDirFile);
 
     if (directory->Find(name) != -1)
       success = FALSE;			// file is already in directory
@@ -208,7 +208,7 @@ FileSystem::Create(const char *name, int initialSize)
               success = TRUE;
 		// everthing worked, flush all changes back to disk
               hdr->WriteBack(sector); 		
-              directory->WriteBack(directoryFile);
+              directory->WriteBack(currentDirFile);
               freeMap->WriteBack(freeMapFile);
           }
           delete hdr;
@@ -217,63 +217,6 @@ FileSystem::Create(const char *name, int initialSize)
   }
   delete directory;
   return success;
-}
-
-bool
-FileSystem::CreateDir(const char *name)
-{
-    Directory *directory;
-    Directory *dir_child;
-    BitMap *freeMap;
-    FileHeader *hdr;
-    int hdr_dir;
-    int sector;
-    bool success;
-
-    DEBUG('f', "Creating directory %s\n", name);
-
-    directory = new Directory(NumDirEntries);
-    directory->FetchFrom(currentDirFile);
-
-
-    dir_child = new Directory(NumDirEntries);
-
-    if (directory->Find(name) != -1)
-      success = FALSE;          // file is already in directory
-  else {  
-    freeMap = new BitMap(NumSectors);
-    freeMap->FetchFrom(freeMapFile);
-        sector = freeMap->Find();   // find a sector to hold the file header
-        if (sector == -1)       
-            success = FALSE;        // no free block for file header 
-        else if (!directory->AddDir(name, sector))
-            success = FALSE;    // no space in directory            
-        
-        else {
-            dir_child->AddDir(".",sector);
-            hdr_dir = directory->FindDir(".");
-            if(hdr_dir!=-1)
-                dir_child->AddDir("..",hdr_dir);
-
-            hdr = new FileHeader;
-            if (!hdr->Allocate(freeMap, DirectoryFileSize)){
-                success = FALSE;    // no space on disk for data
-            }
-            else {  
-                success = TRUE;
-        // everthing worked, flush all changes back to disk
-                hdr->WriteBack(sector);         
-                directory->WriteBack(directoryFile);
-                freeMap->WriteBack(freeMapFile);
-                DEBUG('f',"New directory created : success\n");
-            }
-            delete hdr;
-        }
-        delete freeMap;
-    }
-    delete directory;
-    delete dir_child;
-    return success;
 }
 
 //----------------------------------------------------------------------
@@ -294,7 +237,7 @@ FileSystem::Open(const char *name)
     int sector;
 
     DEBUG('f', "Opening file %s\n", name);
-    directory->FetchFrom(directoryFile);
+    directory->FetchFrom(currentDirFile);
     sector = directory->Find(name); 
     if (sector >= 0) 		
 	openFile = new OpenFile(sector);	// name was found in directory 
@@ -325,7 +268,7 @@ FileSystem::Remove(const char *name)
     int sector;
     
     directory = new Directory(NumDirEntries);
-    directory->FetchFrom(directoryFile);
+    directory->FetchFrom(currentDirFile);
     sector = directory->Find(name);
     if (sector == -1) {
      delete directory;
@@ -342,7 +285,7 @@ FileSystem::Remove(const char *name)
     directory->Remove(name);
 
     freeMap->WriteBack(freeMapFile);		// flush to disk
-    directory->WriteBack(directoryFile);        // flush to disk
+    directory->WriteBack(currentDirFile);        // flush to disk
     delete fileHdr;
     delete directory;
     delete freeMap;
@@ -393,7 +336,7 @@ FileSystem::Print()
     freeMap->FetchFrom(freeMapFile);
     freeMap->Print();
 
-    directory->FetchFrom(directoryFile);
+    directory->FetchFrom(currentDirFile);
     directory->Print();
 
     delete bitHdr;
@@ -401,6 +344,79 @@ FileSystem::Print()
     delete freeMap;
     delete directory;
 } 
+
+bool
+FileSystem::CreateDir(const char *name)
+{
+    Directory *directory;
+    Directory *dir_child;
+    
+    BitMap *freeMap;
+    FileHeader *hdr;
+    OpenFile *childFile;
+    
+    int sector_parent;
+    int sector;
+    bool success;
+
+    DEBUG('f', "Creating directory %s\n", name);
+
+    directory = new Directory(NumDirEntries);
+    directory->FetchFrom(currentDirFile);
+
+
+    dir_child = new Directory(NumDirEntries);
+
+    if (directory->Find(name) != -1)
+      success = FALSE;          // file is already in directory
+  else {  
+    freeMap = new BitMap(NumSectors);
+    freeMap->FetchFrom(freeMapFile);
+        sector = freeMap->Find();   // find a sector to hold the file header
+        if (sector == -1)       
+            success = FALSE;        // no free block for file header 
+        else if (!directory->AddDir(name, sector))
+            success = FALSE;    // no space in directory            
+        
+        else {
+            dir_child->AddDir(".",sector);
+            sector_parent = directory->FindDir(".");
+            if(sector_parent!=-1)
+                dir_child->AddDir("..",sector_parent);
+
+            if (DebugIsEnabled('f')) {
+                DEBUG('f',"Liste du nouveau repertoire :\n");
+                dir_child->List();
+            }
+
+            hdr = new FileHeader;
+
+            if (!hdr->Allocate(freeMap, DirectoryFileSize)){
+                success = FALSE;    // no space on disk for data
+            }
+            else {  
+                success = TRUE;
+
+                hdr->WriteBack(sector);  
+                childFile = new OpenFile(sector);
+                // everthing worked, flush all changes back to disk
+
+                  
+                dir_child->WriteBack(childFile);
+                directory->WriteBack(currentDirFile);
+                freeMap->WriteBack(freeMapFile);
+                DEBUG('f',"New directory created : success\n");
+                delete childFile;
+            }
+            delete hdr;
+        }
+        delete freeMap;
+    }
+    delete directory;
+    delete dir_child;
+    return success;
+}
+
 
 void
 FileSystem::ChangeDir(const char* name)
@@ -444,7 +460,7 @@ FileSystem::RemoveDir(const char *name)
     if(empty){
         directory->Remove(name);
         delete directory;
-        DEBUG('f',"We remove %d directory\n",name);
+        DEBUG('f',"We remove %s directory\n",name);
         return TRUE;
     }
     delete directory;
