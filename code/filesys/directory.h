@@ -21,6 +21,7 @@
 
 #define FileNameMaxLen 		9	// for simplicity, we assume 
 					// file names are <= 9 characters long
+#define SizeMaxDir 10
 
 // The following class defines a "directory entry", representing a file
 // in the directory.  Each entry gives the name of the file, and where
@@ -32,6 +33,7 @@
 class DirectoryEntry {
   public:
     bool inUse;				// Is this directory entry in use?
+    bool isDir;
     int sector;				// Location on disk to find the 
 					//   FileHeader for this file 
     char name[FileNameMaxLen + 1];	// Text name for file, with +1 for 
@@ -60,8 +62,10 @@ class Directory {
 
     int Find(const char *name);		// Find the sector number of the 
 					// FileHeader for file: "name"
+    int FindDir(const char *name);    // Find the sector number of dir
 
     bool Add(const char *name, int newSector);  // Add a file name into the directory
+    bool AddDir(const char *name, int newSector); //
 
     bool Remove(const char *name);	// Remove a file from the directory
 
@@ -70,6 +74,9 @@ class Directory {
     void Print();			// Verbose print of the contents
 					//  of the directory -- all the file
 					//  names and their contents.
+    Directory *MakeDirectory(const char *name);
+
+    bool isEmpty();
 
   private:
     int tableSize;			// Number of directory entries
