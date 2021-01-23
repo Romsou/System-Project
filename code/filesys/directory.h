@@ -74,7 +74,6 @@ class Directory {
     void Print();			// Verbose print of the contents
 					//  of the directory -- all the file
 					//  names and their contents.
-    Directory *MakeDirectory(const char *name);
 
     bool isEmpty();
 

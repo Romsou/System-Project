@@ -10,6 +10,7 @@ sous-repertoire : . et .. non presents
 ###2. Table systeme des fichiers ouverts
 - max = 10
 - doit maintenir plusieurs fichiers ouverts simultanément
+- comment les supprimer efficacement ? qu'est-ce qui se passe à del file ?
 
 ###3. Support acces simultanés
 - que faire si un thread demande acces à un fichier dj ouvert : interdire, 
@@ -33,7 +34,7 @@ filehdr = UNIX inode
 
 - chaque fichier a un inode qui l'identifie, l'inode gere les meta-info dont la localisation physique mais pas le nom. La localisation est caché à l'utilisateur
 - acces au meta-données = acces disque, attention
-- taille des fichiers très variables : bcp de mois de 10Kb, quelques uns de l'ordre de Gb voire Tb.
+- taille des fichiers très variables : bcp de moins de 10Kb, quelques uns de l'ordre de Gb voire Tb.
 - performance du SF directement lié au nb d'accès disque. Acces à un fichier prend du temps (contraint par temps de positionnement) ; si on veut accéder à 1 ou 50 fichiers, différence est de 3% ==> accès groupé intéressant
 - garder l'information d'où sont les données utilisateur
 - transformer position linéaire dans un fichier en une position sur le disque
