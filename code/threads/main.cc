@@ -139,7 +139,7 @@ main (int argc, char **argv)
 		argCount = 3;
 	    }
 	  else if (!strcmp (*argv, "-fc"))
-	    {			// run file console of NachOS		
+	    {			// run file console of H-NachOS		
 		FS_console();
 	    }
 	  else if (!strcmp (*argv, "-p"))
@@ -166,6 +166,7 @@ main (int argc, char **argv)
 	    {			// performance test
 		PerformanceTest ();
 	    }
+	    interrupt->Halt ();
 #endif // FILESYS
 #ifdef NETWORK
 	  if (!strcmp (*argv, "-o"))

@@ -24,6 +24,7 @@
 // execution stack, for detecting
 // stack overflows
 #define STACK_FENCEPOST 0xdeadbeef
+#define MAX_OPENED_FILES    10
 
 //----------------------------------------------------------------------
 // Thread::Thread
@@ -41,6 +42,7 @@ Thread::Thread(const char *threadName)
     stackTop = NULL;
     stack = NULL;
     status = JUST_CREATED;
+    InitializeOpenedFiles();
 
 #ifdef USER_PROGRAM
     space = NULL;
@@ -530,6 +532,14 @@ void Thread::setPpid(int ParentProcessId)
 {
     if(pid == -1 && ppid == -1)
         ppid = ParentProcessId;
+}
+
+void Thread::InitializeOpenedFiles()
+{
+    openedThreadFiles = new OpenFile*[MAX_OPENED_FILES];
+    for(int i = 0; i < MAX_OPENED_FILES; i++){
+        openedThreadFiles[i] = NULL;
+    }
 }
 
 #endif
