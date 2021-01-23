@@ -20,6 +20,12 @@
 #include "copyright.h"
 #include "list.h"
 
+typedef enum
+{
+  FREE,
+  BUSY
+} LockState;
+
 // The following class defines a "semaphore" whose value is a non-negative
 // integer.  The semaphore has only two operations P() and V():
 //
@@ -68,25 +74,28 @@ class Semaphore
 
 class Lock
 {
-  public:
-    Lock (const char *debugName);	// initialize lock to be FREE
-     ~Lock ();			// deallocate lock
-    const char *getName ()
-    {
-	return name;
-    }				// debugging assist
+public:
+  Lock(const char *debugName); // initialize lock to be FREE
+  ~Lock();                     // deallocate lock
+  const char *getName()
+  {
+    return name;
+  } // debugging assist
 
-    void Acquire ();		// these are the only operations on a lock
-    void Release ();		// they are both *atomic*
+  void Acquire(); // these are the only operations on a lock
+  void Release(); // they are both *atomic*
 
-    bool isHeldByCurrentThread ();	// true if the current thread
-    // holds this lock.  Useful for
-    // checking in Release, and in
-    // Condition variable ops below.
+  bool isHeldByCurrentThread(); // true if the current thread
+  // holds this lock.  Useful for
+  // checking in Release, and in
+  // Condition variable ops below.
 
-  private:
-    const char *name;		// for debugging
-    // plus some other stuff you'll need to define
+private:
+  const char *name; // for debugging
+                    // plus some other stuff you'll need to define
+  Semaphore *internalLock;
+  LockState state;
+  int ownerId;
 };
 
 // The following class defines a "condition variable".  A condition

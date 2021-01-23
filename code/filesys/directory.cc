@@ -187,7 +187,8 @@ Directory::Remove(const char *name)
     int i = FindIndex(name);
 
     if (i == -1)
-	return FALSE; 		// name not in directory
+	   return FALSE; 		// name not in directory
+    
     table[i].inUse = FALSE;
     return TRUE;	
 }
@@ -231,7 +232,7 @@ Directory::Print()
 bool
 Directory::isEmpty()
 {
-    for(int i = 0; i < tableSize; i++){
+    for(int i = 2; i < tableSize; i++){
         if(table[i].inUse){
             return FALSE;
         }
