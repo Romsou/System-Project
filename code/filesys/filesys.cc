@@ -152,9 +152,8 @@ FileSystem::FileSystem(bool format)
     currentDirFile = directoryFile;
 }
 currentFiles = new OpenFile *[NbOpenedFiles];
-for(int i = 0; i < NbOpenedFiles; i++){
+for(int i = 0; i < NbOpenedFiles; i++)
     currentFiles[i] = NULL;
-}
 
 }
 
@@ -524,7 +523,7 @@ bool FileSystem::CreateDir(const char *name)
       delete dir_child;
     }
     delete directory;
-    
+  }
     currentDirFile = currentDirFileSave;
     free(rep);
     return success;
