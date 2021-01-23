@@ -67,28 +67,45 @@ class FileSystem {
 #else // FILESYS
 class FileSystem {
   public:
-    FileSystem(bool format);		// Initialize the file system.
-					// Must be called *after* "synchDisk" 
-					// has been initialized.
-    					// If "format", there is nothing on
-					// the disk, so initialize the directory
-    					// and the bitmap of free blocks.
-
-    bool Create(const char *name, int initialSize);  	
-					// Create a file (UNIX creat)
-
-    OpenFile* Open(const char *name); 	// Open a file (UNIX open)
-
-    bool Remove(const char *name); 	// Delete a file (UNIX unlink)
-
-    void List();			// List all the files in the file system
-
-    void Print();			// List all the files and their contents
 
 		/**
-		 * Create a new Directory from the current directory and in the current directory.
+		 * Initialize the file system. Must be called *after* "synchDisk" 
+		 * has been initialized. If "format", there is nothing on
+		 * the disk, so initialize the directory and the bitmap of free blocks.
 		 * 
-		 * @param name, relative path of directory to create.
+		 * @param format Boolean, true if we should format file system, false otherwise.
+		 */
+    FileSystem(bool format);		
+
+		/**
+		 * Create a file (UNIX creat) from given relative path.
+		 * 
+		 * @param name, file's relative path.
+		 * @param initialSize, file's size.
+		 * @return true if file has been created, false otherwise.
+		 */
+    bool Create(const char *name, int initialSize);  	
+
+		/**
+		 * Open, if exists, a given file from given relative path.
+		 * 
+		 * @param name, directory's relative path.
+		 * @return an OpenFile pointer on the opened file.
+		 */
+    OpenFile* Open(const char *name); 	// Open a file (UNIX open)
+
+		/**
+		 * Remove, if exists, a file from given relative path.
+		 * 
+		 * @param name, file's relative path.
+		 * @return true if file has been deleted, false otherwise.
+		 */
+    bool Remove(const char *name); 	// Delete a file (UNIX unlink)
+
+		/**
+		 * Create a new Directory from given relative path.
+		 * 
+		 * @param name, directory's relative path to create.
 		 * @return true if directory has been created, false otherwise.
 		 */
     bool CreateDir(const char *name);
@@ -109,10 +126,11 @@ class FileSystem {
 		bool navigateToPath(const char* name, char* rep);
 
 		/**
-		 * Try to move current directory to a given directory name. 
+		 * Try to move current directory to a given directory name, if it exists,. 
 		 * (not handle any path)
 		 * 
 		 * @param name directory to open.
+		 * @return true if we reach directory.
 		 */
 		bool OpendDir(const char* name);
 
@@ -120,18 +138,28 @@ class FileSystem {
 		 * Move from current directory to name, which could be a relative path.
 		 * 
 		 * @param name relative path to the directory to reach.
-		 * @return true if directory has been created, false otherwise.
+		 * @return true if directory has been reached, false otherwise.
 		 */
     bool ChangeDir(const char *name);
     
 		/**
-		 * Remove, if exists, a given directory from the file system.
+		 * Remove, if exists, a directory from from given relative path.
 		 * 
 		 * @param name relative path to the directory to remove.
 		 * @return true if directory has been created, false otherwise.
 		 */
     bool RemoveDir(const char *name);
 
+		/**
+		 * List all the files in the file system.
+		 */
+    void List();
+
+		/**
+		 * List all the files and their contents
+		 */
+    void Print();
+		
   private:
    OpenFile* freeMapFile;		// Bit map of free disk blocks,
 					// represented as a file
