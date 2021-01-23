@@ -23,6 +23,7 @@
 					// file names are <= 9 characters long
 #define SizeMaxDir 10
 
+#define NumDirEntries       10
 // The following class defines a "directory entry", representing a file
 // in the directory.  Each entry gives the name of the file, and where
 // the file's header is to be found on disk.
