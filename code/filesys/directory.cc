@@ -241,11 +241,11 @@ Directory::Print()
             dirFile = new OpenFile(table[i].sector);
             dir->FetchFrom(dirFile);
             dir->Print();
+            delete dirFile;
         }
     }
     printf("\n");
-    delete hdr;
-    delete dirFile;
+    delete hdr;    
     delete dir;
 }
 

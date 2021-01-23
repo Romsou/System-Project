@@ -51,20 +51,7 @@
 #include "filehdr.h"
 #include "filesys.h"
 
-// Sectors containing the file headers for the bitmap of free sectors,
-// and the directory of files.  These file headers are placed in well-known
-// sectors, so that they can be located on boot-up.
-#define FreeMapSector 0
-#define DirectorySector 1
 
-// Initial file sizes for the bitmap and directory; until the file system
-// supports extensible files, the directory size sets the maximum number
-// of files that can be loaded onto the disk.
-#define FreeMapFileSize 	(NumSectors / BitsInByte)
-
-#define DirectoryFileSize 	(sizeof(DirectoryEntry) * NumDirEntries)
-
-#define NbOpenedFiles   10
 
 //----------------------------------------------------------------------
 // FileSystem::FileSystem
@@ -278,6 +265,7 @@ FileSystem::Open(const char *name)
     openFile = new OpenFile(sector); // name was found in directory
   delete directory;
   currentDirFile = currentDirFileSave;
+  this->AddFile(openFile);
   free(rep);
   return openFile; // return NULL if not found
 }
@@ -527,9 +515,10 @@ bool FileSystem::CreateDir(const char *name)
     
     currentDirFile = currentDirFileSave;
     free(rep);
+    
+    }
     return success;
 }
-
 /**
  * Try to move current directory to given dircetory name.
  * 
@@ -653,4 +642,22 @@ FileSystem::AddFile(OpenFile *file){
         return;
 
     currentFiles[i] = file;    
+}
+
+bool
+FileSystem::Close(OpenFile *file)
+{
+    if(file==NULL)
+        return TRUE;
+
+    for(int i=0; i < NbOpenedFiles; i++){
+        if(currentFiles[i]==file){
+
+            currentFiles[i]=NULL;
+            delete file;
+            return TRUE;
+        }
+    }
+
+    return FALSE;
 }

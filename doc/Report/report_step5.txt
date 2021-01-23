@@ -12,6 +12,7 @@ sous-repertoire : . et .. non presents
 - doit maintenir plusieurs fichiers ouverts simultanément
 - comment les supprimer efficacement ? qu'est-ce qui se passe à del file ?
 - ouverture et fermeture se font par le systeme de fichier, permet de modifier/lire plusieurs documents en meme temps
+- à quoi ça sert ? qui va s'en servir ?
 
 ###3. Support acces simultanés
 - que faire si un thread demande acces à un fichier dj ouvert : interdire, 
