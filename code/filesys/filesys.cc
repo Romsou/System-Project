@@ -60,9 +60,11 @@
 // Initial file sizes for the bitmap and directory; until the file system
 // supports extensible files, the directory size sets the maximum number
 // of files that can be loaded onto the disk.
-#define FreeMapFileSize (NumSectors / BitsInByte)
-#define NumDirEntries 10
-#define DirectoryFileSize (sizeof(DirectoryEntry) * NumDirEntries)
+#define FreeMapFileSize 	(NumSectors / BitsInByte)
+
+#define DirectoryFileSize 	(sizeof(DirectoryEntry) * NumDirEntries)
+
+#define NbOpenedFiles   10
 
 //----------------------------------------------------------------------
 // FileSystem::FileSystem
@@ -148,7 +150,12 @@ FileSystem::FileSystem(bool format)
     freeMapFile = new OpenFile(FreeMapSector);
     directoryFile = new OpenFile(DirectorySector);
     currentDirFile = directoryFile;
-  }
+}
+currentFiles = new OpenFile *[NbOpenedFiles];
+for(int i = 0; i < NbOpenedFiles; i++){
+    currentFiles[i] = NULL;
+}
+
 }
 
 //----------------------------------------------------------------------
@@ -516,12 +523,11 @@ bool FileSystem::CreateDir(const char *name)
       delete hdr;
       delete dir_child;
     }
-    delete freeMap;
-  }
-  delete directory;
-  currentDirFile = currentDirFileSave;
-  free(rep);
-  return success;
+    delete directory;
+    
+    currentDirFile = currentDirFileSave;
+    free(rep);
+    return success;
 }
 
 /**
@@ -629,4 +635,22 @@ bool FileSystem::RemoveDir(const char *name)
   currentDirFile = currentDirFileSave;
   free(rep);
   return FALSE;
+}
+
+void
+FileSystem::AddFile(OpenFile *file){
+    if(file==NULL)
+        return;
+
+    int i = 0;
+    while(i < NbOpenedFiles){
+        if(currentFiles[i]==NULL)
+            break;
+        else
+            i++;
+    }
+    if(i==NbOpenedFiles)
+        return;
+
+    currentFiles[i] = file;    
 }

@@ -166,6 +166,15 @@ class FileSystem {
    OpenFile* directoryFile;		// "Root" directory -- list of 
 					// file names, represented as a file
    OpenFile* currentDirFile; // current directory
+   OpenFile **currentFiles;   //opened files array, len max = 10
+
+   
+  /**
+   * Add the file to the currentFiles array  
+   *
+   * @param file could be NULL, in its cases, it is not added
+   */
+  void AddFile(OpenFile *file);
 };
 
 #endif // FILESYS
