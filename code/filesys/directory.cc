@@ -211,7 +211,25 @@ Directory::List()
 // 	List all the file names in the directory, their FileHeader locations,
 //	and the contents of each file.  For debugging.
 //----------------------------------------------------------------------
+void
+Directory::Print()
+{ 
+    FileHeader *hdr = new FileHeader;
 
+    printf("Directory contents:\n");
+    for (int i = 0; i < tableSize; i++)
+	if (table[i].inUse) {
+	    printf("Name: %s, Sector: %d\n", table[i].name, table[i].sector);
+	    hdr->FetchFrom(table[i].sector);
+	    hdr->Print();
+	}
+    printf("\n");
+    delete hdr;
+}
+
+//TODO
+//La fonction suivante ne permet plus d'afficher le file contents avec l'option -D
+/*
 void
 Directory::Print()
 { 
@@ -248,7 +266,7 @@ Directory::Print()
     delete hdr;   
 
     delete dir;
-}
+}*/
 
 bool
 Directory::isEmpty()

@@ -25,7 +25,7 @@ FileTable::~FileTable()
  */
 bool FileTable::AddFile(OpenFile *file, int sector)
 {
-  if (file == NULL && filePresenceIndicator->NumSet()==nbFiles)
+  if (file == NULL || filePresenceIndicator->NumSet()==nbFiles)
     return false;
 
   int index = filePresenceIndicator->Find();
@@ -33,6 +33,7 @@ bool FileTable::AddFile(OpenFile *file, int sector)
   if (index == -1)
     return false;
 
+  openFiles[index] = new fileOpen();
   openFiles[index]->openFile = file;
   openFiles[index]->numSector = sector;
   return true;

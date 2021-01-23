@@ -262,7 +262,7 @@ FileSystem::Open(const char *name)
       openFile = new OpenFile(sector);
       openFiles->AddFile(openFile, sector);
     }
-  
+
   currentDirFile = currentDirFileSave;
   free(rep);
   delete directory;
