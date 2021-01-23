@@ -37,6 +37,7 @@
 
 #include "copyright.h"
 #include "openfile.h"
+#include "filetable.h"
 
 // Sectors containing the file headers for the bitmap of free sectors,
 // and the directory of files.  These file headers are placed in well-known
@@ -104,11 +105,19 @@ class FileSystem {
 		/**
 		 * Open, if exists, a given file from given relative path.
 		 * 
-		 * @param name, directory's relative path.
+		 * @param name, file's relative path.
 		 * @return an OpenFile pointer on the opened file.
 		 */
     OpenFile* Open(const char *name); 	// Open a file (UNIX open)
 
+		/**
+		 * Close, if exists, a given file from given relative path.
+		 * 
+		 * @param name, file's relative path.
+		 * @return true if file has been close, else otherwise.
+		 */
+    bool Close(OpenFile *file);
+		
 		/**
 		 * Remove, if exists, a file from given relative path.
 		 * 
@@ -124,30 +133,6 @@ class FileSystem {
 		 * @return true if directory has been created, false otherwise.
 		 */
     bool CreateDir(const char *name);
-
-		/**
-		 * Try to move current directory on the last repertory before the last name
-		 * (ie : ..../..../..../this one/.....) frome a given relative path name.
-		 * Store in a given char* named rep the last part of the path.
-		 * (ie: ..../..../..../...../this one). Be carefull, if return false, current
-		 * directory could be anywhere in the path, we try to go as far as possible before the
-		 * last part.
-		 * 
-		 * @param name relative path to the file/directory we should reach.
-		 * @param rep a char* where we will store the last part of the path.
-		 * @return true if we are now postionate on the last repertory before, otherwise
-		 * return false.
-		 */
-		bool navigateToPath(const char* name, char* rep);
-
-		/**
-		 * Try to move current directory to a given directory name, if it exists,. 
-		 * (not handle any path)
-		 * 
-		 * @param name directory to open.
-		 * @return true if we reach directory.
-		 */
-		bool OpendDir(const char* name);
 
 		/**
 		 * Move from current directory to name, which could be a relative path.
@@ -174,8 +159,6 @@ class FileSystem {
 		 * List all the files and their contents
 		 */
     void Print();
-
-    bool Close(OpenFile *file);
 		
   private:
    OpenFile* freeMapFile;		// Bit map of free disk blocks,
@@ -183,15 +166,32 @@ class FileSystem {
    OpenFile* directoryFile;		// "Root" directory -- list of 
 					// file names, represented as a file
    OpenFile* currentDirFile; // current directory
-   OpenFile **currentFiles;   //opened files array, len max = 10
 
-   
-  /**
-   * Add the file to the currentFiles array  
-   *
-   * @param file could be NULL, in its cases, it is not added
-   */
-  void AddFile(OpenFile *file);
+   FileTable* openFiles;   //opened files array, len max = 10
+
+	/**
+	 * Try to move current directory on the last repertory before the last name
+	 * (ie : ..../..../..../this one/.....) frome a given relative path name.
+	 * Store in a given char* named rep the last part of the path.
+	 * (ie: ..../..../..../...../this one). Be carefull, if return false, current
+	 * directory could be anywhere in the path, we try to go as far as possible before the
+	 * last part.
+	 * 
+	 * @param name relative path to the file/directory we should reach.
+	 * @param rep a char* where we will store the last part of the path.
+	 * @return true if we are now postionate on the last repertory before, otherwise
+	 * return false.
+	 */
+	bool navigateToPath(const char* name, char* rep);
+
+	/**
+	 * Try to move current directory to a given directory name, if it exists. 
+	 * (not handle any path)
+	 * 
+	 * @param name directory to open.
+	 * @return true if we reach directory.
+	 */
+	bool OpendDir(const char* name);
 };
 
 #endif // FILESYS
