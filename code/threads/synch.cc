@@ -96,6 +96,8 @@ void Semaphore::V()
     (void)interrupt->SetLevel(oldLevel);
 }
 
+
+
 // Dummy functions -- so we can compile our later assignments
 // Note -- without a correct implementation of Condition::Wait(),
 // the test case in the network assignment won't work!
@@ -133,101 +135,74 @@ bool Lock::isHeldByCurrentThread()
     return currentThread->getTid() == ownerId;
 }
 
+
+
 Condition::Condition(const char *debugName)
 {
-    queue = new List();
+    blockedThreads = new List();
 }
 
 Condition::~Condition()
 {
-    delete queue;
+    delete blockedThreads;
 }
+
+
+int Condition::temporaryWait(int timeToWait, Lock* lock)
+{
+    currentThread->signaled = false;
+    currentThread->wakeUpTime = stats->totalTicks + timeToWait;
+    Wait(lock);
+    return 0;
+}
+
 void Condition::Wait(Lock *lock)
 {
-    // Releases the lock so that another thread can enter its critic section
+    // Makes the lock release and the sleeping atomic.
+    IntStatus oldLevel = interrupt->SetLevel(IntOff); 
+    
     conditionLock->Release();
-    IntStatus oldLevel = interrupt->SetLevel(IntOff); // disable interrupts
-
-    queue->Append((void *)currentThread);
-    currentThread->Sleep();
-    // Attempt to reacquire it once awoken.
+    
+    blockedThreads->Append((void *)currentThread);
+    currentThread->TemporarilySleep();
+    
+    (void)interrupt->SetLevel(oldLevel);
 
     conditionLock->Acquire();
-    (void)interrupt->SetLevel(oldLevel);
 }
 
 void Condition::Signal(Lock *lock)
 {
     Thread *thread;
+
+    IntStatus oldLevel = interrupt->SetLevel(IntOff); 
+    
     // Must check it the current thread owns the lock to avoid
     // undefined behaviors.
-    IntStatus oldLevel = interrupt->SetLevel(IntOff); // disable interrupts
-
     if (conditionLock->isHeldByCurrentThread())
     {
-        thread = (Thread *)queue->Remove();
+        thread = (Thread *)blockedThreads->Remove();
         if (thread != NULL)
-            scheduler->ReadyToRun(thread);
+        {
+            thread->signaled = true;
+            scheduler->WakeUpReadyThreads();
+        }
     }
+
     (void)interrupt->SetLevel(oldLevel);
 }
 
 void Condition::Broadcast(Lock *lock)
 {
-    Thread *thread;
     IntStatus oldLevel = interrupt->SetLevel(IntOff); // disable interrupts
 
-    while ((thread = (Thread *)queue->Remove()) != NULL)
-        scheduler->ReadyToRun(thread);
+    while (!blockedThreads->IsEmpty())
+        Signal(lock);
+    
     (void)interrupt->SetLevel(oldLevel);
-}
-
-static void watchDog(int arg)
-{
-    Condition* cond = (Condition*) arg;
-    int time = cond->getTime();
-
-    for (int i = 0; i < time; i++)
-        ;
-
-    cond->setTimeout();
-    cond->Signal(cond->getLock());
-}
-
-int Condition::temporaryWait(int , Lock* lock)
-{
-    this->limitTime = limitTime;
-    this->conditionLock = lock;
-
-    Thread* watchDogThread = new Thread("Watch dog");
-    watchDogThread->Fork(watchDog, (int) this);
-    this->Wait(lock);
-   
-    if(timeout)
-    {
-        resetTimeout();
-        return -1;
-    }
-
-    return 0;
-}
-
-void Condition::setTimeout()
-{
-    timeout = true;
-}
-
-void Condition::resetTimeout()
-{
-    timeout = false;
 }
 
 Lock* Condition::getLock()
 {
     return conditionLock;
-}
-
-int Condition::getTime()
-{
-    return limitTime;
 }

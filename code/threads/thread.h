@@ -121,6 +121,9 @@ public:
   // other thread is runnable
   void Sleep(); // Put the thread to sleep and
   // relinquish the processor
+
+  void TemporarilySleep();
+
   void Finish(); // The thread is done executing
 
   void CheckOverflow(); // Check if thread has
@@ -137,6 +140,9 @@ public:
   {
     printf("%s, ", name);
   }
+  
+  int wakeUpTime;
+  bool signaled;
 
 private:
   // some of the private data for this class is listed above
@@ -152,6 +158,8 @@ private:
   // Allocate a stack for thread.
   // Used internally by Fork()
   //void newChild() { childNb++; }
+
+  
 
 #ifdef USER_PROGRAM
   // A thread running a user program actually has *two* sets of CPU registers --
@@ -216,6 +224,8 @@ public:
   void setPpid(int ParentProcessId);
 
   AddrSpace *space; // User code this thread is running.
+
+  
 #endif
 };
 

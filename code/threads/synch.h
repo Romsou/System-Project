@@ -158,10 +158,10 @@ public:
   Lock* getLock();
 private:
   const char *name;
-  List* queue;
+  List* blockedThreads;
 
-  bool timeout; 
-  int limitTime;
+  //bool timeout; 
+  //int limitTime;
   Lock* conditionLock;
   //void watchDog(void* arg); // Internal function that set the timeout
   // plus some other stuff you'll need to define

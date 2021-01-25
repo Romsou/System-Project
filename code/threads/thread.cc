@@ -41,6 +41,8 @@ Thread::Thread(const char *threadName)
     stackTop = NULL;
     stack = NULL;
     status = JUST_CREATED;
+    wakeUpTime = -1;
+    signaled = false;
 
 #ifdef USER_PROGRAM
     space = NULL;
@@ -253,10 +255,32 @@ void Thread::Sleep()
     DEBUG('t', "Sleeping thread \"%s\"\n", getName());
 
     status = BLOCKED;
+    currentThread->signaled = false;
     while ((nextThread = scheduler->FindNextToRun()) == NULL)
         interrupt->Idle(); // no one to run, wait for an interrupt
 
     scheduler->Run(nextThread); // returns when we've been signalled
+}
+
+void Thread::TemporarilySleep()
+{
+    Thread *nextThread;
+
+    ASSERT(this == currentThread);
+    ASSERT(interrupt->getLevel() == IntOff);
+
+    DEBUG('t', "Sleeping thread \"%s\"\n", getName());
+
+    status = BLOCKED;
+    //currentThread->wakeUpTime = stats->totalTicks + time;
+    currentThread->signaled = false;
+    scheduler->PutInSleepingThreadsList(currentThread);
+
+    while ((nextThread = scheduler->FindNextToRun()) == NULL)
+        interrupt->Idle(); // no one to run, wait for an interrupt
+
+    scheduler->Run(nextThread); // returns when we've been signalled
+
 }
 
 //----------------------------------------------------------------------
