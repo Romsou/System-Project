@@ -14,6 +14,7 @@
 
 #include "copyright.h"
 #include "synchlist.h"
+#include "system.h"
 
 //----------------------------------------------------------------------
 // SynchList::SynchList
@@ -54,6 +55,8 @@ void SynchList::Append(void *item)
 {
     lock->Acquire(); // enforce mutual exclusive access to the list
     list->Append(item);
+    DEBUG('s', "Thread %s sends signal\n", currentThread->getName());
+
     listEmpty->Signal(lock); // wake up a waiter, if any
     lock->Release();
 }
@@ -70,11 +73,14 @@ void *
 SynchList::Remove()
 {
     void *item;
+    int retvalue = 0;
     lock->Acquire(); // enforce mutual exclusion
     while (list->IsEmpty())
     {
-        listEmpty->temporaryWait(500, lock); // wait until list isn't empty
-        DEBUG('n', "Woke up in Remove\n");
+        retvalue = listEmpty->temporaryWait(500, lock); // wait until list isn't empty
+        if(retvalue)
+            break;
+        DEBUG('s', "Thread %s woke up and is signaled: %d\n", currentThread->getName(), currentThread->signaled);
     }
     item = list->Remove();
     ASSERT(item != NULL);

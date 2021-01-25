@@ -272,7 +272,7 @@ void Thread::TemporarilySleep()
     DEBUG('t', "Sleeping thread \"%s\"\n", getName());
 
     status = BLOCKED;
-    currentThread->signaled = false;
+    //currentThread->signaled = false;
     scheduler->PutInSleepingThreadsList(currentThread);
 
     while ((nextThread = scheduler->FindNextToRun()) == NULL)

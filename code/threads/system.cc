@@ -67,7 +67,7 @@ extern void Cleanup();
 static void
 TimerInterruptHandler(int dummy)
 {
-    DEBUG('t', "Timer!\n");
+    //DEBUG('t', "Timer!\n");
     scheduler->WakeUpReadyThreads();
     if (interrupt->getStatus() != IdleMode)
         interrupt->YieldOnReturn();

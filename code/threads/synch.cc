@@ -149,9 +149,12 @@ int Condition::temporaryWait(int timeToWait, Lock *lock)
 {
     currentThread->signaled = false;
     currentThread->wakeUpTime = stats->totalTicks + timeToWait;
-    DEBUG('t', "Put to sleep at time: %ld\n", currentThread->wakeUpTime);
+    DEBUG('t', "Put to sleep at time: %ld\n", currentThread->wakeUpTime - timeToWait);
     Wait(lock);
-    return 0;
+    if (currentThread->signaled)
+        return 1;
+    else
+        return 0;
 }
 
 void Condition::Wait(Lock *lock)
@@ -159,28 +162,30 @@ void Condition::Wait(Lock *lock)
     // Makes the lock release and the sleeping atomic.
     IntStatus oldLevel = interrupt->SetLevel(IntOff);
 
-    conditionLock->Release();
+    lock->Release();
     blockedThreads->Append((void *)currentThread);
     currentThread->TemporarilySleep();
 
     (void)interrupt->SetLevel(oldLevel);
 
-    conditionLock->Acquire();
+    lock->Acquire();
 }
 
 void Condition::Signal(Lock *lock)
 {
-    Thread *thread;
+    DEBUG('t', "Signaling thread");
 
     IntStatus oldLevel = interrupt->SetLevel(IntOff);
 
+    Thread *thread;
     // Must check it the current thread owns the lock to avoid
     // undefined behaviors.
-    if (conditionLock->isHeldByCurrentThread())
+    if (lock->isHeldByCurrentThread())
     {
         thread = (Thread *)blockedThreads->Remove();
         if (thread != NULL)
         {
+            DEBUG('t', "Signaling thread %s", thread->getName());
             thread->signaled = true;
             scheduler->WakeUpReadyThreads();
         }
@@ -193,7 +198,7 @@ void Condition::Broadcast(Lock *lock)
 {
     IntStatus oldLevel = interrupt->SetLevel(IntOff); // disable interrupts
 
-    if(conditionLock->isHeldByCurrentThread())
+    if (lock->isHeldByCurrentThread())
         while (!blockedThreads->IsEmpty())
             Signal(lock);
 
