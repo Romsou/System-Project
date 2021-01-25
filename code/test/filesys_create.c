@@ -12,7 +12,11 @@ int main ()
     
     PutString("Avant write\n");
     Write(buffer, size, fileId);
+    Close(fileId);
+
+
     PutString("Avant read\n");
+    fileId = Open("f1");
     Read(res,size,fileId);
     PutString(res);
     
