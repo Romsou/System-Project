@@ -96,8 +96,6 @@ void Semaphore::V()
     (void)interrupt->SetLevel(oldLevel);
 }
 
-
-
 // Dummy functions -- so we can compile our later assignments
 // Note -- without a correct implementation of Condition::Wait(),
 // the test case in the network assignment won't work!
@@ -135,23 +133,23 @@ bool Lock::isHeldByCurrentThread()
     return currentThread->getTid() == ownerId;
 }
 
-
-
 Condition::Condition(const char *debugName)
 {
     blockedThreads = new List();
+    conditionLock = new Lock("Condition lock");
 }
 
 Condition::~Condition()
 {
     delete blockedThreads;
+    delete conditionLock;
 }
 
-
-int Condition::temporaryWait(int timeToWait, Lock* lock)
+int Condition::temporaryWait(int timeToWait, Lock *lock)
 {
     currentThread->signaled = false;
     currentThread->wakeUpTime = stats->totalTicks + timeToWait;
+    DEBUG('t', "Put to sleep at time: %ld\n", currentThread->wakeUpTime);
     Wait(lock);
     return 0;
 }
@@ -159,13 +157,12 @@ int Condition::temporaryWait(int timeToWait, Lock* lock)
 void Condition::Wait(Lock *lock)
 {
     // Makes the lock release and the sleeping atomic.
-    IntStatus oldLevel = interrupt->SetLevel(IntOff); 
-    
+    IntStatus oldLevel = interrupt->SetLevel(IntOff);
+
     conditionLock->Release();
-    
     blockedThreads->Append((void *)currentThread);
     currentThread->TemporarilySleep();
-    
+
     (void)interrupt->SetLevel(oldLevel);
 
     conditionLock->Acquire();
@@ -175,8 +172,8 @@ void Condition::Signal(Lock *lock)
 {
     Thread *thread;
 
-    IntStatus oldLevel = interrupt->SetLevel(IntOff); 
-    
+    IntStatus oldLevel = interrupt->SetLevel(IntOff);
+
     // Must check it the current thread owns the lock to avoid
     // undefined behaviors.
     if (conditionLock->isHeldByCurrentThread())
@@ -196,13 +193,14 @@ void Condition::Broadcast(Lock *lock)
 {
     IntStatus oldLevel = interrupt->SetLevel(IntOff); // disable interrupts
 
-    while (!blockedThreads->IsEmpty())
-        Signal(lock);
-    
+    if(conditionLock->isHeldByCurrentThread())
+        while (!blockedThreads->IsEmpty())
+            Signal(lock);
+
     (void)interrupt->SetLevel(oldLevel);
 }
 
-Lock* Condition::getLock()
+Lock *Condition::getLock()
 {
     return conditionLock;
 }

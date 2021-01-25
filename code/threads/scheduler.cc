@@ -22,7 +22,6 @@
 #include "scheduler.h"
 #include "system.h"
 
-
 bool timeToWakeUp(Thread *thread)
 {
     return thread->wakeUpTime - stats->totalTicks <= 0;
@@ -172,11 +171,13 @@ void Scheduler::PutInSleepingThreadsList(Thread *thread)
  */
 void Scheduler::WakeUpReadyThreads()
 {
+    if (sleepingThreads->IsEmpty())
+        return;
 
-    Thread *thread = (Thread *) sleepingThreads->first;
+    Thread *thread = (Thread *)sleepingThreads->first->item;
     if (thread != NULL && (timeToWakeUp(thread) || thread->signaled))
     {
-        sleepingThreads->Remove();
+        thread = (Thread *)sleepingThreads->Remove();
         ReadyToRun(thread);
     }
 
@@ -198,7 +199,6 @@ void Scheduler::WakeUpReadyThreads()
             ptr = ptr->next;
     }
 }
-
 
 int Scheduler::getNumberOfReadyThreads()
 {

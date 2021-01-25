@@ -20,7 +20,6 @@
 #include "copyright.h"
 #include "list.h"
 
-
 // The following class defines a "semaphore" whose value is a non-negative
 // integer.  The semaphore has only two operations P() and V():
 //
@@ -142,28 +141,23 @@ public:
     return (name);
   }
 
-  void Wait(Lock *lock); // these are the 3 operations on
+  // these are the 3 operations on
   // condition variables; releasing the
   // lock and going to sleep are
   // *atomic* in Wait()
+  void Wait(Lock *lock);
   void Signal(Lock *lock);    // conditionLock must be held by
   void Broadcast(Lock *lock); // the currentThread for all of
   // these operations
 
   int temporaryWait(int time, Lock *lock);
 
-  void setTimeout();
-  void resetTimeout();
-  int getTime();
-  Lock* getLock();
+  Lock *getLock();
+
 private:
   const char *name;
-  List* blockedThreads;
 
-  //bool timeout; 
-  //int limitTime;
-  Lock* conditionLock;
-  //void watchDog(void* arg); // Internal function that set the timeout
-  // plus some other stuff you'll need to define
+  List *blockedThreads;
+  Lock *conditionLock;
 };
 #endif // SYNCH_H

@@ -272,7 +272,6 @@ void Thread::TemporarilySleep()
     DEBUG('t', "Sleeping thread \"%s\"\n", getName());
 
     status = BLOCKED;
-    //currentThread->wakeUpTime = stats->totalTicks + time;
     currentThread->signaled = false;
     scheduler->PutInSleepingThreadsList(currentThread);
 

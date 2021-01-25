@@ -9,7 +9,7 @@
 //      synchronization.
 //
 // Copyright (c) 1992-1993 The Regents of the University of California.
-// All rights reserved.  See copyright.h for copyright notice and limitation 
+// All rights reserved.  See copyright.h for copyright notice and limitation
 // of liability and disclaimer of warranty provisions.
 
 #include "copyright.h"
@@ -17,24 +17,24 @@
 
 //----------------------------------------------------------------------
 // SynchList::SynchList
-//      Allocate and initialize the data structures needed for a 
+//      Allocate and initialize the data structures needed for a
 //      synchronized list, empty to start with.
 //      Elements can now be added to the list.
 //----------------------------------------------------------------------
 
-SynchList::SynchList ()
+SynchList::SynchList()
 {
-    list = new List ();
-    lock = new Lock ("list lock");
-    listEmpty = new Condition ("list empty cond");
+    list = new List();
+    lock = new Lock("list lock");
+    listEmpty = new Condition("list empty cond");
 }
 
 //----------------------------------------------------------------------
 // SynchList::~SynchList
-//      De-allocate the data structures created for synchronizing a list. 
+//      De-allocate the data structures created for synchronizing a list.
 //----------------------------------------------------------------------
 
-SynchList::~SynchList ()
+SynchList::~SynchList()
 {
     delete list;
     delete lock;
@@ -46,17 +46,16 @@ SynchList::~SynchList ()
 //      Append an "item" to the end of the list.  Wake up anyone
 //      waiting for an element to be appended.
 //
-//      "item" is the thing to put on the list, it can be a pointer to 
+//      "item" is the thing to put on the list, it can be a pointer to
 //              anything.
 //----------------------------------------------------------------------
 
-void
-SynchList::Append (void *item)
+void SynchList::Append(void *item)
 {
-    lock->Acquire ();		// enforce mutual exclusive access to the list 
-    list->Append (item);
-    listEmpty->Signal (lock);	// wake up a waiter, if any
-    lock->Release ();
+    lock->Acquire(); // enforce mutual exclusive access to the list
+    list->Append(item);
+    listEmpty->Signal(lock); // wake up a waiter, if any
+    lock->Release();
 }
 
 //----------------------------------------------------------------------
@@ -64,20 +63,22 @@ SynchList::Append (void *item)
 //      Remove an "item" from the beginning of the list.  Wait if
 //      the list is empty.
 // Returns:
-//      The removed item. 
+//      The removed item.
 //----------------------------------------------------------------------
 
 void *
-SynchList::Remove ()
+SynchList::Remove()
 {
     void *item;
-
-    lock->Acquire ();		// enforce mutual exclusion
-    while (list->IsEmpty ())
-	listEmpty->Wait (lock);	// wait until list isn't empty
-    item = list->Remove ();
-    ASSERT (item != NULL);
-    lock->Release ();
+    lock->Acquire(); // enforce mutual exclusion
+    while (list->IsEmpty())
+    {
+        listEmpty->temporaryWait(500, lock); // wait until list isn't empty
+        DEBUG('n', "Woke up in Remove\n");
+    }
+    item = list->Remove();
+    ASSERT(item != NULL);
+    lock->Release();
     return item;
 }
 
@@ -89,10 +90,9 @@ SynchList::Remove ()
 //      "func" is the procedure to be applied.
 //----------------------------------------------------------------------
 
-void
-SynchList::Mapcar (VoidFunctionPtr func)
+void SynchList::Mapcar(VoidFunctionPtr func)
 {
-    lock->Acquire ();
-    list->Mapcar (func);
-    lock->Release ();
+    lock->Acquire();
+    list->Mapcar(func);
+    lock->Release();
 }
