@@ -112,6 +112,13 @@ Lock::~Lock()
     delete internalLock;
 }
 
+/**
+ * Acquires the lock.
+ * 
+ * Works by using a semaphore initialized with one token.
+ * Also sets the owner of this lock so we can identify it later
+ * if needed.
+ */
 void Lock::Acquire()
 {
     internalLock->P();
@@ -120,6 +127,13 @@ void Lock::Acquire()
     DEBUG('d', "Lock %s was acquired\n", getName());
 }
 
+/**
+ * Releases the lock.
+ * 
+ * Works by releasing the intern semaphore used to implement
+ * this lock.
+ * Also sets the ownerId to -1, since this lock belongs to no one.
+ */
 void Lock::Release()
 {
     internalLock->V();
@@ -128,35 +142,64 @@ void Lock::Release()
     DEBUG('d', "Lock %s was freed\n", getName());
 }
 
+/**
+ * Indicates whether the current thread holds this lock.
+ * 
+ * @return A boolean indicating whether the current thread owns the lock.
+ */
 bool Lock::isHeldByCurrentThread()
 {
     return currentThread->getTid() == ownerId;
 }
 
+
 Condition::Condition(const char *debugName)
 {
     blockedThreads = new List();
-    conditionLock = new Lock("Condition lock");
 }
 
 Condition::~Condition()
 {
     delete blockedThreads;
-    delete conditionLock;
 }
 
-int Condition::temporaryWait(int timeToWait, Lock *lock)
+/**
+ * Allows to wait for at least timeToWait ticks on Condition.
+ * 
+ * The calling thread can either be woken up after it has slept
+ * at least the amount of ticks specified in timeToWait, or
+ * it can receive a signal. In both cases we put it back on the
+ * readyList so it can run again.
+ * 
+ * Note that even though the thread has been asleep for timeToWait 
+ * ticks, it needs to wait for the next timer interrupt to actually be
+ * put back on the readyList. Hence the real sleeping time might vary slightly.
+ * 
+ * We base ourselves on the number of system ticks to have a more accurate idea
+ * of the time that has passed since the thread went asleep.
+ * 
+ * We also returns a boolean to indicate what has woken this thread up.
+ * 
+ * @param timeToWait: The amount of ticks to wait to wake this thread up.
+ * @param lock: The lock we wish to release and reacquire to wait in critic section.
+ * 
+ * @return A boolean indicating whether this thread was awoken by a time interrupt or
+ *         by a signal. 
+ */
+bool Condition::temporaryWait(int timeToWait, Lock *lock)
 {
     currentThread->signaled = false;
     currentThread->wakeUpTime = stats->totalTicks + timeToWait;
     DEBUG('t', "Put to sleep at time: %ld\n", currentThread->wakeUpTime - timeToWait);
     Wait(lock);
-    if (currentThread->signaled)
-        return 1;
-    else
-        return 0;
+    return currentThread->signaled;
 }
 
+/**
+ * Wait on the lock until we've been signalled.
+ *
+ * @param lock: The lock we want to release and reacquire to wait.
+ */
 void Condition::Wait(Lock *lock)
 {
     // Makes the lock release and the sleeping atomic.
@@ -171,6 +214,13 @@ void Condition::Wait(Lock *lock)
     lock->Acquire();
 }
 
+/**
+ * Signal a random thread waiting on the condition to put it back in readyList.
+ * 
+ * Works by setting the signaled boolean to true in Thread and waking up threads
+ * 
+ * @param lock: Used to check whether the caller actually owns the lock.
+ */
 void Condition::Signal(Lock *lock)
 {
     DEBUG('t', "Signaling thread");
@@ -194,6 +244,10 @@ void Condition::Signal(Lock *lock)
     (void)interrupt->SetLevel(oldLevel);
 }
 
+/**
+ * Signal all blocked threads on this condition
+ * 
+ */
 void Condition::Broadcast(Lock *lock)
 {
     IntStatus oldLevel = interrupt->SetLevel(IntOff); // disable interrupts
@@ -203,9 +257,4 @@ void Condition::Broadcast(Lock *lock)
             Signal(lock);
 
     (void)interrupt->SetLevel(oldLevel);
-}
-
-Lock *Condition::getLock()
-{
-    return conditionLock;
 }

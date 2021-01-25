@@ -150,14 +150,12 @@ public:
   void Broadcast(Lock *lock); // the currentThread for all of
   // these operations
 
-  int temporaryWait(int time, Lock *lock);
-
-  Lock *getLock();
+  bool temporaryWait(int time, Lock *lock);
 
 private:
   const char *name;
 
   List *blockedThreads;
-  Lock *conditionLock;
+  
 };
 #endif // SYNCH_H
