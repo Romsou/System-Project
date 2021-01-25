@@ -111,7 +111,7 @@ FileSystem::FileSystem(bool format)
     // to hold the file data for the directory and bitmap.
 
     directory->AddDir(".", DirectorySector);
-    //directory->AddDir("..", DirectorySector); //TODO : je suggère de virer ca, le repertoire racine
+    directory->AddDir("..", DirectorySector); //TODO : je suggère de virer ca, le repertoire racine
     //n'en a pas besoin et si on veut eventuellement avoir des absolut path, cela risquerait de poser
     //problème. Et ca permet de faire des cd ../../../../../.. .... à l'infini.
 
