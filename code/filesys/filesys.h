@@ -166,6 +166,17 @@ public:
 	 */
 	void Print();
 
+	/**
+	 * 
+	 */
+	int getSector(OpenFile* openFile);
+
+	/**
+	 * 
+	 */
+	OpenFile* getOpenFile(int sector);
+
+
 private:
 	OpenFile *freeMapFile; // Bit map of free disk blocks,
 			// represented as a file

@@ -44,6 +44,16 @@ public:
    */
   OpenFile* getFile(int sector);
 
+  /**
+   * Search for a correponding openFile pointer in file array and return 
+   * sector resulting.
+   * 
+   * @param openFile OpenFile pointer to find in array.
+   * @return corresponding sector number of file header on disk, if exists in array,
+   * NULL otherwise.
+   */
+  int getSector(OpenFile* openFile);
+
 private:
   int nbFiles;
   struct fileOpen **openFiles;

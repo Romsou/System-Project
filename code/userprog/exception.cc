@@ -276,14 +276,12 @@ void handleForkExec()
   machine->WriteRegister(2, retval);
 }
 
-
 void handleCreate()
 {
   DEBUG('f', "Call for creating file\n");
   char s[FileNameMaxLen];
   copyStringFromMachine(machine->ReadRegister(4), s, FileNameMaxLen);
   fileSystem->Create(s, MaxFileSize);
-  // machine->WriteRegister(2, retval); TODO
 }
 
 void handleOpen()
@@ -291,16 +289,14 @@ void handleOpen()
   DEBUG('f', "Call for opening file\n");
   char s[FileNameMaxLen];
   copyStringFromMachine(machine->ReadRegister(4), s, FileNameMaxLen);
-  fileSystem->Open(s);
-  // machine->WriteRegister(2, retval); TODO
+  int fileId = fileSystem->getSector(fileSystem->Open(s));
+  machine->WriteRegister(2, fileId);
 }
 
 void handleClose()
 {
   DEBUG('f', "Call for closing file\n");
-  fileSystem->Close((OpenFile*)machine->ReadRegister(4));
-  // machine->WriteRegister(2, retval); TODO
-
+  fileSystem->Close(fileSystem->getOpenFile(machine->ReadRegister(4)));
 }
 
 void handleRead()
@@ -308,11 +304,12 @@ void handleRead()
   DEBUG('f', "Call for reading from file\n");
   int buffer = machine->ReadRegister(4);
   int size = machine->ReadRegister(5);
-  int openFile = machine->ReadRegister(6);
+  OpenFile* openFile = fileSystem->getOpenFile(machine->ReadRegister(6));
 
   char s[MAX_STRING_SIZE];
-  ((OpenFile*)openFile)->Read(s, size);
+  int nb_read = openFile->Read(s, size);
   copyStringToMachine(s, buffer, size);
+  machine->WriteRegister(2, nb_read);
 }
 
 void handleWrite()
@@ -320,10 +317,11 @@ void handleWrite()
   DEBUG('f', "Call for writing user thread\n");
   int buffer = machine->ReadRegister(4);
   int size = machine->ReadRegister(5);
-  int openFile = machine->ReadRegister(6);
+  OpenFile* openFile = fileSystem->getOpenFile(machine->ReadRegister(6));
+
   char s[size];
   copyStringFromMachine(buffer, s, size);
-  ((OpenFile*)openFile)->Write(s, size);
+  openFile->Write(s, size);
 }
 
 //----------------------------------------------------------------------

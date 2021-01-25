@@ -636,3 +636,19 @@ void FileSystem::Print()
   delete freeMap;
   delete directory;
 }
+
+/**
+ * 
+ */
+int FileSystem::getSector(OpenFile* openFile) 
+{
+  return openFiles->getSector(openFile);
+}
+
+/**
+ * 
+ */
+OpenFile* FileSystem::getOpenFile(int sector)
+{
+  return openFiles->getFile(sector);
+}

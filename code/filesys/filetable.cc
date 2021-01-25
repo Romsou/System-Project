@@ -75,3 +75,19 @@ OpenFile* FileTable::getFile(int sector) {
     }
   return NULL;
 }
+
+/**
+ * Search for a correponding openFile pointer in file array and return 
+ * sector resulting.
+ * 
+ * @param openFile OpenFile pointer to find in array.
+ * @return corresponding sector number of file header on disk, if exists in array,
+ * NULL otherwise.
+ */
+int FileTable::getSector(OpenFile* openFile) {
+for (int i = 0; i < nbFiles; i++)
+  if (openFiles[i] != NULL && openFiles[i]->openFile == openFile) {
+    return openFiles[i]->numSector;
+  }
+return -1;
+}
