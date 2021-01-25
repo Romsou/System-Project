@@ -42,7 +42,7 @@ Thread::Thread(const char *threadName)
     stackTop = NULL;
     stack = NULL;
     status = JUST_CREATED;
-    InitializeOpenedFiles();
+    openedThreadFiles = new FileTable(MAX_OPENED_FILES);
 
 #ifdef USER_PROGRAM
     space = NULL;
@@ -81,6 +81,7 @@ Thread::Thread(const char *threadName)
 Thread::~Thread()
 {
     DEBUG('t', "Deleting thread \"%s\"\n", name);
+    delete openedThreadFiles;
 
 #ifdef USER_PROGRAM
     delete waitQueue;
@@ -534,12 +535,8 @@ void Thread::setPpid(int ParentProcessId)
         ppid = ParentProcessId;
 }
 
-void Thread::InitializeOpenedFiles()
-{
-    openedThreadFiles = new OpenFile*[MAX_OPENED_FILES];
-    for(int i = 0; i < MAX_OPENED_FILES; i++){
-        openedThreadFiles[i] = NULL;
-    }
+FileTable *Thread::getFileTable(){
+    return openedThreadFiles;
 }
 
 #endif

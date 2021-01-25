@@ -257,11 +257,16 @@ FileSystem::Open(const char *name)
   DEBUG('f', "Opening file %s\n", rep);
   directory->FetchFrom(currentDirFile);
   sector = directory->Find(rep);
-  if (sector >= 0)
-    if ((openFile = openFiles->getFile(sector)) == NULL){
-      openFile = new OpenFile(sector);
-      openFiles->AddFile(openFile, sector);
-    }
+  if (sector >= 0){
+
+   /*openFile = currentThread->getFileTable()->getFile(sector);
+    if(openFile == NULL){
+        return NULL;
+    }*/
+    openFile = openFiles->getFile(sector);
+  }
+
+    
 
   currentDirFile = currentDirFileSave;
   free(rep);
@@ -278,6 +283,8 @@ FileSystem::Open(const char *name)
 bool FileSystem::Close(OpenFile *file)
 {
   openFiles->RemoveFile(file);
+  //currentThread->getFileTable()->RemoveFile(file);
+  delete file;
   return TRUE;
 }
 
