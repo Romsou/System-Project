@@ -35,6 +35,8 @@ bool FileTable::AddFile(OpenFile *file, int sector)
 
   openFiles[index] = new fileOpen();
   openFiles[index]->nbWaiting = 0;
+  openFiles[index]->lock = new Lock("File Table Lock");
+
   openFiles[index]->openFile = file;
   openFiles[index]->numSector = sector;
   openFiles[index]->lock->Acquire();
@@ -60,6 +62,7 @@ bool FileTable::RemoveFile(OpenFile *file)
       openFiles[i]->nbWaiting--;
       
       if(openFiles[i]->nbWaiting==0){
+        delete openFiles[i];
         openFiles[i] = NULL;        
         filePresenceIndicator->Clear(i);
       }

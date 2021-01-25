@@ -91,6 +91,7 @@ Print(char *name)
 	for (i = 0; i < amountRead; i++)
 	    printf("%c", buffer[i]);
     delete [] buffer;
+    printf("\n");
 
     fileSystem->Close(openFile);
     //delete openFile;		// close the Nachos file
