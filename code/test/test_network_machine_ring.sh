@@ -14,7 +14,6 @@ num_of_machines=$1
 help() {
     echo "Usage:"
     echo -e "\t./test_network_machine_ring <number of machines>"
-
 }
 
 main() {
@@ -33,6 +32,8 @@ main() {
     cd $old_pwd
     echo "Type ctrl + c to quit"
 }
+
+[ $# -eq 0 ] && help && exit 1
 
 if [ $1 == "-h" ]; then
     help

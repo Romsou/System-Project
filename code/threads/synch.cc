@@ -126,7 +126,6 @@ void Lock::Release()
     state = FREE;
     ownerId = -1;
     DEBUG('d', "Lock %s was freed\n", getName());
-
 }
 
 bool Lock::isHeldByCurrentThread()
@@ -136,50 +135,77 @@ bool Lock::isHeldByCurrentThread()
 
 Condition::Condition(const char *debugName)
 {
-    queue = new List();
+    blockedThreads = new List();
+    conditionLock = new Lock("Condition lock");
 }
 
 Condition::~Condition()
 {
-    delete queue;
+    delete blockedThreads;
+    delete conditionLock;
 }
-void Condition::Wait(Lock *conditionLock)
-{
-    // Releases the lock so that another thread can enter its critic section
-    conditionLock->Release();
-    IntStatus oldLevel = interrupt->SetLevel(IntOff); // disable interrupts
 
-    queue->Append((void *)currentThread);
-    currentThread->Sleep();
-    // Attempt to reacquire it once awoken.
-   
-    conditionLock->Acquire();
+int Condition::temporaryWait(int timeToWait, Lock *lock)
+{
+    currentThread->signaled = false;
+    currentThread->wakeUpTime = stats->totalTicks + timeToWait;
+    DEBUG('t', "Put to sleep at time: %ld\n", currentThread->wakeUpTime - timeToWait);
+    Wait(lock);
+    if (currentThread->signaled)
+        return 1;
+    else
+        return 0;
+}
+
+void Condition::Wait(Lock *lock)
+{
+    // Makes the lock release and the sleeping atomic.
+    IntStatus oldLevel = interrupt->SetLevel(IntOff);
+
+    lock->Release();
+    blockedThreads->Append((void *)currentThread);
+    currentThread->TemporarilySleep();
+
     (void)interrupt->SetLevel(oldLevel);
+
+    lock->Acquire();
 }
 
-void Condition::Signal(Lock *conditionLock)
+void Condition::Signal(Lock *lock)
 {
-    Thread* thread;
+    DEBUG('t', "Signaling thread");
+
+    IntStatus oldLevel = interrupt->SetLevel(IntOff);
+
+    Thread *thread;
     // Must check it the current thread owns the lock to avoid
     // undefined behaviors.
-    IntStatus oldLevel = interrupt->SetLevel(IntOff); // disable interrupts
-   
-    if (conditionLock->isHeldByCurrentThread())
+    if (lock->isHeldByCurrentThread())
     {
-        thread = (Thread *)queue->Remove();
-        if(thread != NULL)
-            scheduler->ReadyToRun(thread);
+        thread = (Thread *)blockedThreads->Remove();
+        if (thread != NULL)
+        {
+            DEBUG('t', "Signaling thread %s", thread->getName());
+            thread->signaled = true;
+            scheduler->WakeUpReadyThreads();
+        }
     }
-    (void)interrupt->SetLevel(oldLevel);
 
+    (void)interrupt->SetLevel(oldLevel);
 }
-void Condition::Broadcast(Lock *conditionLock)
+
+void Condition::Broadcast(Lock *lock)
 {
-    Thread* thread;
     IntStatus oldLevel = interrupt->SetLevel(IntOff); // disable interrupts
 
-    while((thread = (Thread*) queue->Remove()) != NULL)
-        scheduler->ReadyToRun(thread);
-    (void)interrupt->SetLevel(oldLevel);
+    if (lock->isHeldByCurrentThread())
+        while (!blockedThreads->IsEmpty())
+            Signal(lock);
 
+    (void)interrupt->SetLevel(oldLevel);
+}
+
+Lock *Condition::getLock()
+{
+    return conditionLock;
 }

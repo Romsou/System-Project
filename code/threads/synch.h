@@ -141,17 +141,23 @@ public:
     return (name);
   }
 
-  void Wait(Lock *conditionLock); // these are the 3 operations on
+  // these are the 3 operations on
   // condition variables; releasing the
   // lock and going to sleep are
   // *atomic* in Wait()
-  void Signal(Lock *conditionLock);    // conditionLock must be held by
-  void Broadcast(Lock *conditionLock); // the currentThread for all of
+  void Wait(Lock *lock);
+  void Signal(Lock *lock);    // conditionLock must be held by
+  void Broadcast(Lock *lock); // the currentThread for all of
   // these operations
+
+  int temporaryWait(int time, Lock *lock);
+
+  Lock *getLock();
 
 private:
   const char *name;
-  List* queue;
-  // plus some other stuff you'll need to define
+
+  List *blockedThreads;
+  Lock *conditionLock;
 };
 #endif // SYNCH_H
