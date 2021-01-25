@@ -276,6 +276,7 @@ void handleForkExec()
   machine->WriteRegister(2, retval);
 }
 
+#ifdef FILESYS
 void handleCreate()
 {
   DEBUG('f', "Call for creating file\n");
@@ -323,7 +324,7 @@ void handleWrite()
   copyStringFromMachine(buffer, s, size);
   openFile->Write(s, size);
 }
-
+#endif //FILESYS
 //----------------------------------------------------------------------
 // ExceptionHandler
 //      Entry point into the Nachos kernel.  Called when a user program
@@ -404,6 +405,7 @@ void ExceptionHandler(ExceptionType which)
     case SC_ForkExec:
       handleForkExec();
       break;
+#ifdef FILESYS
     case SC_Create:
       handleCreate();
       break;
@@ -419,6 +421,7 @@ void ExceptionHandler(ExceptionType which)
     case SC_Write:
       handleWrite();
       break;
+#endif //FILESYS
     default:
       handleError(which, type);
       break;

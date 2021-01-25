@@ -65,9 +65,8 @@ bool FileTable::RemoveFile(OpenFile *file)
         delete openFiles[i];
         openFiles[i] = NULL;        
         filePresenceIndicator->Clear(i);
-      }
-      
-      return true;
+        return true;
+      }      
     }
   return false;
 }
