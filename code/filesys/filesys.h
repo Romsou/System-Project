@@ -38,6 +38,8 @@
 #include "copyright.h"
 #include "openfile.h"
 #include "filetable.h"
+#include "directory.h"
+#include "filehdr.h"
 
 // Sectors containing the file headers for the bitmap of free sectors,
 // and the directory of files.  These file headers are placed in well-known
@@ -163,6 +165,17 @@ public:
 	 * List all the files and their contents
 	 */
 	void Print();
+
+	/**
+	 * 
+	 */
+	int getSector(OpenFile* openFile);
+
+	/**
+	 * 
+	 */
+	OpenFile* getOpenFile(int sector);
+
 
 private:
 	OpenFile *freeMapFile; // Bit map of free disk blocks,

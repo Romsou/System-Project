@@ -47,8 +47,6 @@
 
 #include "disk.h"
 #include "bitmap.h"
-#include "directory.h"
-#include "filehdr.h"
 #include "filesys.h"
 
 //----------------------------------------------------------------------
@@ -644,4 +642,20 @@ void FileSystem::Print()
   delete dirHdr;
   delete freeMap;
   delete directory;
+}
+
+/**
+ * 
+ */
+int FileSystem::getSector(OpenFile* openFile) 
+{
+  return openFiles->getSector(openFile);
+}
+
+/**
+ * 
+ */
+OpenFile* FileSystem::getOpenFile(int sector)
+{
+  return openFiles->getFile(sector);
 }
