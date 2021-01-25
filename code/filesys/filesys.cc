@@ -171,7 +171,7 @@ FileSystem::FileSystem(bool format)
 bool FileSystem::Create(const char *name, int initialSize)
 {
   OpenFile *currentDirFileSave = currentDirFile;
-  //Try to navigate to last repertory before repertory we want to create
+  //Try to navigate to last repertory before file we want to create
   char *rep = (char *)malloc(sizeof(char) * FileNameMaxLen);
   if (!navigateToPath(name, rep))
   {
