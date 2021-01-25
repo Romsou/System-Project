@@ -73,12 +73,10 @@ void *
 SynchList::Remove()
 {
     void *item;
-    int retvalue = 0;
-    lock->Acquire(); // enforce mutual exclusion
+    lock->Acquire(); 
     while (list->IsEmpty())
     {
-        retvalue = listEmpty->temporaryWait(500, lock); // wait until list isn't empty
-        if(retvalue)
+        if (listEmpty->temporaryWait(500, lock))
             break;
         DEBUG('s', "Thread %s woke up and is signaled: %d\n", currentThread->getName(), currentThread->signaled);
     }
