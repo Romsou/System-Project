@@ -515,7 +515,7 @@ bool FileSystem::CreateDir(const char *name)
     currentDirFile = currentDirFileSave;
     free(rep);
     
-    }
+    
     return success;
 }
 /**
