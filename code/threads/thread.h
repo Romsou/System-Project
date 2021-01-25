@@ -39,6 +39,7 @@
 
 #include "copyright.h"
 #include "utility.h"
+#include "filetable.h"
 
 #ifdef USER_PROGRAM
 #include "machine.h"
@@ -169,7 +170,7 @@ private:
   int numOfWaitingThreads;
 
   struct FunctionAndArgs *functionAndArgs;
-  OpenFile **openedThreadFiles;
+  FileTable *openedThreadFiles;
 
   int userRegisters[NumTotalRegs]; // user-level CPU register state
 
@@ -216,6 +217,8 @@ public:
 
   int getPpid();
   void setPpid(int ParentProcessId);
+
+  FileTable *getFileTable();
 
   AddrSpace *space; // User code this thread is running.
 #endif

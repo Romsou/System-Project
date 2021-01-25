@@ -2,6 +2,7 @@
 #define FILETABLE_H
 
 #include "bitmap.h"
+#include "synch.h"
 
 //We can identify each file, because each file has its own 
 //sector number for its file header. 
@@ -9,6 +10,8 @@ struct fileOpen
 {
   int numSector;
   OpenFile *openFile;
+  Lock *lock;
+  int nbWaiting;
 };
 
 class FileTable

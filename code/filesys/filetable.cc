@@ -34,8 +34,11 @@ bool FileTable::AddFile(OpenFile *file, int sector)
     return false;
 
   openFiles[index] = new fileOpen();
+  openFiles[index]->nbWaiting = 0;
   openFiles[index]->openFile = file;
   openFiles[index]->numSector = sector;
+  openFiles[index]->lock->Acquire();
+  openFiles[index]->nbWaiting++;
   return true;
 }
 
@@ -53,9 +56,14 @@ bool FileTable::RemoveFile(OpenFile *file)
 
   for (int i = 0; i < nbFiles; i++)
     if (openFiles[i] != NULL && openFiles[i]->openFile == file) {
-      openFiles[i] = NULL;
-      delete file;
-      filePresenceIndicator->Clear(i);
+      openFiles[i]->lock->Release();
+      openFiles[i]->nbWaiting--;
+      
+      if(openFiles[i]->nbWaiting==0){
+        openFiles[i] = NULL;        
+        filePresenceIndicator->Clear(i);
+      }
+      
       return true;
     }
   return false;
@@ -68,12 +76,23 @@ bool FileTable::RemoveFile(OpenFile *file)
  * @param sector sector number of file header on disk.
  * @return corresponding OpenFile if exists in array, NULL otherwise.
  */
-OpenFile* FileTable::getFile(int sector) {
+OpenFile* FileTable::getFile(int sector) {  
+  OpenFile *openfile = NULL;
+
   for (int i = 0; i < nbFiles; i++)
     if (openFiles[i] != NULL && openFiles[i]->numSector == sector) {
-      return openFiles[i]->openFile;
+      openfile = openFiles[i]->openFile;
+      openFiles[i]->nbWaiting++;
+      openFiles[i]->lock->Acquire();
+      filePresenceIndicator->Mark(i);
+      break;
     }
-  return NULL;
+  if(openfile == NULL ){
+    openfile = new OpenFile(sector);
+    if(!AddFile(openfile,sector))
+      return NULL;
+  }
+  return openfile;
 }
 
 /**
