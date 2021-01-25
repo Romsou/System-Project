@@ -74,12 +74,12 @@ bool FileTable::RemoveFile(OpenFile *file)
 
 /**
  * Search for a correponding sector number in file array and return 
- * openFile resulting.
+ * openFile resulting. //TODO
  * 
  * @param sector sector number of file header on disk.
  * @return corresponding OpenFile if exists in array, NULL otherwise.
  */
-OpenFile* FileTable::getFile(int sector) {  
+OpenFile* FileTable::getOrCreateOpenFile(int sector) {  
   OpenFile *openfile = NULL;
 
   for (int i = 0; i < nbFiles; i++)
@@ -90,12 +90,26 @@ OpenFile* FileTable::getFile(int sector) {
       filePresenceIndicator->Mark(i);
       break;
     }
-  if(openfile == NULL ){
+  if(openfile == NULL){
     openfile = new OpenFile(sector);
     if(!AddFile(openfile,sector))
       return NULL;
   }
   return openfile;
+}
+
+/**
+ * Search for a correponding sector number in file array and return 
+ * openFile resulting.
+ * 
+ * @param sector sector number of file header on disk.
+ * @return corresponding OpenFile if exists in array, NULL otherwise.
+ */
+OpenFile* FileTable::getFile(int sector) {  
+  for (int i = 0; i < nbFiles; i++)
+    if (openFiles[i] != NULL && openFiles[i]->numSector == sector)
+      return openFiles[i]->openFile;
+  return NULL;
 }
 
 /**
@@ -108,8 +122,7 @@ OpenFile* FileTable::getFile(int sector) {
  */
 int FileTable::getSector(OpenFile* openFile) {
 for (int i = 0; i < nbFiles; i++)
-  if (openFiles[i] != NULL && openFiles[i]->openFile == openFile) {
+  if (openFiles[i] != NULL && openFiles[i]->openFile == openFile)
     return openFiles[i]->numSector;
-  }
 return -1;
 }

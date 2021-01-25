@@ -3,16 +3,15 @@
 int main ()
 {
     Create("f1");
-    int fd = Open("f1");
-    char *s = "Blablabla";
-    char *res = "";
-    int len = 10;
-
-    Write(s,len,fd);
+    OpenFileId fileId = Open("f1");
+    char* buffer = "une chaine test";
+    int size = 15;
+    
+    Write(buffer, size, fileId);
     Read(res,len,fd);
     PutString(res);
-    Close(fd);
-
+    
+    Close(fileId);
     End();
     /* not reached */
     return 0;
