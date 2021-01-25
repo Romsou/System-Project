@@ -1,28 +1,28 @@
 #include "syscall.h"
-//lauch
+//launch
 /*
-*./nachos-step5 -f; ./nachos-step5 -cp filesys_create filesys_create;
-		./nachos-step5 -x filesys_create; ./nachos-step5 -D
+*./nachos-step5 -f; ./nachos-step5 -cp filesys_lock filesys_lock;
+		./nachos-step5 -x filesys_lock; ./nachos-step5 -D
 */
 
 int main ()
 {
-	PutString("Debut du main...\n");
     Create("f1");
     OpenFileId fileId = Open("f1");
-    PutString("Apres open...\n");
+    PutString("Apres 1 open...\n");
+    OpenFileId fileId2 = Open("f1");
+    PutString("Apres 2 open...\n");
+    
     char* buffer = "une chaine test";
     int size = 15;
     char res[size];
     
-    PutString("Avant write\n");
     Write(buffer, size, fileId);
     Close(fileId);
 
 
     PutString("Avant read\n");
-    fileId = Open("f1");
-    Read(res,size,fileId);
+    Read(res,size,fileId2);
     PutString(res);
     
     Close(fileId);
