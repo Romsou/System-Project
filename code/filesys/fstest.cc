@@ -92,7 +92,8 @@ Print(char *name)
 	    printf("%c", buffer[i]);
     delete [] buffer;
 
-    delete openFile;		// close the Nachos file
+    fileSystem->Close(openFile);
+    //delete openFile;		// close the Nachos file
     return;
 }
 

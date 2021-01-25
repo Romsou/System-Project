@@ -210,7 +210,6 @@ Directory::List()
 // Directory::Print
 // 	List all the file names in the directory, their FileHeader locations,
 //	and the contents of each file.  For debugging.
-//----------------------------------------------------------------------
 void
 Directory::Print()
 { 
@@ -234,7 +233,7 @@ Directory::Print()
         
 	}
     printf("\n");
-    printf("Under directory contents:\n");
+    printf("Under directory contents ;\t");
     for(int i = 2; i < tableSize; i++){
         if(table[i].inUse && table[i].isDir){
             dirFile = new OpenFile(table[i].sector);
@@ -249,13 +248,13 @@ Directory::Print()
     delete dir;
 }
 
-
 bool
 Directory::isEmpty()
 {
-    for(int i = 2; i < tableSize; i++){
+    for(int i = 0; i < tableSize; i++){
         if(table[i].inUse){
-            return FALSE;
+            if(strcmp (table[i].name, ".")!=0 && strcmp (table[i].name, "..")!=0)
+                return FALSE;
         }
     }
     return TRUE;
