@@ -2,13 +2,18 @@
 
 int main ()
 {
+	PutString("Debut du main...\n");
     Create("f1");
     OpenFileId fileId = Open("f1");
+    PutString("Apres open...\n");
     char* buffer = "une chaine test";
     int size = 15;
+    char res[size];
     
+    PutString("Avant write\n");
     Write(buffer, size, fileId);
-    Read(res,len,fd);
+    PutString("Avant read\n");
+    Read(res,size,fileId);
     PutString(res);
     
     Close(fileId);
