@@ -245,7 +245,8 @@ Directory::Print()
         }
     }
     printf("\n");
-    delete hdr;    
+    delete hdr;   
+
     delete dir;
 }
 
