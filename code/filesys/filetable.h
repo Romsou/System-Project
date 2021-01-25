@@ -40,6 +40,15 @@ public:
 
   /**
    * Search for a correponding sector number in file array and return 
+   * openFile resulting.//TODO
+   * 
+   * @param sector sector number of file header on disk.
+   * @return corresponding OpenFile if exists in array, NULL otherwise.
+   */
+  OpenFile* getOrCreateOpenFile(int sector);
+
+  /**
+   * Search for a correponding sector number in file array and return 
    * openFile resulting.
    * 
    * @param sector sector number of file header on disk.
