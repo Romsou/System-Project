@@ -38,6 +38,8 @@
 #include "copyright.h"
 #include "openfile.h"
 #include "filetable.h"
+#include "directory.h"
+#include "filehdr.h"
 
 // Sectors containing the file headers for the bitmap of free sectors,
 // and the directory of files.  These file headers are placed in well-known
