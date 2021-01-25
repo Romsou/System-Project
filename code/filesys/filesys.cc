@@ -261,11 +261,9 @@ FileSystem::Open(const char *name)
     if(openFile == NULL){
         return NULL;
     }*/
-    openFile = openFiles->getFile(sector);
+    openFile = openFiles->getOrCreateOpenFile(sector);
   }
-
-    
-
+  
   currentDirFile = currentDirFileSave;
   free(rep);
   delete directory;
