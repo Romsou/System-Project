@@ -23,8 +23,7 @@ static void startNewProcess(int argAddr)
   currentThread->space->InitRegisters();
   currentThread->space->RestoreState();
 
-  //free(filename);
-  //filename = NULL;
+  free(filename);
 
   machine->Run();
   ASSERT (FALSE);		// machine->Run never returns;
@@ -40,6 +39,6 @@ int do_SystemThreadCreate(char *filename)
   processTable->add(process);
 
   process->Fork(startNewProcess, (int) filename);
-  return process != NULL;
+  return process->getPid();
 }
 

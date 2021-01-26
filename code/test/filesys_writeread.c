@@ -1,21 +1,22 @@
 #include "syscall.h"
 //launch
 /*
-
 ./nachos-step5 -f;
 ./nachos-step5 -cp filesys_writeread filesys_writeread;
 ./nachos-step5 -cp filesys_readwrite filesys_readwrite;
 ./nachos-step5 -x filesys_writeread;
 ./nachos-step5 -D;
-
 */
+
+char* filename = "outputtest";
+char* execname = "filesys_readwrite";
 
 int main ()
 {
 
-    Create("outputtest");
-    OpenFileId fileId = Open("outputtest");
-    ForkExec("filesys_readwrite");
+    Create(filename);
+    OpenFileId fileId = Open(filename);
+    ForkExec(execname);
 
     char* buffer = "i'm writing something";
     int size = 22;

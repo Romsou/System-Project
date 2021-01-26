@@ -150,8 +150,8 @@ void handleEnd()
       currentThread->space->HaltAndExitLock->P();
 
     //Here free process and his space
-      processTable->remove(currentThread->getPid());
-      delete currentThread->space;
+    processTable->remove(currentThread->getPid());
+    delete currentThread->space;
     
     machine->WriteRegister(2, currentThread->getPid());
     if (processTable->getNumberOfActiveProcesses() > 0)
@@ -161,10 +161,10 @@ void handleEnd()
   }
 }
 
-//----------------------------------------------------------------------
-// handlePutString : Handler for system call SC_PutString. Put a given
-// String into synchConsole.
-//----------------------------------------------------------------------
+/**
+ *  handlePutString handles SC_PutString system call. Put a given
+ * String into synchConsole.
+ */ 
 void handlePutString()
 {
   DEBUG('a', "PutString.\n");
@@ -259,6 +259,10 @@ void handleUserThreadExit()
   do_UserThreadExit();
 }
 
+/**
+ * handleUserThreadJoin handles SC_UserThreadJoin system call. 
+ * Wait for a given thread exit.
+ */
 void handleUserThreadJoin()
 {
   DEBUG('t', "Call for join user thread\n");
@@ -267,6 +271,10 @@ void handleUserThreadJoin()
   machine->WriteRegister(2, retval);
 }
 
+/**
+ * handleForkExec handles SC_ForkExec system call. Create a new process.
+ * with a given executable.
+ */
 void handleForkExec()
 {
   DEBUG('p', "Call forkExec\n");
@@ -277,6 +285,10 @@ void handleForkExec()
 }
 
 #ifdef FILESYS
+
+/**
+ * handleCreate handles SC_Create system call. Create a new file.
+ */
 void handleCreate()
 {
   DEBUG('f', "Call for creating file\n");
@@ -285,21 +297,46 @@ void handleCreate()
   fileSystem->Create(s, MaxFileSize);
 }
 
+/**
+ * handleRemove handles SC_Remove system call. Remove a file.
+ */
+void handleRemove() 
+{
+  DEBUG('f', "Call for removing file\n");
+  char s[FileNameMaxLen];
+  copyStringFromMachine(machine->ReadRegister(4), s, FileNameMaxLen);
+  fileSystem->Remove(s);
+}
+/**
+ * handleOpen handles SC_Open system call. Open a file.
+ */
 void handleOpen()
 {
   DEBUG('f', "Call for opening file\n");
   char s[FileNameMaxLen];
   copyStringFromMachine(machine->ReadRegister(4), s, FileNameMaxLen);
   int fileId = fileSystem->getSector(fileSystem->Open(s));
+  //Fill thread open file table
+  if (fileId != -1)
+    currentThread->getFileTable()->AddFile(fileSystem->getOpenFile(fileId), fileId);
   machine->WriteRegister(2, fileId);
 }
 
+/**
+ * handleClose handles SC_Close system call. Close a file.
+ */
 void handleClose()
 {
   DEBUG('f', "Call for closing file\n");
-  fileSystem->Close(fileSystem->getOpenFile(machine->ReadRegister(4)));
+  OpenFile* openFile = fileSystem->getOpenFile(machine->ReadRegister(4));
+  fileSystem->Close(openFile);
+  //Clean thread open file table
+  currentThread->getFileTable()->RemoveFile(openFile);
 }
 
+/**
+ * handleRead handles SC_Read system call. Read from file.
+ */
 void handleRead()
 {
   DEBUG('f', "Call for reading from file\n");
@@ -313,6 +350,9 @@ void handleRead()
   machine->WriteRegister(2, nb_read);
 }
 
+/**
+ * handleWrite handles SC_Write system call. Write in file.
+ */
 void handleWrite()
 {
   DEBUG('f', "Call for writing user thread\n");
@@ -325,6 +365,7 @@ void handleWrite()
   openFile->Write(s, size);
 }
 #endif //FILESYS
+
 //----------------------------------------------------------------------
 // ExceptionHandler
 //      Entry point into the Nachos kernel.  Called when a user program
@@ -408,6 +449,9 @@ void ExceptionHandler(ExceptionType which)
 #ifdef FILESYS
     case SC_Create:
       handleCreate();
+      break;
+    case SC_Remove:
+      handleRemove();
       break;
     case SC_Open:
       handleOpen();
