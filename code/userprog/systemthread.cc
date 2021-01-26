@@ -28,7 +28,6 @@ static void startNewProcess(int argAddr)
   machine->Run();
   ASSERT (FALSE);		// machine->Run never returns;
 }
-
 int do_SystemThreadCreate(char *filename)
 {
   Thread *process = new Thread(filename);
@@ -37,8 +36,43 @@ int do_SystemThreadCreate(char *filename)
   
   process->setPid(process->generatePid());
   processTable->add(process);
+  process->Fork(startNewProcess, (int)filename);
 
-  process->Fork(startNewProcess, (int) filename);
   return process->getPid();
 }
 
+
+/*
+static void startNewProcess(int argAddr)
+{
+  AddrSpace *space = (AddrSpace*) argAddr;
+  currentThread->space = space;
+  currentThread->space->InitRegisters();
+  currentThread->space->RestoreState();
+  machine->Run();
+  ASSERT (FALSE);		// machine->Run never returns; 
+}
+
+int do_SystemThreadCreate(char *filename)
+{
+  //Try to create addrSpace
+  IntStatus oldLevel = interrupt->SetLevel(IntOff);
+
+  OpenFile *executable = fileSystem->Open(filename);
+  AddrSpace *space = new AddrSpace(executable);
+
+  Thread *process = new Thread(filename);
+  
+  process->setPid(process->generatePid());
+  processTable->add(process);
+  process->Fork(startNewProcess, (int)space);
+  //process->space->InitRegisters();
+  //process->space->RestoreState();
+
+  free(filename);
+  delete executable;
+
+  (void)interrupt->SetLevel(oldLevel);
+  return process->getPid();
+}
+*/

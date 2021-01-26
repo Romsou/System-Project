@@ -539,8 +539,10 @@ void Thread::setPpid(int ParentProcessId)
         ppid = ParentProcessId;
 }
 
-FileTable *Thread::getFileTable(){
-    return openedThreadFiles;
-}
+#ifdef FILESYS
+    FileTable *Thread::getFileTable(){
+        return openedThreadFiles;
+    }
+#endif //FILESYS
 
 #endif

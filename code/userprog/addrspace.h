@@ -87,8 +87,8 @@ private:
   unsigned int estimateAddressSpaceSize(NoffHeader noffh);
   unsigned int roundUpAdressSpaceSize(unsigned int size);
 
-  void allocatePages();
-  void initializePage(unsigned int index);
+  bool allocatePages();
+  bool initializePage(unsigned int index);
 
   // Add pageTable and numPages as parameters and make static if there's a problem
   void copyFromExecToMemory(OpenFile *executable, Segment segment);

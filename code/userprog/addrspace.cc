@@ -101,6 +101,8 @@ AddrSpace::AddrSpace(OpenFile *executable)
 
 	DEBUG('a', "Initializing address space, num pages = %d, size = %d\n", numPages, size);
 	this->allocatePages();
+	//if (!this->allocatePages())
+		//throw("ERROR : No more space in physical memory");
 
 	DEBUG('a', "Initializing code segment, at 0x%x, size %d\n", noffH.code.virtualAddr, noffH.code.size);
 	copyFromExecToMemory(executable, noffH.code);
@@ -148,12 +150,14 @@ unsigned int AddrSpace::roundUpAdressSpaceSize(unsigned int size)
  * Create a new page table of size <numpages>
  * and initialize each of them.
  */
-void AddrSpace::allocatePages()
+bool AddrSpace::allocatePages()
 {
 	// first, set up the translation
 	pageTable = new TranslationEntry[numPages];
 	for (unsigned int index = 0; index < numPages; index++)
-		initializePage(index);
+		if (!initializePage(index))
+			return FALSE;
+	return TRUE;
 }
 
 /**
@@ -161,10 +165,16 @@ void AddrSpace::allocatePages()
  * 
  * @param index: The index of the page we want to initialize
  */
-void AddrSpace::initializePage(unsigned int index)
+bool AddrSpace::initializePage(unsigned int index)
 {
+	int physPage = frameProvider->GetEmptyFrame();
+	if (physPage == -1) {
+		printf("AAAAAAAAAAAAAAAAAAAAA\n");
+		return FALSE;
+	}
+
 	pageTable[index].virtualPage = index;
-	pageTable[index].physicalPage = frameProvider->GetEmptyFrame();
+	pageTable[index].physicalPage = physPage;
 	pageTable[index].valid = TRUE;
 	pageTable[index].use = FALSE;
 	pageTable[index].dirty = FALSE;
@@ -172,6 +182,7 @@ void AddrSpace::initializePage(unsigned int index)
 	// if the code segment was entirely on a separate page, we could set its
 	// pages to be read-only
 	pageTable[index].readOnly = FALSE;
+	return TRUE;
 }
 
 /**
