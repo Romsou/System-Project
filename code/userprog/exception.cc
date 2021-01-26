@@ -281,7 +281,8 @@ void handleCreate()
   DEBUG('f', "Call for creating file\n");
   char s[FileNameMaxLen];
   copyStringFromMachine(machine->ReadRegister(4), s, FileNameMaxLen);
-  fileSystem->Create(s, MaxFileSize);
+  //fileSystem->Create(s, MaxFileSize);
+  fileSystem->Create(s, 10);
 }
 
 void handleOpen()
