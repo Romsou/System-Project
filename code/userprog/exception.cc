@@ -282,7 +282,7 @@ void handleCreate()
   char s[FileNameMaxLen];
   copyStringFromMachine(machine->ReadRegister(4), s, FileNameMaxLen);
   //fileSystem->Create(s, MaxFileSize);
-  fileSystem->Create(s, 10);
+  fileSystem->Create(s, 50);
 }
 
 void handleOpen()
