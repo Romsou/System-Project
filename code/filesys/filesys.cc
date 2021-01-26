@@ -278,6 +278,8 @@ FileSystem::Open(const char *name)
  */
 bool FileSystem::Close(OpenFile *file)
 {
+    if(file==NULL)
+        return true;
   openFiles->RemoveFile(file);
   //currentThread->getFileTable()->RemoveFile(file);
   delete file;
@@ -402,6 +404,7 @@ bool FileSystem::CreateDir(const char *name)
   if (!navigateToPath(name, rep))
   {
     currentDirFile = currentDirFileSave;
+    printf("name = %s, rep=%s\n",name,rep );
     free(rep);
     return FALSE;
   }
@@ -643,7 +646,12 @@ void FileSystem::Print()
 }
 
 /**
+ * Search for a correponding openFile pointer in file array and return 
+ * sector resulting.
  * 
+ * @param openFile OpenFile pointer to find in array.
+ * @return corresponding sector number of file header on disk, if exists in array,
+ * -1 otherwise.
  */
 int FileSystem::getSector(OpenFile* openFile) 
 {
@@ -651,7 +659,11 @@ int FileSystem::getSector(OpenFile* openFile)
 }
 
 /**
+ * Search for a correponding sector number in file array and return 
+ * openFile resulting.
  * 
+ * @param sector sector number of file header on disk.
+ * @return corresponding OpenFile if exists in array, NULL otherwise.
  */
 OpenFile* FileSystem::getOpenFile(int sector)
 {
