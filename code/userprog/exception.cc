@@ -298,6 +298,16 @@ void handleCreate()
 }
 
 /**
+ * handleRemove handles SC_Remove system call. Remove a file.
+ */
+void handleRemove() 
+{
+  DEBUG('f', "Call for removing file\n");
+  char s[FileNameMaxLen];
+  copyStringFromMachine(machine->ReadRegister(4), s, FileNameMaxLen);
+  fileSystem->Remove(s);
+}
+/**
  * handleOpen handles SC_Open system call. Open a file.
  */
 void handleOpen()
@@ -439,6 +449,9 @@ void ExceptionHandler(ExceptionType which)
 #ifdef FILESYS
     case SC_Create:
       handleCreate();
+      break;
+    case SC_Remove:
+      handleRemove();
       break;
     case SC_Open:
       handleOpen();

@@ -104,7 +104,10 @@ OpenFile* FileTable::getOrCreateOpenFile(int sector) {
  * @param sector sector number of file header on disk.
  * @return corresponding OpenFile if exists in array, NULL otherwise.
  */
-OpenFile* FileTable::getFile(int sector) {  
+OpenFile* FileTable::getFile(int sector) {
+  if (sector == 0 || sector == 1)
+    return NULL;
+    
   for (int i = 0; i < nbFiles; i++)
     if (openFiles[i] != NULL && openFiles[i]->numSector == sector)
       return openFiles[i]->openFile;

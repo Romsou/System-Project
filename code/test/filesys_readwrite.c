@@ -1,9 +1,11 @@
 #include "syscall.h"
 
+//char* filename = "outputtest";
+
 int main ()
 {
     /*PutString("I want to open the file!!\n");
-    OpenFileId fileId = Open("outputtest");
+    OpenFileId fileId = Open(filename);
 
     int size = 22;
     char buffer[size];
