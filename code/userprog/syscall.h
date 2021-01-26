@@ -40,6 +40,7 @@
 #define SC_UserThreadExit 19
 #define SC_UserThreadJoin 20
 #define SC_ForkExec	21
+#define SC_Remove 22
 
 
 #ifdef IN_USER_MODE
@@ -105,6 +106,12 @@ typedef int OpenFileId;
 /* Create a Nachos file, with "name" */
 void Create (char *name);
 
+/**
+ * Remove a given file identify by name, from our file system.
+ * @param name file name.
+ */
+void Remove(char* name);
+
 /* Open the Nachos file "name", and return an "OpenFileId" that can 
  * be used to read and write to the file.
  */
@@ -123,8 +130,6 @@ int Read (char *buffer, int size, OpenFileId id);
 
 /* Close the file, we're done reading and writing to it. */
 void Close (OpenFileId id);
-
-
 
 /* User-level thread operations: Fork and Yield.  To allow multiple
  * threads to run within a user program. 
@@ -201,14 +206,14 @@ int UserThreadCreate(void f(void *arg),void *arg);
 void UserThreadExit();
 
 /**
-* UserThreadJoin waits for the termination of another user thread.
-*/
+ * UserThreadJoin waits for the termination of another user thread.
+ */
 int UserThreadJoin(int tid);
 
 /**
-* create and launch a system thread created by a file
-* @param s the executable file
-*/
+ * create and launch a system thread created by a file
+ * @param s the executable file
+ */
 int ForkExec(char *filename);
 
 #endif // IN_USER_MODE
