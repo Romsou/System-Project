@@ -42,7 +42,9 @@ Thread::Thread(const char *threadName)
     stackTop = NULL;
     stack = NULL;
     status = JUST_CREATED;
+#ifdef FILESYS
     openedThreadFiles = new FileTable(MAX_OPENED_FILES);
+#endif //FILESYS
 
 #ifdef USER_PROGRAM
     space = NULL;
@@ -81,7 +83,9 @@ Thread::Thread(const char *threadName)
 Thread::~Thread()
 {
     DEBUG('t', "Deleting thread \"%s\"\n", name);
+#ifdef FILESYS
     delete openedThreadFiles;
+#endif //FILESYS
 
 #ifdef USER_PROGRAM
     delete waitQueue;

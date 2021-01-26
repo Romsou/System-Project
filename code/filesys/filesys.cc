@@ -278,9 +278,8 @@ FileSystem::Open(const char *name)
  */
 bool FileSystem::Close(OpenFile *file)
 {
-  openFiles->RemoveFile(file);
-  //currentThread->getFileTable()->RemoveFile(file);
-  delete file;
+  if (openFiles->RemoveFile(file))
+    delete file;
   return TRUE;
 }
 

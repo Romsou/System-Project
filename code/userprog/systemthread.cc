@@ -12,7 +12,11 @@ static void startNewProcess(int argAddr)
   ASSERT(executable != NULL);
 
   AddrSpace *space = new AddrSpace(executable);
-  delete executable;		// close file
+#ifdef FILSYS
+    fileSystem->Close(executable);
+#else 
+    delete executable;
+#endif //FILSYS
   ASSERT(space != NULL);
 
   currentThread->space = space;
