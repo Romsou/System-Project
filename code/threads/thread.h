@@ -39,6 +39,7 @@
 
 #include "copyright.h"
 #include "utility.h"
+#include "filetable.h"
 
 #ifdef USER_PROGRAM
 #include "machine.h"
@@ -152,6 +153,7 @@ private:
   // Allocate a stack for thread.
   // Used internally by Fork()
   //void newChild() { childNb++; }
+  void InitializeOpenedFiles();
 
 #ifdef USER_PROGRAM
   // A thread running a user program actually has *two* sets of CPU registers --
@@ -168,6 +170,7 @@ private:
   int numOfWaitingThreads;
 
   struct FunctionAndArgs *functionAndArgs;
+  FileTable *openedThreadFiles;
 
   int userRegisters[NumTotalRegs]; // user-level CPU register state
 
@@ -214,6 +217,8 @@ public:
 
   int getPpid();
   void setPpid(int ParentProcessId);
+
+  FileTable *getFileTable();
 
   AddrSpace *space; // User code this thread is running.
 #endif

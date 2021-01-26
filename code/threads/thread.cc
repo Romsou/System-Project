@@ -24,6 +24,7 @@
 // execution stack, for detecting
 // stack overflows
 #define STACK_FENCEPOST 0xdeadbeef
+#define MAX_OPENED_FILES    10
 
 //----------------------------------------------------------------------
 // Thread::Thread
@@ -41,6 +42,7 @@ Thread::Thread(const char *threadName)
     stackTop = NULL;
     stack = NULL;
     status = JUST_CREATED;
+    openedThreadFiles = new FileTable(MAX_OPENED_FILES);
 
 #ifdef USER_PROGRAM
     space = NULL;
@@ -79,6 +81,7 @@ Thread::Thread(const char *threadName)
 Thread::~Thread()
 {
     DEBUG('t', "Deleting thread \"%s\"\n", name);
+    delete openedThreadFiles;
 
 #ifdef USER_PROGRAM
     delete waitQueue;
@@ -530,6 +533,10 @@ void Thread::setPpid(int ParentProcessId)
 {
     if(pid == -1 && ppid == -1)
         ppid = ParentProcessId;
+}
+
+FileTable *Thread::getFileTable(){
+    return openedThreadFiles;
 }
 
 #endif
