@@ -84,7 +84,7 @@ Thread::~Thread()
 {
     DEBUG('t', "Deleting thread \"%s\"\n", name);
 #ifdef FILESYS
-    delete openedThreadFiles;
+    delete[] openedThreadFiles;
 #endif //FILESYS
 
 #ifdef USER_PROGRAM
