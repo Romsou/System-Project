@@ -404,6 +404,7 @@ bool FileSystem::CreateDir(const char *name)
   if (!navigateToPath(name, rep))
   {
     currentDirFile = currentDirFileSave;
+    printf("name = %s, rep=%s\n",name,rep );
     free(rep);
     return FALSE;
   }
