@@ -211,6 +211,13 @@ void handleGetInt()
 
   int i = 0;
   char ch = synchconsole->SynchGetChar();
+  
+  if (ch == '-') {
+    s[i] = ch;
+    ch = synchconsole->SynchGetChar();
+    i++;
+  }
+
   while (i < MAX_LEN_INT && ch >= '0' && ch <= '9' && ch != EOF && ch != '\n' && ch != '\t')
   {
     s[i] = ch;
