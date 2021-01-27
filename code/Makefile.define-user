@@ -103,8 +103,8 @@ $(eval $(call define-flavor,step5,userprog filesys,\
     fsconsole.cc filetable.cc))
 
 ######## step6
-$(eval $(call define-flavor,step6, threads userprog filesys network, synchconsole.cc userthread.cc \
-                                    frameprovider.cc systemthread.cc processtable.cc fsconsole.cc filetable.cc))
+$(eval $(call define-flavor,step6, threads userprog filesys-stub network, synchconsole.cc userthread.cc \
+                                    frameprovider.cc systemthread.cc processtable.cc filetable.cc))
 
 ######## final
 $(eval $(call define-flavor,final, threads userprog filesys network,synchconsole.cc userthread.cc \
