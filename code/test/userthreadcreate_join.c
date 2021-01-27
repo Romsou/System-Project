@@ -19,7 +19,6 @@ void puts(void *s)
 		PutChar(*p);
 	}
 }
-//TODO VOIR SYNCHRO SI JOIN!! les dernier userthread ne marchent pas
 
 int main()
 {

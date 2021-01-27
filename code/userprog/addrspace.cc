@@ -110,7 +110,7 @@ AddrSpace::AddrSpace(OpenFile *executable)
 	DEBUG('a', "Initializing data segment, at 0x%x, size %d\n", noffH.initData.virtualAddr, noffH.initData.size);
 	copyFromExecToMemory(executable, noffH.initData);
 
-	HaltAndExitLock = new Semaphore("HaltAndExitLock", 0);
+	HaltAndExitLock = new Semaphore("HaltAndExitLock", 1);
 
 	createUserThreads();
 }
