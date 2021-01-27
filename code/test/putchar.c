@@ -20,7 +20,7 @@ int main ()
     PutChar('1');
     PutChar('B');
     PutChar('\n');
-    PutChar(GetChar());
+    // PutChar(GetsChar());
     End();
     /* not reached */
     return 0;
