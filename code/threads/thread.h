@@ -218,9 +218,7 @@ public:
   int getPpid();
   void setPpid(int ParentProcessId);
 
-#ifdef FILESYS
   FileTable *getFileTable();
-#endif //FILESYS
 
   AddrSpace *space; // User code this thread is running.
 #endif

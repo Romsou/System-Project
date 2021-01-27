@@ -12,18 +12,15 @@ static void startNewProcess(int argAddr)
   ASSERT(executable != NULL);
 
   AddrSpace *space = new AddrSpace(executable);
-#ifdef FILSYS
-    fileSystem->Close(executable);
-#else 
-    delete executable;
-#endif //FILSYS
+  delete executable;		// close file
   ASSERT(space != NULL);
 
   currentThread->space = space;
   currentThread->space->InitRegisters();
   currentThread->space->RestoreState();
 
-  free(filename);
+  //free(filename);
+  //filename = NULL;
 
   machine->Run();
   ASSERT (FALSE);		// machine->Run never returns;
@@ -39,6 +36,6 @@ int do_SystemThreadCreate(char *filename)
   processTable->add(process);
 
   process->Fork(startNewProcess, (int) filename);
-  return process->getPid();
+  return process != NULL;
 }
 
