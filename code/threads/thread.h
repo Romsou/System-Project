@@ -106,18 +106,13 @@ private:
   int machineState[MachineStateSize]; // all registers except for stackTop
                                       // some of the private data for this class is listed above
 
-  const char *name;
-  ThreadStatus status; // ready, running or blocked
   int *stack; // Bottom of the stack NULL if this is the main thread (If NULL, don't deallocate stack)
+  const char *name;
+
   Thread *parent;
+  ThreadStatus status; // ready, running or blocked
 
   int id; // id of our UserThread
-  void StackAllocate(VoidFunctionPtr func, int arg);
-  // Allocate a stack for thread.
-  // Used internally by Fork()
-
-  void InitializeOpenedFiles();
-
   int pid;
   int ppid;
   int index; // index in the Thread array use in addrSpace
@@ -125,6 +120,7 @@ private:
   Semaphore *waitQueue;
   int numOfWaitingThreads;
   struct FunctionAndArgs *functionAndArgs;
+  
   FileTable *openedThreadFiles;
 
   // A thread running a user program actually has *two* sets of CPU registers --
@@ -134,6 +130,8 @@ private:
   
   // Allocate a stack for thread. Used internally by Fork()
   void StackAllocate(VoidFunctionPtr func, int arg);
+
+  void InitializeOpenedFiles();
 
 public:
   Thread(const char *debugName);
@@ -192,8 +190,6 @@ public:
   void setPpid(int ParentProcessId);
 
   FileTable *getFileTable();
-
-  AddrSpace *space; // User code this thread is running.
 };
 
 // Magical machine-dependent routines, defined in switch.s
