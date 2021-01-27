@@ -22,7 +22,7 @@
 #include "frameprovider.h"
 
 #define NB_MAX_THREADS 12
-#define UserStackSize 2 * NB_MAX_THREADS * PageSize	// increase this as necessary!
+#define UserStackSize 2 * (NB_MAX_THREADS+1) * PageSize	// increase this as necessary!
 
 class AddrSpace
 {
@@ -40,6 +40,7 @@ public:
 
   //Lock for synch Halt/Exit
   Lock *HaltAndExitLock;
+  Semaphore *test;
 
   /**
    * Indicates whether the list of user threads is empty
