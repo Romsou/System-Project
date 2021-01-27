@@ -150,14 +150,12 @@ unsigned int AddrSpace::roundUpAdressSpaceSize(unsigned int size)
  * Create a new page table of size <numpages>
  * and initialize each of them.
  */
-bool AddrSpace::allocatePages()
+void AddrSpace::allocatePages()
 {
 	// first, set up the translation
 	pageTable = new TranslationEntry[numPages];
 	for (unsigned int index = 0; index < numPages; index++)
-		if (!initializePage(index))
-			return FALSE;
-	return TRUE;
+		initializePage(index);
 }
 
 /**
@@ -165,16 +163,12 @@ bool AddrSpace::allocatePages()
  * 
  * @param index: The index of the page we want to initialize
  */
-bool AddrSpace::initializePage(unsigned int index)
+void AddrSpace::initializePage(unsigned int index)
 {
-	int physPage = frameProvider->GetEmptyFrame();
-	if (physPage == -1) {
-		printf("AAAAAAAAAAAAAAAAAAAAA\n");
-		return FALSE;
-	}
-
 	pageTable[index].virtualPage = index;
-	pageTable[index].physicalPage = physPage;
+	pageTable[index].physicalPage = frameProvider->GetEmptyFrame();
+	if(pageTable[index].physicalPage==(unsigned int)-1)
+		pageTable[index].virtualPage = -1;
 	pageTable[index].valid = TRUE;
 	pageTable[index].use = FALSE;
 	pageTable[index].dirty = FALSE;
@@ -182,7 +176,6 @@ bool AddrSpace::initializePage(unsigned int index)
 	// if the code segment was entirely on a separate page, we could set its
 	// pages to be read-only
 	pageTable[index].readOnly = FALSE;
-	return TRUE;
 }
 
 /**
@@ -367,4 +360,14 @@ void AddrSpace::putThreadAtIndex(Thread *thread, int index)
 {
 	ASSERT(index >= 0 && index < NB_MAX_THREADS);
 	userThreads[index] = thread;
+}
+
+bool AddrSpace::isValid()
+{
+	for(unsigned int i=0; i<numPages; i++){
+		if(pageTable[i].physicalPage==(unsigned int)-1){
+			return FALSE;
+		}
+	}
+	return TRUE;
 }

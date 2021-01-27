@@ -75,6 +75,8 @@ public:
    */
   void putThreadAtIndex(Thread *thread, int index);
 
+  bool isValid();
+
 private:
   TranslationEntry *pageTable; // Assume linear page table translation
   unsigned int numPages;       // Number of pages in the virtual
@@ -87,8 +89,8 @@ private:
   unsigned int estimateAddressSpaceSize(NoffHeader noffh);
   unsigned int roundUpAdressSpaceSize(unsigned int size);
 
-  bool allocatePages();
-  bool initializePage(unsigned int index);
+  void allocatePages();
+  void initializePage(unsigned int index);
 
   // Add pageTable and numPages as parameters and make static if there's a problem
   void copyFromExecToMemory(OpenFile *executable, Segment segment);

@@ -5,6 +5,7 @@
 #include "addrspace.h"
 #include <string.h>
 
+/*
 static void startNewProcess(int argAddr)
 {
   char* filename = (char*) argAddr;
@@ -39,10 +40,10 @@ int do_SystemThreadCreate(char *filename)
   process->Fork(startNewProcess, (int)filename);
 
   return process->getPid();
-}
+}*/
 
 
-/*
+
 static void startNewProcess(int argAddr)
 {
   AddrSpace *space = (AddrSpace*) argAddr;
@@ -59,7 +60,19 @@ int do_SystemThreadCreate(char *filename)
   IntStatus oldLevel = interrupt->SetLevel(IntOff);
 
   OpenFile *executable = fileSystem->Open(filename);
+  if(executable==NULL)
+    return -1;
+
   AddrSpace *space = new AddrSpace(executable);
+
+#ifdef FILSYS
+  fileSystem->Close(executable);
+#else 
+  delete executable;
+#endif //FILSYS
+  
+  if(!space->isValid())
+    return -1;
 
   Thread *process = new Thread(filename);
   
@@ -70,9 +83,7 @@ int do_SystemThreadCreate(char *filename)
   //process->space->RestoreState();
 
   free(filename);
-  delete executable;
 
   (void)interrupt->SetLevel(oldLevel);
   return process->getPid();
 }
-*/
