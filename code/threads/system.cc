@@ -35,6 +35,7 @@ ProcessTable *processTable;
 
 #ifdef NETWORK
 PostOffice *postOffice;
+NetworkAddress netAddr;
 #endif
 
 #ifdef CHANGED
@@ -66,6 +67,8 @@ extern void Cleanup();
 static void
 TimerInterruptHandler(int dummy)
 {
+    //DEBUG('t', "Timer!\n");
+    scheduler->WakeUpReadyThreads();
     if (interrupt->getStatus() != IdleMode)
         interrupt->YieldOnReturn();
 }
@@ -161,6 +164,7 @@ void Initialize(int argc, char **argv)
         {
             ASSERT(argc > 1);
             netname = atoi(*(argv + 1));
+            netAddr = atoi(*(argv + 1));
             argCount = 2;
         }
 #endif
@@ -172,8 +176,8 @@ void Initialize(int argc, char **argv)
     scheduler = new Scheduler(); // initialize the ready queue
 
     processTable = new ProcessTable(NB_MAX_PROCESS);
-    if (randomYield)             // start the timer (if needed)
-        timer = new Timer(TimerInterruptHandler, 0, randomYield);
+    //if (randomYield) // start the timer (if needed)
+    timer = new Timer(TimerInterruptHandler, 0, randomYield);
 
     threadToBeDestroyed = NULL;
 

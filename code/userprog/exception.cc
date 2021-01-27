@@ -27,8 +27,6 @@
 #include "userthread.h"
 #include "systemthread.h"
 
-#include <unistd.h> // TEMPORAIRE, A ENLEVER PLUS TARD
-
 Thread *savedThread;
 //----------------------------------------------------------------------
 // UpdatePC : Increments the Program Counter register in order to resume
@@ -147,11 +145,11 @@ void handleEnd()
     
     //Checking if No userThreads are running in this process
     if (!currentThread->space->isEmptyUserThread())
-      currentThread->space->HaltAndExitLock->P();
+      currentThread->space->HaltAndExitLock->Acquire();
 
     //Here free process and his space
-    processTable->remove(currentThread->getPid());
-    delete currentThread->space;
+      processTable->remove(currentThread->getPid());
+      delete currentThread->space;
     
     machine->WriteRegister(2, currentThread->getPid());
     if (processTable->getNumberOfActiveProcesses() > 0)
@@ -161,10 +159,10 @@ void handleEnd()
   }
 }
 
-/**
- *  handlePutString handles SC_PutString system call. Put a given
- * String into synchConsole.
- */ 
+//----------------------------------------------------------------------
+// handlePutString : Handler for system call SC_PutString. Put a given
+// String into synchConsole.
+//----------------------------------------------------------------------
 void handlePutString()
 {
   DEBUG('a', "PutString.\n");
@@ -211,6 +209,13 @@ void handleGetInt()
 
   int i = 0;
   char ch = synchconsole->SynchGetChar();
+  
+  if (ch == '-') {
+    s[i] = ch;
+    ch = synchconsole->SynchGetChar();
+    i++;
+  }
+
   while (i < MAX_LEN_INT && ch >= '0' && ch <= '9' && ch != EOF && ch != '\n' && ch != '\t')
   {
     s[i] = ch;
@@ -240,7 +245,6 @@ void handleUserThreadCreate()
   int arg = machine->ReadRegister(5);
 
   int retval = do_UserThreadCreate(f, arg);
-
   machine->WriteRegister(2, retval);
 }
 
@@ -252,17 +256,13 @@ void handleUserThreadExit()
 {
   DEBUG('t', "Call for exiting user thread\n");
   currentThread->space->DeleteThreadFromArray(currentThread->getIndex());
-  if (currentThread->space->isEmptyUserThread())
+  /*if (currentThread->space->isEmptyUserThread())
   {
     currentThread->space->HaltAndExitLock->V();
-  }
+  }*/
   do_UserThreadExit();
 }
 
-/**
- * handleUserThreadJoin handles SC_UserThreadJoin system call. 
- * Wait for a given thread exit.
- */
 void handleUserThreadJoin()
 {
   DEBUG('t', "Call for join user thread\n");
@@ -271,10 +271,6 @@ void handleUserThreadJoin()
   machine->WriteRegister(2, retval);
 }
 
-/**
- * handleForkExec handles SC_ForkExec system call. Create a new process.
- * with a given executable.
- */
 void handleForkExec()
 {
   DEBUG('p', "Call forkExec\n");
@@ -285,77 +281,30 @@ void handleForkExec()
 }
 
 #ifdef FILESYS
-
-/**
- * handleCreate handles SC_Create system call. Create a new file.
- */
 void handleCreate()
 {
   DEBUG('f', "Call for creating file\n");
   char s[FileNameMaxLen];
   copyStringFromMachine(machine->ReadRegister(4), s, FileNameMaxLen);
-  int len = strlen(s);
-  
-  if(s[len-1]=='/'){
-    s[len-1]='\0';
-    fileSystem->CreateDir(s);
-  }
-  else
-    fileSystem->Create(s, 50);
+  //fileSystem->Create(s, MaxFileSize);
+  fileSystem->Create(s, 10);
 }
 
-/**
- * handleRemove handles SC_Remove system call. Remove a file.
- */
-void handleRemove() 
-{
-  DEBUG('f', "Call for removing file\n");
-  char s[FileNameMaxLen];
-  copyStringFromMachine(machine->ReadRegister(4), s, FileNameMaxLen);
-  int len = strlen(s);
-  if(s[len-1]=='/'){
-    s[len-1]='\0';
-    fileSystem->RemoveDir(s);
-  }else
-    fileSystem->Remove(s);
-}
-/**
- * handleOpen handles SC_Open system call. Open a file.
- */
 void handleOpen()
 {
   DEBUG('f', "Call for opening file\n");
   char s[FileNameMaxLen];
   copyStringFromMachine(machine->ReadRegister(4), s, FileNameMaxLen);
-  int fileId;
-  int len = strlen(s);
-  if(s[len-1]=='/'){
-    s[len-1]='\0';
-    fileId = (fileSystem->ChangeDir(s))?1:-1;
-  }else{
-    fileId = fileSystem->getSector(fileSystem->Open(s));
-    //Fill thread open file table
-    if (fileId != -1)
-      currentThread->getFileTable()->AddFile(fileSystem->getOpenFile(fileId), fileId);
-  }
+  int fileId = fileSystem->getSector(fileSystem->Open(s));
   machine->WriteRegister(2, fileId);
 }
 
-/**
- * handleClose handles SC_Close system call. Close a file.
- */
 void handleClose()
 {
   DEBUG('f', "Call for closing file\n");
-  OpenFile* openFile = fileSystem->getOpenFile(machine->ReadRegister(4));
-  fileSystem->Close(openFile);
-  //Clean thread open file table
-  currentThread->getFileTable()->RemoveFile(openFile);
+  fileSystem->Close(fileSystem->getOpenFile(machine->ReadRegister(4)));
 }
 
-/**
- * handleRead handles SC_Read system call. Read from file.
- */
 void handleRead()
 {
   DEBUG('f', "Call for reading from file\n");
@@ -369,9 +318,6 @@ void handleRead()
   machine->WriteRegister(2, nb_read);
 }
 
-/**
- * handleWrite handles SC_Write system call. Write in file.
- */
 void handleWrite()
 {
   DEBUG('f', "Call for writing user thread\n");
@@ -468,9 +414,6 @@ void ExceptionHandler(ExceptionType which)
 #ifdef FILESYS
     case SC_Create:
       handleCreate();
-      break;
-    case SC_Remove:
-      handleRemove();
       break;
     case SC_Open:
       handleOpen();

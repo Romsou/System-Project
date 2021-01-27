@@ -317,7 +317,7 @@ AssignNameToSocket(const char *socketName, int sockID)
     InitSocketName(&uName, socketName);
     retVal = bind(sockID, (struct sockaddr *) &uName, sizeof(uName));
     ASSERT(retVal >= 0);
-    DEBUG('n', "Created socket %s\n", socketName);
+    DEBUG('n', "Created socket %s with id %d\n", socketName, sockID);
 }
 
 //----------------------------------------------------------------------

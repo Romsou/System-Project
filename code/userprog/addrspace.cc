@@ -101,6 +101,8 @@ AddrSpace::AddrSpace(OpenFile *executable)
 
 	DEBUG('a', "Initializing address space, num pages = %d, size = %d\n", numPages, size);
 	this->allocatePages();
+	//if (!this->allocatePages())
+		//throw("ERROR : No more space in physical memory");
 
 	DEBUG('a', "Initializing code segment, at 0x%x, size %d\n", noffH.code.virtualAddr, noffH.code.size);
 	copyFromExecToMemory(executable, noffH.code);
@@ -108,9 +110,10 @@ AddrSpace::AddrSpace(OpenFile *executable)
 	DEBUG('a', "Initializing data segment, at 0x%x, size %d\n", noffH.initData.virtualAddr, noffH.initData.size);
 	copyFromExecToMemory(executable, noffH.initData);
 
-	HaltAndExitLock = new Semaphore("HaltAndExitLock", 0);
+	HaltAndExitLock = new Lock("HaltAndExitLock");
 
 	createUserThreads();
+	nbUserThreads = 0;
 }
 
 /**
@@ -165,6 +168,8 @@ void AddrSpace::initializePage(unsigned int index)
 {
 	pageTable[index].virtualPage = index;
 	pageTable[index].physicalPage = frameProvider->GetEmptyFrame();
+	if(pageTable[index].physicalPage==(unsigned int)-1)
+		pageTable[index].virtualPage = -1;
 	pageTable[index].valid = TRUE;
 	pageTable[index].use = FALSE;
 	pageTable[index].dirty = FALSE;
@@ -287,20 +292,15 @@ void AddrSpace::RestoreState()
 /**
  * Checks whether the array of user thread is empty.
  * 
- * This works by checking for each box in our array
- * whether it is NULL. If we find a userThreads, we exit
- * early.
+ * Due to the amount of use of that function, it is 
+ * based to a count number of userthread in the array
  * 
  * @return a bool, true if userThreads is empty, false otherwise.
  */
 bool AddrSpace::isEmptyUserThread()
 {
 	ASSERT(userThreads != NULL);
-	for (int i = 0; i < NB_MAX_THREADS; i++)
-		if (userThreads[i] != NULL)
-			return false;
-
-	return true;
+	return nbUserThreads==0;
 }
 
 /**
@@ -311,7 +311,12 @@ bool AddrSpace::isEmptyUserThread()
  */
 void AddrSpace::DeleteThreadFromArray(int index)
 {
+	bool eff = (userThreads[index]!=NULL)?TRUE:FALSE;
 	userThreads[index] = NULL;
+	if(eff)
+		nbUserThreads--;
+	if(isEmptyUserThread())
+		HaltAndExitLock->Release();
 }
 
 /**
@@ -354,6 +359,21 @@ Thread *AddrSpace::getThreadAtId(int id)
  */
 void AddrSpace::putThreadAtIndex(Thread *thread, int index)
 {
+	bool first = this->isEmptyUserThread();
 	ASSERT(index >= 0 && index < NB_MAX_THREADS);
 	userThreads[index] = thread;
+	if(thread!=NULL)
+		nbUserThreads++;
+	if(first)
+		HaltAndExitLock->Acquire();
+}
+
+bool AddrSpace::isValid()
+{
+	for(unsigned int i=0; i<numPages; i++){
+		if(pageTable[i].physicalPage==(unsigned int)-1){
+			return FALSE;
+		}
+	}
+	return TRUE;
 }

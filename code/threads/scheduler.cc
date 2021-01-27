@@ -22,6 +22,13 @@
 #include "scheduler.h"
 #include "system.h"
 
+bool timeToWakeUp(Thread *thread)
+{
+    if(thread->wakeUpTime < 0)
+        return false;
+    return thread->wakeUpTime - stats->totalTicks <= 0;
+}
+
 //----------------------------------------------------------------------
 // Scheduler::Scheduler
 //      Initialize the list of ready but not running threads to empty.
@@ -30,6 +37,7 @@
 Scheduler::Scheduler()
 {
     readyList = new List;
+    sleepingThreads = new List;
 }
 
 //----------------------------------------------------------------------
@@ -147,6 +155,51 @@ void Scheduler::Print()
 {
     printf("Ready list contents:\n");
     readyList->Mapcar((VoidFunctionPtr)ThreadPrint);
+}
+
+/**
+ * Put the thread in parameter in the list of sleeping threads.
+ * 
+ * @param: The thread we want to include in our list.
+ */
+void Scheduler::PutInSleepingThreadsList(Thread *thread)
+{
+    sleepingThreads->Append(thread);
+}
+
+/**
+ * Checks through all the sleeping threads list and wakes threads
+ * which have slept enough up.
+ */
+void Scheduler::WakeUpReadyThreads()
+{
+    if (sleepingThreads->IsEmpty())
+        return;
+
+    Thread *thread = (Thread *)sleepingThreads->first->item;
+    if (thread != NULL && (timeToWakeUp(thread) || thread->signaled))
+    {
+        thread = (Thread *)sleepingThreads->Remove();
+        ReadyToRun(thread);
+    }
+
+    for (ListElement *ptr = sleepingThreads->first; ptr != NULL;)
+    {
+        thread = (Thread *)ptr->next;
+
+        if (thread == NULL)
+            return;
+
+        // If we take off the next thread in the list we need to evaluate the new
+        // current son of ptr as well. So we don't go to the next ptr.
+        if (timeToWakeUp(thread) || thread->signaled)
+        {
+            ptr->next = ptr->next->next;
+            ReadyToRun(thread);
+        }
+        else
+            ptr = ptr->next;
+    }
 }
 
 int Scheduler::getNumberOfReadyThreads()

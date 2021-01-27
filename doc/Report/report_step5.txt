@@ -1,5 +1,10 @@
 #Step 5 : File System 
 ##Qu'est-ce qu'on doit faire ?
+On est d'accord que Danjean avait suggérer de passer la création de l'espace d'adressage d'un processus dans do_SystemThreadCreate plutot que dans StartNewProcess afin de ne pas créer le processus si on a plus assez de place, histoire de pas faire planter le programme
+
+###Blocage End()
+on peut imaginer le truc, si on commence avec un lock pris quand il y a des userthread dans le tableau et libéré quand il n'en reste aucun , après join nouveau userthread, le tableau n'est plus vide le lock est pris de nouveau
+quand le userthread n'est plus vide (le premier ajout) et on le libere au dernier remove
 
 ###1. Hiérarchie de répertoire
 - un Repertoire peut contenir un fichier lambda (liste secteurs contenant données) ou un repertoire (liste de duo nom-secteur) --> nvls fonctions pour creer, destruire (il faut que le repertoire soit vide), imprimer un repertoire (sector=-1 pour repertoire) ou changer de repertoire
@@ -14,17 +19,12 @@ sous-repertoire : . et .. non presents
 - ouverture et fermeture se font par le systeme de fichier, permet de modifier/lire plusieurs documents en meme temps
 - à quoi ça sert ? qui va s'en servir ?
 
-###3. Support acces simultanés (!)
+###3. Support acces simultanés
 - que faire si un thread demande acces à un fichier dj ouvert : interdire, 
 - table des fichiers ouverts par thread, limite = 10 fichiers
 
 ###Idee Algo :
 un thread demande acces a un fichier, on regarde s'il a encore de la place dans sa table perso, puis on regarde que ce fichier est pas déjà dans la table systeme (donc utiliser par un autre thread), si tout est bon, il a acces sinon echec ou attente
-
-Open = Open(fichier) et cd(répertoire) 
-Create = Create(fichier) et mkdir(répertoire)
-Remove = rm(fichier) et rm(répertoire)
-Partie sur repertoire a ajouter
 
 ##Quel est le SF de NachOS ?
 Sous Unix : on a une table des inodes, un table des fichiers ouverts par processus, et une table système des fichiers ouverts, recours à des algo parfois complexe pour lecture/ecriture sur disque, 

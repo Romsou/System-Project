@@ -42,9 +42,11 @@ Thread::Thread(const char *threadName)
     stackTop = NULL;
     stack = NULL;
     status = JUST_CREATED;
-#ifdef FILESYS
+    wakeUpTime = -1;
+    signaled = false;
+    #ifdef FILSYS
     openedThreadFiles = new FileTable(MAX_OPENED_FILES);
-#endif //FILESYS
+    #endif
 
 #ifdef USER_PROGRAM
     space = NULL;
@@ -56,7 +58,7 @@ Thread::Thread(const char *threadName)
 
     id = -1;
     index = -1;
-    
+
     waitQueue = new Semaphore("Thread wait Queue", 0);
     numOfWaitingThreads = 0;
 
@@ -83,10 +85,10 @@ Thread::Thread(const char *threadName)
 Thread::~Thread()
 {
     DEBUG('t', "Deleting thread \"%s\"\n", name);
-#ifdef FILESYS
-    delete[] openedThreadFiles;
-#endif //FILESYS
-
+    #ifdef FILSYS
+    delete openedThreadFiles;
+    #endif
+    
 #ifdef USER_PROGRAM
     delete waitQueue;
     delete functionAndArgs;
@@ -164,6 +166,21 @@ void Thread::CheckOverflow()
 #else
         ASSERT(*stack == (int)STACK_FENCEPOST);
 #endif
+}
+
+void Thread::setStatus(ThreadStatus st)
+{
+    status = st;
+}
+
+const char *Thread::getName()
+{
+    return (name);
+}
+
+void Thread::Print()
+{
+    printf("%s, ", name);
 }
 
 //----------------------------------------------------------------------
@@ -260,6 +277,26 @@ void Thread::Sleep()
     DEBUG('t', "Sleeping thread \"%s\"\n", getName());
 
     status = BLOCKED;
+    currentThread->signaled = false;
+    while ((nextThread = scheduler->FindNextToRun()) == NULL)
+        interrupt->Idle(); // no one to run, wait for an interrupt
+
+    scheduler->Run(nextThread); // returns when we've been signalled
+}
+
+void Thread::TemporarilySleep()
+{
+    Thread *nextThread;
+
+    ASSERT(this == currentThread);
+    ASSERT(interrupt->getLevel() == IntOff);
+
+    DEBUG('t', "Sleeping thread \"%s\"\n", getName());
+
+    status = BLOCKED;
+    //currentThread->signaled = false;
+    scheduler->PutInSleepingThreadsList(currentThread);
+
     while ((nextThread = scheduler->FindNextToRun()) == NULL)
         interrupt->Idle(); // no one to run, wait for an interrupt
 
@@ -421,7 +458,8 @@ void Thread::RestoreUserState()
         machine->WriteRegister(i, userRegisters[i]);
 }
 
-int Thread::generateTid() {
+int Thread::generateTid()
+{
     int curTid = userThreadCount;
     userThreadCount++;
     return curTid;
@@ -434,11 +472,12 @@ int Thread::getTid()
 
 void Thread::setTid(int i)
 {
-    if(id == -1)
+    if (id == -1)
         id = i;
 }
 
-int Thread::generatePid() {
+int Thread::generatePid()
+{
     int curPid = processCount;
     processCount++;
     return curPid;
@@ -451,7 +490,7 @@ int Thread::getPid()
 
 void Thread::setPid(int ProcessId)
 {
-    if(pid == -1 && ppid == -1)
+    if (pid == -1 && ppid == -1)
         pid = ProcessId;
 }
 
@@ -535,12 +574,14 @@ void Thread::setReturnAddr(int returnAddr)
 
 void Thread::setPpid(int ParentProcessId)
 {
-    if(pid == -1 && ppid == -1)
+    if (pid == -1 && ppid == -1)
         ppid = ParentProcessId;
 }
 
-FileTable *Thread::getFileTable(){
-    return openedThreadFiles;
-}
+#ifdef FILESYS
+    FileTable *Thread::getFileTable(){
+        return openedThreadFiles;
+    }
+#endif //FILESYS
 
 #endif
