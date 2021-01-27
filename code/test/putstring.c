@@ -29,7 +29,7 @@ int main ()
     //GetString(s, 64);
     //PutString(s);
     
-    End();
+    //End();
     /* not reached */
     return 0;
 }
