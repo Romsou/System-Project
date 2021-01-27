@@ -35,9 +35,9 @@
 
 Semaphore::Semaphore(const char *debugName, int initialValue)
 {
-    name = debugName;
-    value = initialValue;
-    queue = new List;
+  name = debugName;
+  value = initialValue;
+  queue = new List;
 }
 
 //----------------------------------------------------------------------
@@ -48,7 +48,7 @@ Semaphore::Semaphore(const char *debugName, int initialValue)
 
 Semaphore::~Semaphore()
 {
-    delete queue;
+  delete queue;
 }
 
 //----------------------------------------------------------------------
@@ -158,6 +158,7 @@ Condition::Condition(const char *debugName)
     blockedThreads = new List();
 }
 
+
 Condition::~Condition()
 {
     delete blockedThreads;
@@ -201,6 +202,7 @@ bool Condition::temporaryWait(int timeToWait, Lock *lock)
  * @param lock: The lock we want to release and reacquire to wait.
  */
 void Condition::Wait(Lock *lock)
+
 {
     // Makes the lock release and the sleeping atomic.
     IntStatus oldLevel = interrupt->SetLevel(IntOff);
