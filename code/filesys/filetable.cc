@@ -65,8 +65,9 @@ bool FileTable::RemoveFile(OpenFile *file)
         delete openFiles[i];
         openFiles[i] = NULL;        
         filePresenceIndicator->Clear(i);
-        return true;
-      }      
+      }
+      
+      return true;
     }
   return false;
 }
@@ -104,10 +105,7 @@ OpenFile* FileTable::getOrCreateOpenFile(int sector) {
  * @param sector sector number of file header on disk.
  * @return corresponding OpenFile if exists in array, NULL otherwise.
  */
-OpenFile* FileTable::getFile(int sector) {
-  if (sector == 0 || sector == 1)
-    return NULL;
-    
+OpenFile* FileTable::getFile(int sector) {  
   for (int i = 0; i < nbFiles; i++)
     if (openFiles[i] != NULL && openFiles[i]->numSector == sector)
       return openFiles[i]->openFile;
@@ -120,7 +118,7 @@ OpenFile* FileTable::getFile(int sector) {
  * 
  * @param openFile OpenFile pointer to find in array.
  * @return corresponding sector number of file header on disk, if exists in array,
- * -1 otherwise.
+ * NULL otherwise.
  */
 int FileTable::getSector(OpenFile* openFile) {
 for (int i = 0; i < nbFiles; i++)
