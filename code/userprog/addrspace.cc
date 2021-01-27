@@ -101,6 +101,8 @@ AddrSpace::AddrSpace(OpenFile *executable)
 
 	DEBUG('a', "Initializing address space, num pages = %d, size = %d\n", numPages, size);
 	this->allocatePages();
+	//if (!this->allocatePages())
+		//throw("ERROR : No more space in physical memory");
 
 	DEBUG('a', "Initializing code segment, at 0x%x, size %d\n", noffH.code.virtualAddr, noffH.code.size);
 	copyFromExecToMemory(executable, noffH.code);
@@ -165,6 +167,8 @@ void AddrSpace::initializePage(unsigned int index)
 {
 	pageTable[index].virtualPage = index;
 	pageTable[index].physicalPage = frameProvider->GetEmptyFrame();
+	if(pageTable[index].physicalPage==(unsigned int)-1)
+		pageTable[index].virtualPage = -1;
 	pageTable[index].valid = TRUE;
 	pageTable[index].use = FALSE;
 	pageTable[index].dirty = FALSE;
@@ -356,4 +360,14 @@ void AddrSpace::putThreadAtIndex(Thread *thread, int index)
 {
 	ASSERT(index >= 0 && index < NB_MAX_THREADS);
 	userThreads[index] = thread;
+}
+
+bool AddrSpace::isValid()
+{
+	for(unsigned int i=0; i<numPages; i++){
+		if(pageTable[i].physicalPage==(unsigned int)-1){
+			return FALSE;
+		}
+	}
+	return TRUE;
 }

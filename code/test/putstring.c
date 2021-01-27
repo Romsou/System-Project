@@ -14,9 +14,22 @@ void print(char *s)
 
 int main ()
 {
-    print("abcdefgh\n");
-    Halt ();
+    //less than 64 char
+    print("abcdefghijkl 123456 ¤¤¤¤¤¤\n");
 
+    //more than 64 char
+    print("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+    
+    //2 bytes char
+    print("¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤¤");
+    
+    PutChar('\n');
+    
+    //char s[64];
+    //GetString(s, 64);
+    //PutString(s);
+    
+    //End();
     /* not reached */
     return 0;
 }

@@ -27,8 +27,6 @@
 #include "userthread.h"
 #include "systemthread.h"
 
-#include <unistd.h> // TEMPORAIRE, A ENLEVER PLUS TARD
-
 Thread *savedThread;
 //----------------------------------------------------------------------
 // UpdatePC : Increments the Program Counter register in order to resume
@@ -211,6 +209,13 @@ void handleGetInt()
 
   int i = 0;
   char ch = synchconsole->SynchGetChar();
+  
+  if (ch == '-') {
+    s[i] = ch;
+    ch = synchconsole->SynchGetChar();
+    i++;
+  }
+
   while (i < MAX_LEN_INT && ch >= '0' && ch <= '9' && ch != EOF && ch != '\n' && ch != '\t')
   {
     s[i] = ch;
@@ -240,7 +245,6 @@ void handleUserThreadCreate()
   int arg = machine->ReadRegister(5);
 
   int retval = do_UserThreadCreate(f, arg);
-
   machine->WriteRegister(2, retval);
 }
 
@@ -276,6 +280,7 @@ void handleForkExec()
   machine->WriteRegister(2, retval);
 }
 
+#ifdef FILESYS
 void handleCreate()
 {
   DEBUG('f', "Call for creating file\n");
@@ -324,6 +329,7 @@ void handleWrite()
   copyStringFromMachine(buffer, s, size);
   openFile->Write(s, size);
 }
+#endif //FILESYS
 
 //----------------------------------------------------------------------
 // ExceptionHandler
@@ -405,6 +411,7 @@ void ExceptionHandler(ExceptionType which)
     case SC_ForkExec:
       handleForkExec();
       break;
+#ifdef FILESYS
     case SC_Create:
       handleCreate();
       break;
@@ -420,6 +427,7 @@ void ExceptionHandler(ExceptionType which)
     case SC_Write:
       handleWrite();
       break;
+#endif //FILESYS
     default:
       handleError(which, type);
       break;

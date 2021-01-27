@@ -16,8 +16,10 @@ void print(int n)
 int main ()
 {
     print(1234567891);
-    Halt ();
+    // PutInt(GetInt());
+    PutChar('\n');
 
+    End();
     /* not reached */
     return 0;
 }

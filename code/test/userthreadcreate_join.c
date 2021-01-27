@@ -12,13 +12,27 @@ void countDown(void* arg)
     PutChar('\n');
 }
 
+void puts(void *s)
+{
+	char *p;
+	for(p=(char*)s ; *p != '\0' ; p++){
+		PutChar(*p);
+	}
+}
+
 int main()
 {
+	char* phrase = "abc\n";
     PutString("Test sur l'attente de fin d'execution des threads\n");
     int ret1 = UserThreadCreate(countDown, 0);
     UserThreadJoin(ret1);
     int ret2 = UserThreadCreate(countDown,0);
     UserThreadJoin(ret2);
+
+	UserThreadCreate(puts,phrase);
+	UserThreadCreate(puts,phrase);
+	UserThreadCreate(puts,phrase);
+	UserThreadCreate(puts,phrase);
 
     End();
     //Not reached

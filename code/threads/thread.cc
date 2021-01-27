@@ -44,7 +44,9 @@ Thread::Thread(const char *threadName)
     status = JUST_CREATED;
     wakeUpTime = -1;
     signaled = false;
+    #ifdef FILSYS
     openedThreadFiles = new FileTable(MAX_OPENED_FILES);
+    #endif
 
 #ifdef USER_PROGRAM
     space = NULL;
@@ -83,8 +85,10 @@ Thread::Thread(const char *threadName)
 Thread::~Thread()
 {
     DEBUG('t', "Deleting thread \"%s\"\n", name);
+    #ifdef FILSYS
     delete openedThreadFiles;
-
+    #endif
+    
 #ifdef USER_PROGRAM
     delete waitQueue;
     delete functionAndArgs;
@@ -574,8 +578,10 @@ void Thread::setPpid(int ParentProcessId)
         ppid = ParentProcessId;
 }
 
-FileTable *Thread::getFileTable(){
-    return openedThreadFiles;
-}
+#ifdef FILESYS
+    FileTable *Thread::getFileTable(){
+        return openedThreadFiles;
+    }
+#endif //FILESYS
 
 #endif

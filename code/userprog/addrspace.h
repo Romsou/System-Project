@@ -75,6 +75,8 @@ public:
    */
   void putThreadAtIndex(Thread *thread, int index);
 
+  bool isValid();
+
 private:
   TranslationEntry *pageTable; // Assume linear page table translation
   unsigned int numPages;       // Number of pages in the virtual

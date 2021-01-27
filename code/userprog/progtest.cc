@@ -37,8 +37,11 @@ StartProcess (char *filename)
     space = new AddrSpace (executable);
     currentThread->space = space;
 
+#ifdef FILESYS
     fileSystem->Close(executable);
-    //delete executable;		// close file
+#else
+    delete executable;		// close file
+#endif
 
     space->InitRegisters ();	// set the initial register values
     space->RestoreState ();	// load page table register
