@@ -42,48 +42,49 @@ int do_SystemThreadCreate(char *filename)
   return process->getPid();
 }*/
 
-
-
 static void startNewProcess(int argAddr)
 {
-  AddrSpace *space = (AddrSpace*) argAddr;
+  char* filename = (char*) argAddr;
+  OpenFile *executable = fileSystem->Open(filename);
+  ASSERT(executable != NULL);
+
+  AddrSpace *space = new AddrSpace(executable);
+#ifdef FILSYS
+    fileSystem->Close(executable);
+#else 
+    delete executable;
+#endif //FILSYS
+
+  if(!space->isValid()){
+    space = NULL;
+  }else{
+    space = space;
+  }
+  free(filename);
+  
   currentThread->space = space;
+  if(currentThread->space == NULL)
+    return;
   currentThread->space->InitRegisters();
   currentThread->space->RestoreState();
+  
   machine->Run();
   ASSERT (FALSE);		// machine->Run never returns; 
 }
 
 int do_SystemThreadCreate(char *filename)
 {
-  //Try to create addrSpace
-  IntStatus oldLevel = interrupt->SetLevel(IntOff);
-
-  OpenFile *executable = fileSystem->Open(filename);
-  if(executable==NULL)
-    return -1;
-
-  AddrSpace *space = new AddrSpace(executable);
-
-#ifdef FILSYS
-  fileSystem->Close(executable);
-#else 
-  delete executable;
-#endif //FILSYS
-  
-  if(!space->isValid())
-    return -1;
-
   Thread *process = new Thread(filename);
+  //startNewSpace(process,filename);
   
   process->setPid(process->generatePid());
   processTable->add(process);
-  process->Fork(startNewProcess, (int)space);
-  //process->space->InitRegisters();
-  //process->space->RestoreState();
+  
+  process->Fork(startNewProcess, (int)filename);
+  
+  if(process->space==NULL)
+    return -1;
 
-  free(filename);
-
-  (void)interrupt->SetLevel(oldLevel);
+  //(void)interrupt->SetLevel(oldLevel);
   return process->getPid();
 }

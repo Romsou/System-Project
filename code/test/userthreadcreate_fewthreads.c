@@ -94,7 +94,7 @@ int main(){
 	ret = UserThreadCreate(print,&h);
 	UserThreadJoin(ret);
 
-	End();
+	//End();
 	//Not reached
 	return 0;
 }

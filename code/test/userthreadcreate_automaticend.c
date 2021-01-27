@@ -3,7 +3,7 @@
 static void print(void *arg)
 {
     char* phrase = (char*) arg;
-    UserThreadCreate(print, phrase);
+    //UserThreadCreate(print, phrase); //est-ce que cette fonction a un sens ici ?
     PutString(phrase);
 }
 
@@ -14,7 +14,10 @@ int main()
     //int a = 1999999999;
     //UserThreadCreate(print, (char*)a);        //TODO : pareil
     UserThreadCreate(print, phrase);
-    End();
+
+    
+  
+    //End();
     //Not reached
     return 0;
 }

@@ -1,5 +1,6 @@
 #Step 5 : File System 
 ##Qu'est-ce qu'on doit faire ?
+On est d'accord que Danjean avait suggérer de passer la création de l'espace d'adressage d'un processus dans do_SystemThreadCreate plutot que dans StartNewProcess afin de ne pas créer le processus si on a plus assez de place, histoire de pas faire planter le programme
 
 ###1. Hiérarchie de répertoire
 - un Repertoire peut contenir un fichier lambda (liste secteurs contenant données) ou un repertoire (liste de duo nom-secteur) --> nvls fonctions pour creer, destruire (il faut que le repertoire soit vide), imprimer un repertoire (sector=-1 pour repertoire) ou changer de repertoire
