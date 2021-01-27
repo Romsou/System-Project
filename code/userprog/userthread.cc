@@ -50,6 +50,10 @@ static void StartUserThread(int f)
  */
 int do_UserThreadCreate(int f, int arg)
 {
+  //If currentThread is not a process, return now
+  if (currentThread->getPid() == -1)
+    return -1;
+    
   int threadIndex = currentThread->space->GetFreeSpotInUserThreadArray();
 
   if (threadIndex == -1)

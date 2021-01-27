@@ -3,6 +3,7 @@
 static void print(void *arg)
 {
     char* phrase = (char*) arg;
+    UserThreadCreate(print, phrase);
     PutString(phrase);
 }
 
