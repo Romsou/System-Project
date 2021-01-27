@@ -245,7 +245,6 @@ void handleUserThreadCreate()
   int arg = machine->ReadRegister(5);
 
   int retval = do_UserThreadCreate(f, arg);
-  currentThread->space->HaltAndExitLock->P();
   machine->WriteRegister(2, retval);
 }
 
