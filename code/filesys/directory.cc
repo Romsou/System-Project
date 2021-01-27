@@ -111,9 +111,22 @@ Directory::Find(const char *name)
     int i = FindIndex(name);
 
     if (i != -1)
-	return table[i].sector;
+        if(!table[i].isDir)
+	       return table[i].sector;
     return -1;
 }
+
+int
+Directory::FindDir(const char *name)
+{
+    int i = FindIndex(name);
+
+    if (i != -1)
+        if(table[i].isDir)
+            return table[i].sector;
+    return -1;
+}
+
 
 //----------------------------------------------------------------------
 // Directory::Add
@@ -135,11 +148,29 @@ Directory::Add(const char *name, int newSector)
     for (int i = 0; i < tableSize; i++)
         if (!table[i].inUse) {
             table[i].inUse = TRUE;
+            table[i].isDir = FALSE;
             strncpy(table[i].name, name, FileNameMaxLen); 
             table[i].sector = newSector;
         return TRUE;
 	}
     return FALSE;	// no space.  Fix when we have extensible files.
+}
+
+bool
+Directory::AddDir(const char *name, int newSector)
+{ 
+    if (FindIndex(name) != -1)
+    return FALSE;
+
+    for (int i = 0; i < tableSize; i++)
+        if (!table[i].inUse) {
+            table[i].inUse = TRUE;
+            table[i].isDir = TRUE;
+            strncpy(table[i].name, name, FileNameMaxLen); 
+            table[i].sector = newSector;
+        return TRUE;
+    }
+    return FALSE;   // no space.  Fix when we have extensible files.
 }
 
 //----------------------------------------------------------------------
@@ -156,7 +187,8 @@ Directory::Remove(const char *name)
     int i = FindIndex(name);
 
     if (i == -1)
-	return FALSE; 		// name not in directory
+	   return FALSE; 		// name not in directory
+    
     table[i].inUse = FALSE;
     return TRUE;	
 }
@@ -178,20 +210,52 @@ Directory::List()
 // Directory::Print
 // 	List all the file names in the directory, their FileHeader locations,
 //	and the contents of each file.  For debugging.
-//----------------------------------------------------------------------
-
 void
 Directory::Print()
 { 
+    if(isEmpty()){
+        printf("None directory contents\n");
+        return;
+    }
+
     FileHeader *hdr = new FileHeader;
+    OpenFile *dirFile;
+    Directory *dir = new Directory(NumDirEntries);
 
     printf("Directory contents:\n");
-    for (int i = 0; i < tableSize; i++)
+    for (int i = 2; i < tableSize; i++)
 	if (table[i].inUse) {
-	    printf("Name: %s, Sector: %d\n", table[i].name, table[i].sector);
+	    printf("Name: %s, Directory ? %c, Sector: %d\n", table[i].name,(table[i].isDir)?'T':'F',
+         table[i].sector);
 	    hdr->FetchFrom(table[i].sector);
 	    hdr->Print();
+        
+        
 	}
     printf("\n");
-    delete hdr;
+    printf("Under directory contents ;\t");
+    for(int i = 2; i < tableSize; i++){
+        if(table[i].inUse && table[i].isDir){
+            dirFile = new OpenFile(table[i].sector);
+            dir->FetchFrom(dirFile);
+            dir->Print();
+            delete dirFile;
+        }
+    }
+    printf("\n");
+    delete hdr;   
+
+    delete dir;
+}
+
+bool
+Directory::isEmpty()
+{
+    for(int i = 0; i < tableSize; i++){
+        if(table[i].inUse){
+            if(strcmp (table[i].name, ".")!=0 && strcmp (table[i].name, "..")!=0)
+                return FALSE;
+        }
+    }
+    return TRUE;
 }

@@ -39,6 +39,7 @@
 
 #include "copyright.h"
 #include "utility.h"
+#include "filetable.h"
 
 #ifdef USER_PROGRAM
 #include "machine.h"
@@ -111,6 +112,12 @@ private:
   Thread *parent;
 
   int id; // id of our UserThread
+  void StackAllocate(VoidFunctionPtr func, int arg);
+  // Allocate a stack for thread.
+  // Used internally by Fork()
+
+  void InitializeOpenedFiles();
+
   int pid;
   int ppid;
   int index; // index in the Thread array use in addrSpace
@@ -118,6 +125,7 @@ private:
   Semaphore *waitQueue;
   int numOfWaitingThreads;
   struct FunctionAndArgs *functionAndArgs;
+  FileTable *openedThreadFiles;
 
   // A thread running a user program actually has *two* sets of CPU registers --
   // one for its state while executing user code, one for its state
@@ -182,6 +190,10 @@ public:
 
   int getPpid();
   void setPpid(int ParentProcessId);
+
+  FileTable *getFileTable();
+
+  AddrSpace *space; // User code this thread is running.
 };
 
 // Magical machine-dependent routines, defined in switch.s
