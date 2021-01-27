@@ -278,8 +278,11 @@ FileSystem::Open(const char *name)
  */
 bool FileSystem::Close(OpenFile *file)
 {
-  if (openFiles->RemoveFile(file))
-    delete file;
+    if(file==NULL)
+        return true;
+  openFiles->RemoveFile(file);
+  //currentThread->getFileTable()->RemoveFile(file);
+  delete file;
   return TRUE;
 }
 
@@ -401,6 +404,7 @@ bool FileSystem::CreateDir(const char *name)
   if (!navigateToPath(name, rep))
   {
     currentDirFile = currentDirFileSave;
+    printf("name = %s, rep=%s\n",name,rep );
     free(rep);
     return FALSE;
   }
