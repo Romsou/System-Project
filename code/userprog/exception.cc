@@ -27,8 +27,6 @@
 #include "userthread.h"
 #include "systemthread.h"
 
-#include <unistd.h> // TEMPORAIRE, A ENLEVER PLUS TARD
-
 Thread *savedThread;
 //----------------------------------------------------------------------
 // UpdatePC : Increments the Program Counter register in order to resume
