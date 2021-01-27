@@ -8,8 +8,11 @@ static void print(void *arg)
 }
 
 int main()
-{
+{ 
     char* phrase = "hello coco\n";
+    //UserThreadCreate((void*)phrase, phrase);  //TODO : ca fait planter, peut etre à gérer mais comment? Quoi qu'il a qu'a pas faire de cast...
+    //int a = 1999999999;
+    //UserThreadCreate(print, (char*)a);        //TODO : pareil
     UserThreadCreate(print, phrase);
 
     
