@@ -2,10 +2,13 @@
 //launch
 /*
 ./nachos-step5 -f; ./nachos-step5 -cp filesys_create filesys_create;./nachos-step5 -x filesys_create;./nachos-step5 -D
+
 */
 
 int main ()
 {
+
+
     char* bufferWrite = "coucou helllllo";
     int size = 15;
     
