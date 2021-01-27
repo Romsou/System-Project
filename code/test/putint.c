@@ -16,7 +16,7 @@ void print(int n)
 int main ()
 {
     print(1234567891);
-    PutInt(GetInt());
+    // PutInt(GetInt());
     PutChar('\n');
 
     End();
