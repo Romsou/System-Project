@@ -145,7 +145,7 @@ void handleEnd()
     
     //Checking if No userThreads are running in this process
     if (!currentThread->space->isEmptyUserThread())
-      currentThread->space->HaltAndExitLock->P();
+      currentThread->space->HaltAndExitLock->Acquire();
 
     //Here free process and his space
     processTable->remove(currentThread->getPid());
@@ -256,10 +256,10 @@ void handleUserThreadExit()
 {
   DEBUG('t', "Call for exiting user thread\n");
   currentThread->space->DeleteThreadFromArray(currentThread->getIndex());
-  if (currentThread->space->isEmptyUserThread())
+  /*if (currentThread->space->isEmptyUserThread())
   {
     currentThread->space->HaltAndExitLock->V();
-  }
+  }*/
   do_UserThreadExit();
 }
 

@@ -38,8 +38,8 @@ public:
   void SaveState();    // Save/restore address space-specific
   void RestoreState(); // info on a context switch
 
-  //Semaphore for synch Halt/Exit
-  Semaphore *HaltAndExitLock;
+  //Lock for synch Halt/Exit
+  Lock *HaltAndExitLock;
 
   /**
    * Indicates whether the list of user threads is empty
@@ -85,6 +85,7 @@ private:
 
   //This array will be used to identify and track the different threads
   Thread **userThreads;
+  int nbUserThreads;
 
   unsigned int estimateAddressSpaceSize(NoffHeader noffh);
   unsigned int roundUpAdressSpaceSize(unsigned int size);

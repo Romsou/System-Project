@@ -2,6 +2,10 @@
 ##Qu'est-ce qu'on doit faire ?
 On est d'accord que Danjean avait suggérer de passer la création de l'espace d'adressage d'un processus dans do_SystemThreadCreate plutot que dans StartNewProcess afin de ne pas créer le processus si on a plus assez de place, histoire de pas faire planter le programme
 
+###Blocage End()
+on peut imaginer le truc, si on commence avec un lock pris quand il y a des userthread dans le tableau et libéré quand il n'en reste aucun , après join nouveau userthread, le tableau n'est plus vide le lock est pris de nouveau
+quand le userthread n'est plus vide (le premier ajout) et on le libere au dernier remove
+
 ###1. Hiérarchie de répertoire
 - un Repertoire peut contenir un fichier lambda (liste secteurs contenant données) ou un repertoire (liste de duo nom-secteur) --> nvls fonctions pour creer, destruire (il faut que le repertoire soit vide), imprimer un repertoire (sector=-1 pour repertoire) ou changer de repertoire
 - methode pour memoriser repertoire courant et parent, repertoires speciaux pour parcourir la hierarchie, possibilité des chemins
