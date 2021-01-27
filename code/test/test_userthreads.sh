@@ -2,7 +2,7 @@
 
 # Quick integration test (not automated) for user threads
 
-nachos=nachos-step4
+nachos=nachos-step6
 
 execute_programs() {
     for program in $(ls | grep -i ^userthread | cut -d "." -f1 | sort | uniq); do

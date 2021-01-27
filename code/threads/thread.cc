@@ -42,6 +42,8 @@ Thread::Thread(const char *threadName)
     stackTop = NULL;
     stack = NULL;
     status = JUST_CREATED;
+    wakeUpTime = -1;
+    signaled = false;
     openedThreadFiles = new FileTable(MAX_OPENED_FILES);
 
 #ifdef USER_PROGRAM
@@ -54,7 +56,7 @@ Thread::Thread(const char *threadName)
 
     id = -1;
     index = -1;
-    
+
     waitQueue = new Semaphore("Thread wait Queue", 0);
     numOfWaitingThreads = 0;
 
@@ -162,6 +164,21 @@ void Thread::CheckOverflow()
 #endif
 }
 
+void Thread::setStatus(ThreadStatus st)
+{
+    status = st;
+}
+
+const char *Thread::getName()
+{
+    return (name);
+}
+
+void Thread::Print()
+{
+    printf("%s, ", name);
+}
+
 //----------------------------------------------------------------------
 // Thread::Finish
 //      Called by ThreadRoot when a thread is done executing the
@@ -256,6 +273,26 @@ void Thread::Sleep()
     DEBUG('t', "Sleeping thread \"%s\"\n", getName());
 
     status = BLOCKED;
+    currentThread->signaled = false;
+    while ((nextThread = scheduler->FindNextToRun()) == NULL)
+        interrupt->Idle(); // no one to run, wait for an interrupt
+
+    scheduler->Run(nextThread); // returns when we've been signalled
+}
+
+void Thread::TemporarilySleep()
+{
+    Thread *nextThread;
+
+    ASSERT(this == currentThread);
+    ASSERT(interrupt->getLevel() == IntOff);
+
+    DEBUG('t', "Sleeping thread \"%s\"\n", getName());
+
+    status = BLOCKED;
+    //currentThread->signaled = false;
+    scheduler->PutInSleepingThreadsList(currentThread);
+
     while ((nextThread = scheduler->FindNextToRun()) == NULL)
         interrupt->Idle(); // no one to run, wait for an interrupt
 
@@ -417,7 +454,8 @@ void Thread::RestoreUserState()
         machine->WriteRegister(i, userRegisters[i]);
 }
 
-int Thread::generateTid() {
+int Thread::generateTid()
+{
     int curTid = userThreadCount;
     userThreadCount++;
     return curTid;
@@ -430,11 +468,12 @@ int Thread::getTid()
 
 void Thread::setTid(int i)
 {
-    if(id == -1)
+    if (id == -1)
         id = i;
 }
 
-int Thread::generatePid() {
+int Thread::generatePid()
+{
     int curPid = processCount;
     processCount++;
     return curPid;
@@ -447,7 +486,7 @@ int Thread::getPid()
 
 void Thread::setPid(int ProcessId)
 {
-    if(pid == -1 && ppid == -1)
+    if (pid == -1 && ppid == -1)
         pid = ProcessId;
 }
 
@@ -531,7 +570,7 @@ void Thread::setReturnAddr(int returnAddr)
 
 void Thread::setPpid(int ParentProcessId)
 {
-    if(pid == -1 && ppid == -1)
+    if (pid == -1 && ppid == -1)
         ppid = ParentProcessId;
 }
 

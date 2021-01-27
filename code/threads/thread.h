@@ -104,102 +104,75 @@ private:
   // THEY MUST be in this position for SWITCH to work.
   int *stackTop;                      // the current stack pointer
   int machineState[MachineStateSize]; // all registers except for stackTop
+                                      // some of the private data for this class is listed above
 
-public:
-  Thread(const char *debugName); // initialize a Thread
-  ~Thread();                     // deallocate a Thread
-  // NOTE -- thread being deleted
-  // must not be running when delete
-  // is called
-
-  static int userThreadCount;
-  static int processCount;
- 
-  // basic thread operations
-  void Fork(VoidFunctionPtr func, int arg); // Make thread run (*func)(arg)
-  //void Fork(VoidFunctionPtr func, void *arg); // Make thread run (*func)(*args)
-  void Yield(); // Relinquish the CPU if any
-  // other thread is runnable
-  void Sleep(); // Put the thread to sleep and
-  // relinquish the processor
-  void Finish(); // The thread is done executing
-
-  void CheckOverflow(); // Check if thread has
-  // overflowed its stack
-  void setStatus(ThreadStatus st)
-  {
-    status = st;
-  }
-  const char *getName()
-  {
-    return (name);
-  }
-  void Print()
-  {
-    printf("%s, ", name);
-  }
-
-private:
-  // some of the private data for this class is listed above
-
-  int *stack; // Bottom of the stack
-  // NULL if this is the main thread
-  // (If NULL, don't deallocate stack)
-  ThreadStatus status; // ready, running or blocked
-  Thread *parent;
   const char *name;
+  ThreadStatus status; // ready, running or blocked
+  int *stack; // Bottom of the stack NULL if this is the main thread (If NULL, don't deallocate stack)
+  Thread *parent;
 
+  int id; // id of our UserThread
   void StackAllocate(VoidFunctionPtr func, int arg);
   // Allocate a stack for thread.
   // Used internally by Fork()
-  //void newChild() { childNb++; }
+
   void InitializeOpenedFiles();
 
-#ifdef USER_PROGRAM
-  // A thread running a user program actually has *two* sets of CPU registers --
-  // one for its state while executing user code, one for its state
-  // while executing kernel code.
-
-  int id;                           // id of our UserThread  
   int pid;
   int ppid;
+  int index; // index in the Thread array use in addrSpace
 
-  int index;                       // index in the Thread array use in addrSpace 
-  
-  Semaphore* waitQueue;
+  Semaphore *waitQueue;
   int numOfWaitingThreads;
-
   struct FunctionAndArgs *functionAndArgs;
   FileTable *openedThreadFiles;
 
+  // A thread running a user program actually has *two* sets of CPU registers --
+  // one for its state while executing user code, one for its state
+  // while executing kernel code.
   int userRegisters[NumTotalRegs]; // user-level CPU register state
+  
+  // Allocate a stack for thread. Used internally by Fork()
+  void StackAllocate(VoidFunctionPtr func, int arg);
 
 public:
+  Thread(const char *debugName);
+  ~Thread(); // NOTE -- thread being deleted must not be running when delete is called
+
+  AddrSpace *space; // User code this thread is running.
+
+  static int userThreadCount;
+  static int processCount;
+
+  int wakeUpTime;
+  bool signaled;
+
+  // basic thread operations
+  void Fork(VoidFunctionPtr func, int arg); // Make thread run (*func)(arg)
+  void Yield();                             // Relinquish the CPU if any other thread is runnable
+  void Sleep();                             // Put the thread to sleep and relinquish the processor
+  void Finish(); // The thread is done executing
+ 
+  void CheckOverflow(); // Check if thread has overflowed its stack 
+  void Print();
+
   void SaveUserState();    // save user-level register state
   void RestoreUserState(); // restore user-level register state
 
-  int generateTid();
+  void TemporarilySleep();
+
+  const char *getName();
+  void setStatus(ThreadStatus st);
+
   int getTid();
   void setTid(int i);
+  int generateTid();
 
   int getIndex();
   void setIndex(int i);
 
-  /**
- * Subscribe to this thread waiting queue
- * 
- * This function is used to wait for this thread to end.
- */
   void waitThread();
-  
-  /**
- * Free the first element in the thread waitingQueue.
- * 
- * We use this function to free in cascade all the 
- * waiting threads which are at userThreadJoin.
- */
   void clearWaitingThreads();
-
   int getNumberOfWaitingThreads();
 
   int getFunction();
@@ -221,9 +194,7 @@ public:
   FileTable *getFileTable();
 
   AddrSpace *space; // User code this thread is running.
-#endif
 };
-
 
 // Magical machine-dependent routines, defined in switch.s
 extern "C"
