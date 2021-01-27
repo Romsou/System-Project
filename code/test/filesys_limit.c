@@ -1,7 +1,8 @@
 #include "syscall.h"
 //launch
+//ce test nécessite la presence de deux repertoire rep1 et rep2 dans le rep racine
 /*
-*./nachos-step5 -f; ./nachos-step5 -cp filesys_limit filesys_limit; ./nachos-step5 -x filesys_limit;
+*./nachos-step5 -cp filesys_llimit filesys_limit; ./nachos-step5 -x filesys_limit;
 */
 
 char *get(){
@@ -27,7 +28,7 @@ char *get(){
     return "";
 }
 
-void CreateFiles(){
+void CreateFithteenFiles(){
     Create("rep1/f1");
     Create("rep1/f2");
     Create("rep1/f3");
@@ -47,10 +48,7 @@ void CreateFiles(){
 
 int main ()
 {
-    Create("./rep1/");
-    Create("./rep2/");
-
-    CreateFiles();
+    CreateFithteenFiles();
 
     OpenFileId tabIds[50];
 
