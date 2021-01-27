@@ -40,13 +40,6 @@ typedef enum
 // into a register, a context switch might have occurred,
 // and some other thread might have called P or V, so the true value might
 // now be different.
-
-typedef enum
-{
-  FREE,
-  BUSY
-} LockState;
-
 class Semaphore
 {
 public:
