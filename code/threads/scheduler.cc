@@ -24,6 +24,8 @@
 
 bool timeToWakeUp(Thread *thread)
 {
+    if(thread->wakeUpTime < 0)
+        return false;
     return thread->wakeUpTime - stats->totalTicks <= 0;
 }
 
