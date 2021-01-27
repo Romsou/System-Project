@@ -130,7 +130,7 @@ int main(int argc, char **argv)
 		}
 #endif // USER_PROGRAM
 #ifdef FILESYS
-		if (!strcmp(*argv, "-cp"))
+		else if (!strcmp(*argv, "-cp"))
 		{ // copy from UNIX to Nachos
 			ASSERT(argc > 2);
 			Copy(*(argv + 1), *(argv + 2));
@@ -165,7 +165,6 @@ int main(int argc, char **argv)
 			PerformanceTest();
 		}
 		//if(argc <= 1)
-			interrupt->Halt();
 #endif // FILESYS
 #ifdef NETWORK
 		if (!strcmp(*argv, "-o"))
@@ -179,6 +178,8 @@ int main(int argc, char **argv)
 		}
 #endif // NETWORK
 	}
+	
+	interrupt->Halt();
 
 	currentThread->Finish(); // NOTE: if the procedure "main"
 	// returns, then the program "nachos"
