@@ -5,7 +5,7 @@
 # This simple script creates two files and
 # test whether synchconsole may write in it
 
-exec=nachos-step4
+exec=nachos-step6
 
 main() {
     echo "Test synchConsole.cc" > ../build/in.txt
