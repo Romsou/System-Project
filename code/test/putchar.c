@@ -9,17 +9,19 @@
 void print(char c, int n)
 {
     int i;
-    for (i = 0; i < n; i++) {
+    for (i = 0; i < n; i++)
         PutChar(c+i);
-    }
     PutChar('\n');
 }
 
 int main ()
 {
     print('a', 4); //test for PutChar
-    //Halt ();
-
+    PutChar('1');
+    PutChar('B');
+    PutChar('\n');
+    // PutChar(GetsChar());
+    End();
     /* not reached */
     return 0;
 }
