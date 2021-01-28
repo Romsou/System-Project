@@ -290,14 +290,20 @@ void handleOpen()
   DEBUG('f', "Call for opening file\n");
   char s[FileNameMaxLen];
   copyStringFromMachine(machine->ReadRegister(4), s, FileNameMaxLen);
-  int fileId = fileSystem->getSector(fileSystem->Open(s));
+  OpenFile* openFile = fileSystem->Open(s);
+  int fileId = fileSystem->getSector(openFile);
+  if (fileId != -1) {
+    currentThread->getFileTable()->AddFile(openFile, fileId);
+  }
   machine->WriteRegister(2, fileId);
 }
 
 void handleClose()
 {
   DEBUG('f', "Call for closing file\n");
-  fileSystem->Close(fileSystem->getOpenFile(machine->ReadRegister(4)));
+  OpenFile* openFile = fileSystem->getOpenFile(machine->ReadRegister(4));
+  if(fileSystem->Close(openFile))
+    currentThread->getFileTable()->RemoveFile(openFile);
 }
 
 void handleRead()
