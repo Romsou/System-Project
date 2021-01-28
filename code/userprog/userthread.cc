@@ -18,8 +18,7 @@
  */
 static void StartUserThread(int f)
 {
-  DEBUG('t', "Call of StartUserThread\n");
-
+  DEBUG('f', "Call of StartUserThread\n");
   currentThread->space->InitRegisters();
 
   int stackaddress = machine->ReadRegister(StackReg);
@@ -27,7 +26,7 @@ static void StartUserThread(int f)
   machine->WriteRegister(PCReg, currentThread->getFunction());
 
   machine->WriteRegister(NextPCReg, machine->ReadRegister(PCReg) + 4);
-  machine->WriteRegister(StackReg, stackaddress - 2 * currentThread->getIndex() * PageSize);
+  machine->WriteRegister(StackReg, stackaddress - 2 * (currentThread->getIndex()+1) * PageSize);
   machine->WriteRegister(4, currentThread->getArgs());
 
   //This will allow us to call UserThreadExit (see exception.cc)
