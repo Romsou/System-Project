@@ -1,16 +1,5 @@
 #!/usr/bin/env bash
 
-<<<<<<< HEAD
-green="\e[32m"
-reset="\e[0m"
-checkmark="\xE2\x9C\x94"
-
-gecho() {
-    echo -e ${green}$*${reset}
-}
-
-=======
->>>>>>> 7998c91f3416deb6a479ac76d7ec1504220e2846
 test_threads() {
     echo -e "==== Test des threads ====\n"
     ./nachos-final -f >/dev/null
