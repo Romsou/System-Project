@@ -131,8 +131,6 @@ private:
   // Allocate a stack for thread. Used internally by Fork()
   void StackAllocate(VoidFunctionPtr func, int arg);
 
-  void InitializeOpenedFiles();
-
 public:
   Thread(const char *debugName);
   ~Thread(); // NOTE -- thread being deleted must not be running when delete is called

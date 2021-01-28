@@ -40,7 +40,6 @@ public:
 
   //Lock for synch Halt/Exit
   Lock *HaltAndExitLock;
-  Semaphore *test;
 
   /**
    * Indicates whether the list of user threads is empty
