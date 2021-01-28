@@ -32,5 +32,5 @@ int main(){
 	UserThreadCreate(print,&g);
 	UserThreadCreate(print,&h);
 
-	End();
+	return 0;
 }

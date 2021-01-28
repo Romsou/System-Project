@@ -15,8 +15,6 @@ int main ()
     GetString(s, size);
     PutString(s);
     PutChar('\n');
-
-    Halt ();
     /* not reached */
     return 0;
 }

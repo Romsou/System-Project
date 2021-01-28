@@ -18,8 +18,6 @@ int main ()
     print(1234567891);
     // PutInt(GetInt());
     PutChar('\n');
-
-    End();
     /* not reached */
     return 0;
 }
