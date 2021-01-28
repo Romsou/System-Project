@@ -287,7 +287,7 @@ void handleCreate()
   char s[FileNameMaxLen];
   copyStringFromMachine(machine->ReadRegister(4), s, FileNameMaxLen);
   //fileSystem->Create(s, MaxFileSize);
-  fileSystem->Create(s, 10);
+  fileSystem->Create(s, 50);
 }
 
 void handleOpen()
@@ -295,7 +295,7 @@ void handleOpen()
   DEBUG('f', "Call for opening file\n");
   char s[FileNameMaxLen];
   copyStringFromMachine(machine->ReadRegister(4), s, FileNameMaxLen);
-  int fileId = fileSystem->getSector(fileSystem->Open(s));
+  int fileId = fileSystem->getSector(fileSystem->Open(s));    //return -1 if s can't be opened
   machine->WriteRegister(2, fileId);
 }
 
@@ -303,6 +303,7 @@ void handleClose()
 {
   DEBUG('f', "Call for closing file\n");
   fileSystem->Close(fileSystem->getOpenFile(machine->ReadRegister(4)));
+  //filetable contains securities
 }
 
 void handleRead()
@@ -311,10 +312,15 @@ void handleRead()
   int buffer = machine->ReadRegister(4);
   int size = machine->ReadRegister(5);
   OpenFile* openFile = fileSystem->getOpenFile(machine->ReadRegister(6));
+  int nb_read;
 
-  char s[MAX_STRING_SIZE];
-  int nb_read = openFile->Read(s, size);
-  copyStringToMachine(s, buffer, size);
+  if(buffer < 0 || size < 0 || openFile==NULL)
+    nb_read = -1;
+  else{
+    char s[MAX_STRING_SIZE];
+    nb_read = openFile->Read(s, size);
+    copyStringToMachine(s, buffer, size);
+  }
   machine->WriteRegister(2, nb_read);
 }
 
@@ -324,6 +330,9 @@ void handleWrite()
   int buffer = machine->ReadRegister(4);
   int size = machine->ReadRegister(5);
   OpenFile* openFile = fileSystem->getOpenFile(machine->ReadRegister(6));
+
+  if(buffer < 0 || size < 0 || openFile==NULL)
+    return;
 
   char s[size];
   copyStringFromMachine(buffer, s, size);
