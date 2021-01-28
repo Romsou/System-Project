@@ -5,7 +5,6 @@
 #include "addrspace.h"
 #include <string.h>
 
-
 static void startNewProcess(int argAddr)
 {
   char* filename = (char*) argAddr;
@@ -20,18 +19,15 @@ static void startNewProcess(int argAddr)
   currentThread->space->InitRegisters();
   currentThread->space->RestoreState();
 
-  //free(filename);
-  //filename = NULL;
+  free(filename);
 
   machine->Run();
   ASSERT (FALSE);		// machine->Run never returns;
 }
+
 int do_SystemThreadCreate(char *filename)
 {
   Thread *process = new Thread(filename);
-  if (process == NULL)
-    return -1;
-  
   process->setPid(process->generatePid());
   processTable->add(process);
   process->Fork(startNewProcess, (int)filename);
@@ -42,7 +38,16 @@ int do_SystemThreadCreate(char *filename)
 /*
 static void startNewProcess(int argAddr)
 {
-  char* filename = (char*) argAddr;
+  
+  currentThread->space->InitRegisters();
+  currentThread->space->RestoreState();
+  
+  machine->Run();
+  ASSERT (FALSE);		// machine->Run never returns; 
+}
+
+int do_SystemThreadCreate(char *filename)
+{
   OpenFile *executable = fileSystem->Open(filename);
   ASSERT(executable != NULL);
 
@@ -60,18 +65,9 @@ static void startNewProcess(int argAddr)
   }
   free(filename);
   
-  currentThread->space = space;
   if(currentThread->space == NULL)
-    return;
-  currentThread->space->InitRegisters();
-  currentThread->space->RestoreState();
-  
-  machine->Run();
-  ASSERT (FALSE);		// machine->Run never returns; 
-}
+    return -1;
 
-int do_SystemThreadCreate(char *filename)
-{
   Thread *process = new Thread(filename);
   //startNewSpace(process,filename);
   
@@ -79,7 +75,7 @@ int do_SystemThreadCreate(char *filename)
   processTable->add(process);
   
   process->Fork(startNewProcess, (int)filename);
-  
+  process->space = space;
   if(process->space==NULL)
     return -1;
 
