@@ -5,49 +5,45 @@
 #include "addrspace.h"
 #include <string.h>
 
+/*
 static void startNewProcess(int argAddr)
 {
-  char* filename = (char*) argAddr;
+  currentThread->space->InitRegisters();
+  currentThread->space->RestoreState();
+  machine->Run();
+  ASSERT (FALSE);		// machine->Run never returns;
+}
+int do_SystemThreadCreate(char *filename)
+{
+  //Try to create AddrSpace
   OpenFile *executable = fileSystem->Open(filename);
   ASSERT(executable != NULL);
 
   AddrSpace *space = new AddrSpace(executable);
   delete executable;		// close file
+  free(filename);
   ASSERT(space != NULL);
 
-  currentThread->space = space;
-  currentThread->space->InitRegisters();
-  currentThread->space->RestoreState();
+  if(!space->isValid()){
+    space = NULL;
+    // currentThread->Finish()
+    interrupt->Halt();
+  }else{
+    space = space;
+  }
 
-  free(filename);
-
-  machine->Run();
-  ASSERT (FALSE);		// machine->Run never returns;
-}
-
-int do_SystemThreadCreate(char *filename)
-{
   Thread *process = new Thread(filename);
   process->setPid(process->generatePid());
   processTable->add(process);
   process->Fork(startNewProcess, (int)filename);
+  process->space = space;
 
   return process->getPid();
-}
+}*/
 
-/*
 static void startNewProcess(int argAddr)
 {
-  
-  currentThread->space->InitRegisters();
-  currentThread->space->RestoreState();
-  
-  machine->Run();
-  ASSERT (FALSE);		// machine->Run never returns; 
-}
-
-int do_SystemThreadCreate(char *filename)
-{
+  char* filename = (char*) argAddr;
   OpenFile *executable = fileSystem->Open(filename);
   ASSERT(executable != NULL);
 
@@ -59,15 +55,22 @@ int do_SystemThreadCreate(char *filename)
 #endif //FILSYS
 
   if(!space->isValid()){
-    space = NULL;
+    interrupt->Halt();
   }else{
     space = space;
   }
   free(filename);
   
-  if(currentThread->space == NULL)
-    return -1;
+  currentThread->space = space;
+  currentThread->space->InitRegisters();
+  currentThread->space->RestoreState();
+  
+  machine->Run();
+  ASSERT (FALSE);		// machine->Run never returns; 
+}
 
+int do_SystemThreadCreate(char *filename)
+{
   Thread *process = new Thread(filename);
   //startNewSpace(process,filename);
   
@@ -75,11 +78,10 @@ int do_SystemThreadCreate(char *filename)
   processTable->add(process);
   
   process->Fork(startNewProcess, (int)filename);
-  process->space = space;
+  
   if(process->space==NULL)
     return -1;
 
   //(void)interrupt->SetLevel(oldLevel);
   return process->getPid();
 }
-*/
