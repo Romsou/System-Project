@@ -5,7 +5,7 @@ test_threads() {
     ./nachos-final -f >/dev/null
     for file in $(ls | grep -i ^thread | grep -v .o$); do
         echo -e "--- Test \e[32m$file\e[0m ---\n"
-        ./nachos-final -cp $file $file
+        ./nachos-final -cp $file $file > /dev/null
         ./nachos-final -rs 1 -x $file
         read -p "Appuyez sur une touche"
     done
