@@ -4,9 +4,10 @@ test_threads() {
     echo -e "==== Test des threads ====\n"
     ./nachos-final -f >/dev/null
     for file in $(ls | grep -i ^thread | grep -v .o$); do
-        echo -e "--- Test $file ---\n"
+        echo -e "--- Test \e[32m$file\e[0m ---\n"
         ./nachos-final -cp $file $file
         ./nachos-final -rs 1 -x $file
+        read -p "Appuyez sur une touche"
     done
 }
 
@@ -14,8 +15,9 @@ test_processes() {
     echo -e "==== Test des processus ====\n"
     ./nachos-step4 -f >/dev/null
     for file in $(ls | grep -i ^process | grep -v .o$); do
-        echo -e "--- Test $file ---\n"
+        echo -e "--- Test \e[32m$file\e[0m ---\n"
         ./nachos-step4 -rs 1 -x $file
+        read -p "Appuyez sur une touche"
     done
 }
 
@@ -27,6 +29,7 @@ test_filesystem() {
         ./nachos-final -cp $file $file
         ./nachos-final -rs 1 -x $file
         ./nachos-final -D
+        read -p "Appuyez sur une touche"
     done
 
     file="filesys_limit"
@@ -37,6 +40,7 @@ test_filesystem() {
     ./nachos-final -rs 1 -x $file
     echo -e "\e[32mContenu de la mémoire\e[0m"
     ./nachos-final -D
+    read -p "Appuyez sur une touche"
 }
 
 test_network() {
