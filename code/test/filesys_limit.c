@@ -2,7 +2,7 @@
 //launch
 //ce test nécessite la presence de deux repertoire rep1 et rep2 dans le rep racine
 /*
-*./nachos-step5 -cp filesys_llimit filesys_limit; ./nachos-step5 -x filesys_limit;
+*./nachos-final -cp filesys_limit filesys_limit; ./nachos-final -x filesys_limit;
 */
 
 char *get(){
@@ -48,6 +48,9 @@ void CreateFithteenFiles(){
 
 int main ()
 {
+    PutString("Test sur le nombre maximal de fichiers ouverts\n");
+    Create("./rep1/");
+    Create("./rep2/");
     CreateFithteenFiles();
 
     OpenFileId tabIds[50];

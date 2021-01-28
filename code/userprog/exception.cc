@@ -281,8 +281,30 @@ void handleCreate()
   DEBUG('f', "Call for creating file\n");
   char s[FileNameMaxLen];
   copyStringFromMachine(machine->ReadRegister(4), s, FileNameMaxLen);
-  //fileSystem->Create(s, MaxFileSize);
-  fileSystem->Create(s, 10);
+  int len = strlen(s);
+
+  if(s[len-1]=='/'){
+    s[len-1]='\0';
+    fileSystem->CreateDir(s);
+  }
+  else
+    fileSystem->Create(s, 50);
+}
+
+/**
+ * handleRemove handles SC_Remove system call. Remove a file.
+ */
+void handleRemove() 
+{
+  DEBUG('f', "Call for removing file\n");
+  char s[FileNameMaxLen];
+  copyStringFromMachine(machine->ReadRegister(4), s, FileNameMaxLen);
+  int len = strlen(s);
+  if(s[len-1]=='/'){
+    s[len-1]='\0';
+    fileSystem->RemoveDir(s);
+  }else
+    fileSystem->Remove(s);
 }
 
 void handleOpen()
@@ -290,11 +312,18 @@ void handleOpen()
   DEBUG('f', "Call for opening file\n");
   char s[FileNameMaxLen];
   copyStringFromMachine(machine->ReadRegister(4), s, FileNameMaxLen);
-  OpenFile* openFile = fileSystem->Open(s);
-  int fileId = fileSystem->getSector(openFile);
-  if (fileId != -1) {
-    currentThread->getFileTable()->AddFile(openFile, fileId);
-  }
+  int fileId;
+  int len = strlen(s);
+  if(s[len-1]=='/'){
+    s[len-1]='\0';
+    fileId = (fileSystem->ChangeDir(s))?1:-1;
+  }else{
+    fileId = fileSystem->getSector(fileSystem->Open(s));
+    //Fill thread open file table
+    if (fileId != -1)
+      currentThread->getFileTable()->AddFile(fileSystem->getOpenFile(fileId), fileId);
+  }    //return -1 if s can't be opened
+
   machine->WriteRegister(2, fileId);
 }
 
@@ -312,10 +341,15 @@ void handleRead()
   int buffer = machine->ReadRegister(4);
   int size = machine->ReadRegister(5);
   OpenFile* openFile = fileSystem->getOpenFile(machine->ReadRegister(6));
+  int nb_read;
 
-  char s[MAX_STRING_SIZE];
-  int nb_read = openFile->Read(s, size);
-  copyStringToMachine(s, buffer, size);
+  if(buffer < 0 || size < 0 || openFile==NULL)
+    nb_read = -1;
+  else{
+    char s[MAX_STRING_SIZE];
+    nb_read = openFile->Read(s, size);
+    copyStringToMachine(s, buffer, size);
+  }
   machine->WriteRegister(2, nb_read);
 }
 
@@ -325,6 +359,9 @@ void handleWrite()
   int buffer = machine->ReadRegister(4);
   int size = machine->ReadRegister(5);
   OpenFile* openFile = fileSystem->getOpenFile(machine->ReadRegister(6));
+
+  if(buffer < 0 || size < 0 || openFile==NULL)
+    return;
 
   char s[size];
   copyStringFromMachine(buffer, s, size);
@@ -415,6 +452,9 @@ void ExceptionHandler(ExceptionType which)
 #ifdef FILESYS
     case SC_Create:
       handleCreate();
+      break;
+    case SC_Remove:
+      handleRemove();
       break;
     case SC_Open:
       handleOpen();

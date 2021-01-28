@@ -1,6 +1,6 @@
 #!/bin/bash
 
-exec=nachos-step6
+exec=nachos-final
 old_wd=$(pwd)
 green="\e[32m"
 red="\e[31m"
