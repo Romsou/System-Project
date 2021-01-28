@@ -17,7 +17,5 @@ int main() {
   UserThreadCreate(print, phrase);
   UserThreadCreate(print, phrase);
   PutString("Fin du test\n");
-
-  // End();
   return 0;
 }
