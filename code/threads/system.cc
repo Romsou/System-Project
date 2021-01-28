@@ -98,7 +98,7 @@ void Initialize(int argc, char **argv)
 #endif
 #ifdef NETWORK
     double rely = 1; // network reliability
-    int netname = 0; // UNIX socket name
+    int netname = -1; // UNIX socket name
 #endif
 
     for (argc--, argv++; argc > 0; argc -= argCount, argv += argCount)
@@ -210,7 +210,8 @@ void Initialize(int argc, char **argv)
 #endif
 
 #ifdef NETWORK
-    postOffice = new PostOffice(netname, rely, 10);
+    if(netname >= 0)
+        postOffice = new PostOffice(netname, rely, 10);
 #endif
 }
 

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-exec=nachos-step6
+exec=nachos-final
 old_wd=$(pwd)
 green="\e[32m"
 red="\e[31m"
@@ -28,18 +28,22 @@ gecho "Formattage du disque dur..."
 ./$exec -f > /dev/null
 echo 
 
+files="$(ls|grep -i ^user|grep -v .o$|head -n 4)"
+
 gecho "Copie de tous les fichiers dans le système..."
-for i in $(ls|grep -i ^user|grep -v .o$); do
-    echo -n "Copie de $i..." 
+for i in $files; do
+    echo -n "Copie de $i..."
+     
     ./$exec -cp $i $i > /dev/null
     gecho " $checkmark"
 done
 
+echo
 gecho "Test des exécutable..."
-for i in $(ls|grep -i ^user|grep -v .o$); do
+for i in $files; do
     echo -n "Lancement de "
     gecho $i
-    ./$exec -x $i $i
+    ./$exec -x $i
     echo 
 done
 
