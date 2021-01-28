@@ -320,8 +320,8 @@ void handleOpen()
   }else{
     fileId = fileSystem->getSector(fileSystem->Open(s));
     //Fill thread open file table
-    if (fileId != -1)
-      currentThread->getFileTable()->AddFile(fileSystem->getOpenFile(fileId), fileId);
+    //if (fileId != -1)
+      //currentThread->getFileTable()->AddFile(fileSystem->getOpenFile(fileId), fileId);
   }    //return -1 if s can't be opened
 
   machine->WriteRegister(2, fileId);
@@ -331,8 +331,8 @@ void handleClose()
 {
   DEBUG('f', "Call for closing file\n");
   OpenFile* openFile = fileSystem->getOpenFile(machine->ReadRegister(4));
-  if(fileSystem->Close(openFile))
-    currentThread->getFileTable()->RemoveFile(openFile);
+  fileSystem->Close(openFile);
+    //currentThread->getFileTable()->RemoveFile(openFile);
 }
 
 void handleRead()
