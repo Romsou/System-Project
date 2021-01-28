@@ -255,11 +255,6 @@ void handleUserThreadCreate()
 void handleUserThreadExit()
 {
   DEBUG('t', "Call for exiting user thread\n");
-  currentThread->space->DeleteThreadFromArray(currentThread->getIndex());
-  /*if (currentThread->space->isEmptyUserThread())
-  {
-    currentThread->space->HaltAndExitLock->V();
-  }*/
   do_UserThreadExit();
 }
 
@@ -328,14 +323,16 @@ void handleOpen()
     if (fileId != -1)
       currentThread->getFileTable()->AddFile(fileSystem->getOpenFile(fileId), fileId);
   }    //return -1 if s can't be opened
+
   machine->WriteRegister(2, fileId);
 }
 
 void handleClose()
 {
   DEBUG('f', "Call for closing file\n");
-  fileSystem->Close(fileSystem->getOpenFile(machine->ReadRegister(4)));
-  //filetable contains securities
+  OpenFile* openFile = fileSystem->getOpenFile(machine->ReadRegister(4));
+  if(fileSystem->Close(openFile))
+    currentThread->getFileTable()->RemoveFile(openFile);
 }
 
 void handleRead()

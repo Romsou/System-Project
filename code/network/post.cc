@@ -345,3 +345,96 @@ PostOffice::PacketSent()
     messageSent->V();
 }
 
+int min(int a, int b)
+{
+    if (a < b)
+        return a;
+    return b;
+}
+
+void PostOffice::Send2(PacketHeader pktHdr, MailHeader mailHdr, const char *data)
+{
+    //Headers pour envoyer
+    PacketHeader outPktHdr = pktHdr;
+    MailHeader outMailHdr = mailHdr;
+    int size = DATAMAXSIZE;
+    char buffer[size];
+
+    //Headers pour recevoir
+    PacketHeader inPktHdr;
+    MailHeader inMailHdr;
+
+    //On envoie la taille au destinataire
+
+    PacketHeader taillePkt;
+    MailHeader tailleMail;
+
+    taillePkt.to = outPktHdr.to;
+    tailleMail.to = 0;
+    tailleMail.from = 1;
+    tailleMail.length = sizeof(int);
+
+    //TODO: Utiliser la version fiable de Send
+    Send(taillePkt, tailleMail, (char *)&(size));
+
+    //On attend le ack
+    Receive(0, &inPktHdr, &inMailHdr, buffer);
+
+    int current_size = 0;
+
+    while (current_size < size)
+    {
+        outMailHdr.length = min((int)sizeof(outMailHdr.length), size - current_size);
+        memcpy((void*) data, data + current_size, outMailHdr.length);
+        Send(outPktHdr, outMailHdr, data);
+    }
+
+    //On attend la réponse
+    Receive(0, &inPktHdr, &inMailHdr, buffer);
+}
+
+void PostOffice::Receive2(int box, PacketHeader *pktHdr, MailHeader *mailHdr, char *data)
+{
+    int current_size = 0;
+    char buffer[DATAMAXSIZE];
+    PacketHeader outPktHdr, inPktHdr;
+    MailHeader outMailHdr, inMailHdr;
+    Receive(box, &inPktHdr, &inMailHdr, buffer);
+    current_size = *((int *)buffer);
+    int size = current_size;
+    char *output = NULL;
+    current_size = 0;
+
+    if (size > 0)
+    {
+        output = new char[size];
+    }
+    outPktHdr.to = inPktHdr.from;
+    outMailHdr.to = inMailHdr.from;
+    outMailHdr.from = inMailHdr.to;
+    outMailHdr.length = 2;
+    Send(outPktHdr, outMailHdr, "a");
+    while (current_size < size)
+    {
+        Receive(inMailHdr.to, &inPktHdr, &inMailHdr, (char *)&(data));
+        if (inMailHdr.ack > 0)
+        {
+            if (outPktHdr.to == inPktHdr.from)
+            {
+                memcpy(output + current_size, data, strlen(data) + 1);
+                current_size += strlen(data) + 1;
+            }
+        }
+        else
+        {
+            delete[] output;
+            *(mailHdr) = inMailHdr;
+            *(pktHdr) = inPktHdr;
+            size = 0;
+        }
+    }
+    outMailHdr.length = 2;
+    Send(outPktHdr, outMailHdr, "a");
+    *(mailHdr) = inMailHdr;
+    *(pktHdr) = inPktHdr;
+}
