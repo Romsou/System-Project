@@ -318,11 +318,10 @@ void handleOpen()
     s[len-1]='\0';
     fileId = (fileSystem->ChangeDir(s))?1:-1;
   }else{
-    fileId = fileSystem->getSector(fileSystem->Open(s));
+    fileId = fileSystem->getSector(fileSystem->Open(s)); //return -1 if s can't be opened
     //Fill thread open file table
-    //if (fileId != -1)
-      //currentThread->getFileTable()->AddFile(fileSystem->getOpenFile(fileId), fileId);
-  }    //return -1 if s can't be opened
+  }    
+
 
   machine->WriteRegister(2, fileId);
 }
@@ -330,9 +329,9 @@ void handleOpen()
 void handleClose()
 {
   DEBUG('f', "Call for closing file\n");
+
   OpenFile* openFile = fileSystem->getOpenFile(machine->ReadRegister(4));
   fileSystem->Close(openFile);
-    //currentThread->getFileTable()->RemoveFile(openFile);
 }
 
 void handleRead()

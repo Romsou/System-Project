@@ -25,7 +25,8 @@ FileTable::~FileTable()
  */
 bool FileTable::AddFile(OpenFile *file, int sector)
 {
-  if (file == NULL || filePresenceIndicator->NumSet()==nbFiles)
+  DEBUG('f',"Deja %d dans le tableau\n",filePresenceIndicator->NumSet());
+  if (file == NULL || filePresenceIndicator->NumSet()==nbFiles || sector < 2)
     return false;
 
   int index = filePresenceIndicator->Find();
@@ -62,6 +63,7 @@ bool FileTable::RemoveFile(OpenFile *file)
       openFiles[i]->nbWaiting--;
       
       if(openFiles[i]->nbWaiting==0){
+        delete openFiles[i]->lock;
         delete openFiles[i];
         openFiles[i] = NULL;        
         filePresenceIndicator->Clear(i);
@@ -87,7 +89,8 @@ OpenFile* FileTable::getOrCreateOpenFile(int sector) {
       openfile = openFiles[i]->openFile;
       openFiles[i]->nbWaiting++;
       openFiles[i]->lock->Acquire();
-      filePresenceIndicator->Mark(i);
+      if(!filePresenceIndicator->Test(i))
+        filePresenceIndicator->Mark(i);
       break;
     }
   if(openfile == NULL){
