@@ -28,7 +28,7 @@ gecho "Formattage du disque dur..."
 ./$exec -f > /dev/null
 echo 
 
-files="$(ls|grep -i ^user|grep -v .o$|head -n 4)"
+files="$(ls|grep -i ^thread|grep -v .o$|head -n 4)"
 
 gecho "Copie de tous les fichiers dans le système..."
 for i in $files; do
