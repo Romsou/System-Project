@@ -87,6 +87,7 @@ USERPROG_LIBS=start.S
 #USER_FLAVORS=final
 USER_FLAVORS= step4 step6 final
 
+
 ######### step2
 #$(eval $(call define-flavor,step2,userprog filesys-stub,synchconsole.cc))
 
