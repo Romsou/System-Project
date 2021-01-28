@@ -3,7 +3,7 @@
 static void print(void *arg)
 {
     char* phrase = (char*) arg;
-    //UserThreadCreate(print, phrase); //est-ce que cette fonction a un sens ici ?
+    UserThreadCreate(print, phrase);    //ne doit pas marcher
     PutString(phrase);
 }
 

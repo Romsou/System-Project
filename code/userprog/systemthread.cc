@@ -71,16 +71,17 @@ static void startNewProcess(int argAddr)
 
 int do_SystemThreadCreate(char *filename)
 {
+  if (currentThread->getPid() == -1)
+    return -1;
+  
   Thread *process = new Thread(filename);
   //startNewSpace(process,filename);
   
   process->setPid(process->generatePid());
-  processTable->add(process);
-  
-  process->Fork(startNewProcess, (int)filename);
-  
-  if(process->space==NULL)
+  if (!processTable->add(process))
     return -1;
+
+  process->Fork(startNewProcess, (int)filename);
 
   //(void)interrupt->SetLevel(oldLevel);
   return process->getPid();
