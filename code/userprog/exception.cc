@@ -255,11 +255,6 @@ void handleUserThreadCreate()
 void handleUserThreadExit()
 {
   DEBUG('t', "Call for exiting user thread\n");
-  currentThread->space->DeleteThreadFromArray(currentThread->getIndex());
-  /*if (currentThread->space->isEmptyUserThread())
-  {
-    currentThread->space->HaltAndExitLock->V();
-  }*/
   do_UserThreadExit();
 }
 

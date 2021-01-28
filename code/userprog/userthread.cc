@@ -89,6 +89,11 @@ int do_UserThreadCreate(int f, int arg)
  */
 void do_UserThreadExit()
 {
+  if (currentThread->getTid() == -1)
+    return;
+
+  currentThread->space->DeleteThreadFromArray(currentThread->getIndex());
+  
   for (int i = 0; i < currentThread->getNumberOfWaitingThreads(); i++)
     currentThread->clearWaitingThreads();
 

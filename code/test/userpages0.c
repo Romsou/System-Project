@@ -18,7 +18,6 @@ int main(){
 	UserThreadCreate(print,&a);
 	UserThreadCreate(print,&b);
 	UserThreadCreate(print,&c);
-
-	End();
+	ForkExec("userpages1");		//Devrait marcher
 	return 0;
 }

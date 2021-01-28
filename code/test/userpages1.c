@@ -14,8 +14,8 @@ void puts(void *s)
 }
 
 int main(){
+	ForkExec("putchar");	//Devrait marcher
 	PutString("TEST1\n");
 	UserThreadCreate(puts,THIS);
-	End();
 	return 0;
 }
