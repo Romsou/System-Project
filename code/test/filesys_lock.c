@@ -7,13 +7,7 @@
 */
 
 void print(void *j){
-    //int i = *((int *)j);
     OpenFileId fd = Open("f1");
-    //PutString("Je suis :");
-    //PutInt(i);
-    //PutChar(';');
-    //PutInt(fd);
-    //PutChar('\n');
     Close(fd);
     PutString("Libre !\n");
 }
