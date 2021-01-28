@@ -24,31 +24,24 @@ echo -n "."
 echo -n ". "
 gecho "\xE2\x9C\x94"
 
-gecho "Formattage du disque dur..."
-./$exec -f > /dev/null
-echo 
 
-files="$(ls|grep -i ^thread|grep -v .o$|head -n 4)"
 
-gecho "Copie de tous les fichiers dans le système..."
+files="filesys_create filesys_directory filesys_lock filesys_limit"
+
+gecho "Tests du systeme de fichier"
+echo
 for i in $files; do
-    echo -n "Copie de $i..."
+	gecho "Formattage du disque dur..."
+	./$exec -f > /dev/null
+	echo -n "Copie de $i..."
      
     ./$exec -cp $i $i > /dev/null
     gecho " $checkmark"
-done
 
-echo
-gecho "Test des exécutable..."
-for i in $files; do
     echo -n "Lancement de "
     gecho $i
-    ./$exec -x $i
-    echo 
+    ./$exec -x $i 
+    gecho "Contenu de la memoire"
+    ./$exec -D
+    echo
 done
-
-echo "Test réseau simple..."
-cd $old_pwd
-./test_network_machine_ring.sh
-
-exit 0

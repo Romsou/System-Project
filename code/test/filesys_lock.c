@@ -1,29 +1,31 @@
 #include "syscall.h"
 //launch
 /*
-*./nachos-final -f; ./nachos-final -cp filesys_lock filesys_lock;
-		./nachos-final -x filesys_lock; ./nachos-final -D
+*./nachos-final -f; 
+./nachos-final -cp filesys_lock filesys_lock; ./nachos-final -x filesys_lock; 
+        ./nachos-final -D
 */
+
+void print(void *j){
+    OpenFileId fd = Open("f1");
+    Close(fd);
+    PutString("Libre !\n");
+}
 
 int main ()
 {
+    PutString("Test de la table utilisateur\n");
     Create("f1");
-    OpenFileId fileId = Open("f1");
-    OpenFileId fileId2 = Open("f1");
-    
-    char* buffer = "une chaine test";
-    int size = 15;
-    char res[size];
-    
-    Write(buffer, size, fileId);
-    Close(fileId);
 
+    int a = 1;
+    int b = 2;
+    int c = 3;
+    int t1 = UserThreadCreate(print,&a);
+    UserThreadCreate(print,&b);
 
-    PutString("Avant read\n");
-    Read(res,size,fileId2);
-    PutString(res);
+    UserThreadJoin(t1);
+    UserThreadCreate(print,&c);
     
-    Close(fileId);
     End();
     /* not reached */
     return 0;

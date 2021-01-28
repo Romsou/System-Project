@@ -5,7 +5,7 @@
 nachos=nachos-step6
 
 execute_programs() {
-    for program in $(ls | grep -i ^userthread | cut -d "." -f1 | sort | uniq); do
+    for program in $(ls | grep -i ^thread | cut -d "." -f1 | sort | uniq); do
         echo
         echo -e "==== \e[32mExecuting $program\e[0m ====\n"
         ./${nachos} -rs 1 -x ${program}
