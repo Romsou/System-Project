@@ -16,10 +16,6 @@ void puts(void *s)
 {
 	char *p = (char *)s;
     PutString(p);
-
-	/*for(p=(char*)s ; *p != '\0' ; p++){
-		PutChar(*p);
-	}*/
 }
 
 int main()
@@ -37,7 +33,6 @@ int main()
 	UserThreadCreate(puts,phrase);
 	UserThreadCreate(puts,phrase);
 
-    End();
     //Not reached
     return 0;
 }

@@ -16,12 +16,11 @@ void print(char c, int n)
 
 int main ()
 {
-    print('a', 4); //test for PutChar
-    //PutChar('1');
-    //PutChar('B');
+    print('a', 4);
+    PutChar('1');
+    PutChar('B');
     PutChar('\n');
     // PutChar(GetsChar());
-    End();
     /* not reached */
     return 0;
 }

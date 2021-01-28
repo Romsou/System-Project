@@ -176,8 +176,8 @@ void Initialize(int argc, char **argv)
     scheduler = new Scheduler(); // initialize the ready queue
 
     processTable = new ProcessTable(NB_MAX_PROCESS);
-    //if (randomYield) // start the timer (if needed)
-    timer = new Timer(TimerInterruptHandler, 0, randomYield);
+    if (randomYield) // start the timer (if needed)
+        timer = new Timer(TimerInterruptHandler, 0, randomYield);
 
     threadToBeDestroyed = NULL;
 

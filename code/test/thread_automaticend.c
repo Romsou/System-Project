@@ -15,9 +15,6 @@ int main()
     //UserThreadCreate(print, (char*)a);        //TODO : pareil
     UserThreadCreate(print, phrase);
 
-    
-  
-    End();
     //Not reached
     return 0;
 }
