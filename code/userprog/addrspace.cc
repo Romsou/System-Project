@@ -359,13 +359,12 @@ Thread *AddrSpace::getThreadAtId(int id)
  */
 void AddrSpace::putThreadAtIndex(Thread *thread, int index)
 {
-	bool first = this->isEmptyUserThread();
+	if (this->isEmptyUserThread())
+		HaltAndExitLock->Acquire();
 	ASSERT(index >= 0 && index < NB_MAX_THREADS);
 	userThreads[index] = thread;
 	if(thread!=NULL)
 		nbUserThreads++;
-	if(first)
-		HaltAndExitLock->Acquire();
 }
 
 bool AddrSpace::isValid()

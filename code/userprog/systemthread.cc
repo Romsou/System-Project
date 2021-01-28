@@ -20,17 +20,14 @@ static void startNewProcess(int argAddr)
   currentThread->space->RestoreState();
 
   free(filename);
-  //filename = NULL;
 
   machine->Run();
   ASSERT (FALSE);		// machine->Run never returns;
 }
+
 int do_SystemThreadCreate(char *filename)
 {
   Thread *process = new Thread(filename);
-  if (process == NULL)
-    return -1;
-  
   process->setPid(process->generatePid());
   processTable->add(process);
   process->Fork(startNewProcess, (int)filename);
