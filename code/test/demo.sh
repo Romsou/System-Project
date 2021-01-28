@@ -1,6 +1,12 @@
 #!/usr/bin/env bash
 
+green="\e[32m"
+reset="\e[0m"
+checkmark="\xE2\x9C\x94"
 
+gecho() {
+    echo -e ${green}$*${reset}
+}
 
 test_threads() {
     echo -e "==== Test des threads ====\n"
@@ -24,12 +30,20 @@ test_processes() {
 
 test_filesystem() {
     echo -e "==== Test du système de fichier ====\n"
-    ./nachos-final -f
-    for file in $(ls|grep -i ^filesys|grep -v .o$); do
+    for file in $(ls | grep -i ^filesys | grep -v .o$ | grep -v limit$); do
         echo -e "--- Test $file ---\n"
+        ./nachos-final -f
         ./nachos-final -cp $file $file
-        ./nachos-final -rs 1 -x $file
+        ./nachos-final -x $file
+        ./nachos-final -D
     done
+
+    file="filesys_limit"
+    echo -e "--- Test $file ---\n"
+    ./nachos-final -f
+    ./nachos-final -cp $file $file
+    ./nachos-final -x $file
+    ./nachos-final -D
 }
 
 test_network() {
