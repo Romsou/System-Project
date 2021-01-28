@@ -26,7 +26,7 @@ gecho "\xE2\x9C\x94"
 
 
 
-files="filesys_lock filesys_limit" #filesys_create filesys_directory" #
+files="filesys_create filesys_directory filesys_lock filesys_limit"
 
 gecho "Tests du systeme de fichier"
 echo
