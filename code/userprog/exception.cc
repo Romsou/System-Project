@@ -286,8 +286,30 @@ void handleCreate()
   DEBUG('f', "Call for creating file\n");
   char s[FileNameMaxLen];
   copyStringFromMachine(machine->ReadRegister(4), s, FileNameMaxLen);
-  //fileSystem->Create(s, MaxFileSize);
-  fileSystem->Create(s, 50);
+  int len = strlen(s);
+
+  if(s[len-1]=='/'){
+    s[len-1]='\0';
+    fileSystem->CreateDir(s);
+  }
+  else
+    fileSystem->Create(s, 50);
+}
+
+/**
+ * handleRemove handles SC_Remove system call. Remove a file.
+ */
+void handleRemove() 
+{
+  DEBUG('f', "Call for removing file\n");
+  char s[FileNameMaxLen];
+  copyStringFromMachine(machine->ReadRegister(4), s, FileNameMaxLen);
+  int len = strlen(s);
+  if(s[len-1]=='/'){
+    s[len-1]='\0';
+    fileSystem->RemoveDir(s);
+  }else
+    fileSystem->Remove(s);
 }
 
 void handleOpen()
@@ -295,7 +317,17 @@ void handleOpen()
   DEBUG('f', "Call for opening file\n");
   char s[FileNameMaxLen];
   copyStringFromMachine(machine->ReadRegister(4), s, FileNameMaxLen);
-  int fileId = fileSystem->getSector(fileSystem->Open(s));    //return -1 if s can't be opened
+  int fileId;
+  int len = strlen(s);
+  if(s[len-1]=='/'){
+    s[len-1]='\0';
+    fileId = (fileSystem->ChangeDir(s))?1:-1;
+  }else{
+    fileId = fileSystem->getSector(fileSystem->Open(s));
+    //Fill thread open file table
+    if (fileId != -1)
+      currentThread->getFileTable()->AddFile(fileSystem->getOpenFile(fileId), fileId);
+  }    //return -1 if s can't be opened
   machine->WriteRegister(2, fileId);
 }
 
@@ -423,6 +455,9 @@ void ExceptionHandler(ExceptionType which)
 #ifdef FILESYS
     case SC_Create:
       handleCreate();
+      break;
+    case SC_Remove:
+      handleRemove();
       break;
     case SC_Open:
       handleOpen();
