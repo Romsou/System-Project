@@ -26,7 +26,6 @@
 void
 StartProcess (char *filename)
 {
-    DEBUG('x',"Tentative d'ouverture par %s\n",currentThread->getName());
     OpenFile *executable = fileSystem->Open (filename);
     AddrSpace *space;
 
@@ -35,11 +34,14 @@ StartProcess (char *filename)
 	  printf ("Unable to open file %s\n", filename);
 	  return;
       }
-    DEBUG('x',"Ouverture fichier %s by thread %s\n",filename,currentThread->getName());
     space = new AddrSpace (executable);
     currentThread->space = space;
 
+#ifdef FILESYS
+    fileSystem->Close(executable);
+#else
     delete executable;		// close file
+#endif
 
     space->InitRegisters ();	// set the initial register values
     space->RestoreState ();	// load page table register

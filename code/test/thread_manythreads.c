@@ -41,7 +41,5 @@ int main()
     PutInt(nbThreadsError);
     PutChar('\n');
 
-    End();
-    //Not reached
     return 0;
 }

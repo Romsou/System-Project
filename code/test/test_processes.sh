@@ -1,6 +1,6 @@
 #!/bin/bash
 
-nachos=nachos-step4
+nachos=nachos-step6
 
 execute_programs() {
     for program in $(ls | grep -i ^process | cut -d "." -f1 | sort | uniq); do

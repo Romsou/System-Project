@@ -60,9 +60,9 @@ public:
   void *SortedRemove(long long *keyPtr);            // Remove first item from list
 
   int getSize(); // !!! Added to be able to easily count user threads
-private:
   ListElement *first; // Head of the list, NULL if list is empty
   ListElement *last;  // Last element of list
+private:
   int size; // !!! Added to be able to easily count user threads
 
 };

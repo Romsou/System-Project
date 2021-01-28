@@ -35,6 +35,7 @@ ProcessTable *processTable;
 
 #ifdef NETWORK
 PostOffice *postOffice;
+NetworkAddress netAddr;
 #endif
 
 #ifdef CHANGED
@@ -66,6 +67,8 @@ extern void Cleanup();
 static void
 TimerInterruptHandler(int dummy)
 {
+    //DEBUG('t', "Timer!\n");
+    scheduler->WakeUpReadyThreads();
     if (interrupt->getStatus() != IdleMode)
         interrupt->YieldOnReturn();
 }
@@ -95,7 +98,7 @@ void Initialize(int argc, char **argv)
 #endif
 #ifdef NETWORK
     double rely = 1; // network reliability
-    int netname = 0; // UNIX socket name
+    int netname = -1; // UNIX socket name
 #endif
 
     for (argc--, argv++; argc > 0; argc -= argCount, argv += argCount)
@@ -161,6 +164,7 @@ void Initialize(int argc, char **argv)
         {
             ASSERT(argc > 1);
             netname = atoi(*(argv + 1));
+            netAddr = atoi(*(argv + 1));
             argCount = 2;
         }
 #endif
@@ -172,7 +176,7 @@ void Initialize(int argc, char **argv)
     scheduler = new Scheduler(); // initialize the ready queue
 
     processTable = new ProcessTable(NB_MAX_PROCESS);
-    if (randomYield)             // start the timer (if needed)
+    if (randomYield) // start the timer (if needed)
         timer = new Timer(TimerInterruptHandler, 0, randomYield);
 
     threadToBeDestroyed = NULL;
@@ -201,10 +205,13 @@ void Initialize(int argc, char **argv)
 
 #ifdef FILESYS_NEEDED
     fileSystem = new FileSystem(format);
+    if(format)
+        interrupt->Halt();
 #endif
 
 #ifdef NETWORK
-    postOffice = new PostOffice(netname, rely, 10);
+    if(netname >= 0)
+        postOffice = new PostOffice(netname, rely, 10);
 #endif
 }
 

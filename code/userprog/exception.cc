@@ -27,8 +27,6 @@
 #include "userthread.h"
 #include "systemthread.h"
 
-#include <unistd.h> // TEMPORAIRE, A ENLEVER PLUS TARD
-
 Thread *savedThread;
 //----------------------------------------------------------------------
 // UpdatePC : Increments the Program Counter register in order to resume
@@ -147,7 +145,7 @@ void handleEnd()
     
     //Checking if No userThreads are running in this process
     if (!currentThread->space->isEmptyUserThread())
-      currentThread->space->HaltAndExitLock->P();
+      currentThread->space->HaltAndExitLock->Acquire();
 
     //Here free process and his space
       processTable->remove(currentThread->getPid());
@@ -211,6 +209,13 @@ void handleGetInt()
 
   int i = 0;
   char ch = synchconsole->SynchGetChar();
+  
+  if (ch == '-') {
+    s[i] = ch;
+    ch = synchconsole->SynchGetChar();
+    i++;
+  }
+
   while (i < MAX_LEN_INT && ch >= '0' && ch <= '9' && ch != EOF && ch != '\n' && ch != '\t')
   {
     s[i] = ch;
@@ -240,7 +245,6 @@ void handleUserThreadCreate()
   int arg = machine->ReadRegister(5);
 
   int retval = do_UserThreadCreate(f, arg);
-
   machine->WriteRegister(2, retval);
 }
 
@@ -250,19 +254,13 @@ void handleUserThreadCreate()
  */
 void handleUserThreadExit()
 {
-  currentThread->space->DeleteThreadFromArray(currentThread->getIndex());
-  if (currentThread->space->isEmptyUserThread())
-  {
-    currentThread->space->HaltAndExitLock->V();
-  }
+  DEBUG('t', "Call for exiting user thread\n");
   do_UserThreadExit();
 }
 
-/**
- * 
- */
 void handleUserThreadJoin()
 {
+  DEBUG('t', "Call for join user thread\n");
   int id = machine->ReadRegister(4);
   int retval = do_UserThreadJoin(id);
   machine->WriteRegister(2, retval);
@@ -270,41 +268,106 @@ void handleUserThreadJoin()
 
 void handleForkExec()
 {
-  // TODO: Trouver un moyen d'effectuer un passage par valeur d'une chaîne
+  DEBUG('p', "Call forkExec\n");
   char* filename = (char*) malloc(sizeof(char) * MAX_STRING_SIZE);
   copyStringFromMachine(machine->ReadRegister(4), filename, MAX_STRING_SIZE);
   int retval = do_SystemThreadCreate(filename);
-  //free(s);
   machine->WriteRegister(2, retval);
 }
 
-void handleWrite()
+#ifdef FILESYS
+void handleCreate()
 {
+  DEBUG('f', "Call for creating file\n");
+  char s[FileNameMaxLen];
+  copyStringFromMachine(machine->ReadRegister(4), s, FileNameMaxLen);
+  int len = strlen(s);
 
-  //TODO: Là on utilise la bibliothèque unistd temporairement
-  //Peut être faut il utiliser Write et Read de coff2noff.c ??
+  if(s[len-1]=='/'){
+    s[len-1]='\0';
+    fileSystem->CreateDir(s);
+  }
+  else
+    fileSystem->Create(s, 50);
+}
 
-  int arg1 = machine->ReadRegister(4);
-  int arg2 = machine->ReadRegister(5);
-  int arg3 = machine->ReadRegister(6);
+/**
+ * handleRemove handles SC_Remove system call. Remove a file.
+ */
+void handleRemove() 
+{
+  DEBUG('f', "Call for removing file\n");
+  char s[FileNameMaxLen];
+  copyStringFromMachine(machine->ReadRegister(4), s, FileNameMaxLen);
+  int len = strlen(s);
+  if(s[len-1]=='/'){
+    s[len-1]='\0';
+    fileSystem->RemoveDir(s);
+  }else
+    fileSystem->Remove(s);
+}
 
-  char * array = (char *)arg2;
-  write(arg1, array, arg3);
+void handleOpen()
+{
+  DEBUG('f', "Call for opening file\n");
+  char s[FileNameMaxLen];
+  copyStringFromMachine(machine->ReadRegister(4), s, FileNameMaxLen);
+  int fileId;
+  int len = strlen(s);
+  if(s[len-1]=='/'){
+    s[len-1]='\0';
+    fileId = (fileSystem->ChangeDir(s))?1:-1;
+  }else{
+    fileId = fileSystem->getSector(fileSystem->Open(s));
+    //Fill thread open file table
+    //if (fileId != -1)
+      //currentThread->getFileTable()->AddFile(fileSystem->getOpenFile(fileId), fileId);
+  }    //return -1 if s can't be opened
+
+  machine->WriteRegister(2, fileId);
+}
+
+void handleClose()
+{
+  DEBUG('f', "Call for closing file\n");
+  OpenFile* openFile = fileSystem->getOpenFile(machine->ReadRegister(4));
+  fileSystem->Close(openFile);
+    //currentThread->getFileTable()->RemoveFile(openFile);
 }
 
 void handleRead()
 {
+  DEBUG('f', "Call for reading from file\n");
+  int buffer = machine->ReadRegister(4);
+  int size = machine->ReadRegister(5);
+  OpenFile* openFile = fileSystem->getOpenFile(machine->ReadRegister(6));
+  int nb_read;
 
-  //TODO: Là on utilise la bibliothèque unistd temporairement
-  //Peut être faut il utiliser Write et Read de coff2noff.c ??
-
-  int arg1 = machine->ReadRegister(4);
-  int arg2 = machine->ReadRegister(5);
-  int arg3 = machine->ReadRegister(6);
-
-  char * array = (char *)arg2;
-  read(arg1, array, arg3);
+  if(buffer < 0 || size < 0 || openFile==NULL)
+    nb_read = -1;
+  else{
+    char s[MAX_STRING_SIZE];
+    nb_read = openFile->Read(s, size);
+    copyStringToMachine(s, buffer, size);
+  }
+  machine->WriteRegister(2, nb_read);
 }
+
+void handleWrite()
+{
+  DEBUG('f', "Call for writing user thread\n");
+  int buffer = machine->ReadRegister(4);
+  int size = machine->ReadRegister(5);
+  OpenFile* openFile = fileSystem->getOpenFile(machine->ReadRegister(6));
+
+  if(buffer < 0 || size < 0 || openFile==NULL)
+    return;
+
+  char s[size];
+  copyStringFromMachine(buffer, s, size);
+  openFile->Write(s, size);
+}
+#endif //FILESYS
 
 //----------------------------------------------------------------------
 // ExceptionHandler
@@ -386,12 +449,26 @@ void ExceptionHandler(ExceptionType which)
     case SC_ForkExec:
       handleForkExec();
       break;
-    case SC_Write:
-      handleWrite();
+#ifdef FILESYS
+    case SC_Create:
+      handleCreate();
+      break;
+    case SC_Remove:
+      handleRemove();
+      break;
+    case SC_Open:
+      handleOpen();
+      break;
+    case SC_Close:
+      handleClose();
       break;
     case SC_Read:
       handleRead();
       break;
+    case SC_Write:
+      handleWrite();
+      break;
+#endif //FILESYS
     default:
       handleError(which, type);
       break;

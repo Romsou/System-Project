@@ -12,9 +12,6 @@ int main ()
     int d = GetInt();
     PutInt(d);
     PutChar('\n');
-
-    Halt ();
-
     /* not reached */
     return 0;
 }

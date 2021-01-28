@@ -40,6 +40,7 @@
 #define SC_UserThreadExit 19
 #define SC_UserThreadJoin 20
 #define SC_ForkExec	21
+#define SC_Remove		22
 
 
 #ifdef IN_USER_MODE
@@ -123,6 +124,9 @@ int Read (char *buffer, int size, OpenFileId id);
 
 /* Close the file, we're done reading and writing to it. */
 void Close (OpenFileId id);
+
+/* Remove the file or directory it is exists and be empty for directory. */
+void Remove(char *filename);
 
 
 

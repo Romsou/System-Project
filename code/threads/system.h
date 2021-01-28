@@ -18,7 +18,7 @@
 #include "processtable.h"
 
 #define MAX_STRING_SIZE 64
-#define MAX_LEN_INT 11
+#define MAX_LEN_INT 12
 #define NB_MAX_PROCESS 12
 
 // Initialization and cleanup routines
@@ -57,6 +57,7 @@ extern SynchDisk *synchDisk;
 #ifdef NETWORK
 #include "post.h"
 extern PostOffice *postOffice;
+extern NetworkAddress netAddr;
 #endif
 
 
