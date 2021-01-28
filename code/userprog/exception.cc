@@ -322,12 +322,14 @@ void handleOpen()
     //Fill thread open file table
   }    
 
+
   machine->WriteRegister(2, fileId);
 }
 
 void handleClose()
 {
   DEBUG('f', "Call for closing file\n");
+
   OpenFile* openFile = fileSystem->getOpenFile(machine->ReadRegister(4));
   fileSystem->Close(openFile);
 }

@@ -137,7 +137,7 @@ void SynchConsole::SynchGetString(char *s, int n)
 	int i = 0;
 
 	s[0] = this->EncapsulateGetChar();
-	for (i = 1; i < n && s[i - 1] != EOF && s[i - 1] != '\n'; i++)
+	for (i = 1; i < n && s[i - 1] != EOF && s[i - 1] != '\n' && i < MAX_STRING_SIZE-1; i++)
 		s[i] = this->EncapsulateGetChar();
 
 	s[i] = '\0';
