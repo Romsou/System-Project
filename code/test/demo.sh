@@ -32,17 +32,19 @@ test_filesystem() {
     echo -e "==== Test du système de fichier ====\n"
     for file in $(ls | grep -i ^filesys | grep -v .o$ | grep -v limit$); do
         echo -e "--- Test $file ---\n"
-        ./nachos-final -f
+        ./nachos-final -f > /dev/null
         ./nachos-final -cp $file $file
-        ./nachos-final -x $file
+        ./nachos-final -rs 1 -x $file
+        echo -e "\e[32mContenu de la mémoire\e[0m"
         ./nachos-final -D
     done
 
     file="filesys_limit"
     echo -e "--- Test $file ---\n"
-    ./nachos-final -f
+    ./nachos-final -f > /dev/null
     ./nachos-final -cp $file $file
-    ./nachos-final -x $file
+    ./nachos-final -rs 1 -x $file
+    echo -e "\e[32mContenu de la mémoire\e[0m"
     ./nachos-final -D
 }
 
